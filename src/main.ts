@@ -7,6 +7,7 @@ import { createJetty } from './scene/jetty';
 import { createParticles } from './effects/particles';
 import { createBladderwrack } from './vegetation/bladderwrack';
 import { createSticklebacks } from './creatures/stickleback';
+import { createPerch } from './creatures/perch';
 import { setupCaustics } from './effects/caustics';
 import { createUnderwaterEffect, updateUnderwaterEffect } from './effects/underwater';
 
@@ -59,6 +60,9 @@ updates.push(bladderwrackUpdate);
 
 const fishUpdate = createSticklebacks(scene);
 updates.push(fishUpdate);
+
+const perchUpdate = createPerch(scene);
+updates.push(perchUpdate);
 
 setupCaustics(seabedResult.seabedMaterial);
 
