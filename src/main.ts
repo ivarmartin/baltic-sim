@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { setupEnvironment } from './scene/environment';
 import { createSeabed } from './scene/seabed';
 import { createJetty } from './scene/jetty';
@@ -12,6 +11,7 @@ import { setupCaustics } from './effects/caustics';
 import { createUnderwaterEffect, UnderwaterEffects } from './effects/underwater';
 import { injectDepthLighting, setDepthDarkenEnabled, setFogGradientEnabled, updateDepthTime } from './effects/depth-lighting';
 import { createControls } from './ui/controls';
+import { createNavigation } from './ui/navigation';
 
 // --- Renderer ---
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -34,16 +34,8 @@ cameraRig.position.set(0, 1.5, 5);
 cameraRig.add(camera);
 scene.add(cameraRig);
 
-// --- Controls ---
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.enablePan = false;
-controls.minPolarAngle = 0.3;
-controls.maxPolarAngle = Math.PI * 0.7;
-controls.minDistance = 0.5;
-controls.maxDistance = 10;
-controls.target.set(0, 1.0, 0);
+// --- Camera navigation (replaces OrbitControls) ---
+const navigation = createNavigation(camera, cameraRig);
 
 // --- Update system ---
 type UpdateFn = (elapsed: number, dt: number) => void;
@@ -135,7 +127,8 @@ renderer.setAnimationLoop(() => {
     underwater.update(elapsed, camera, lightPos);
   }
 
-  controls.update();
+  // Update camera transition
+  navigation.update(dt);
 
   if (underwater) {
     underwater.composer.render();
