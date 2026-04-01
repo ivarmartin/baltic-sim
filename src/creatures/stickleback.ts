@@ -115,8 +115,8 @@ function createFishGeometry(): THREE.BufferGeometry {
   geo.setIndex(indices);
   geo.computeVertexNormals();
 
-  // Scale to ~6cm
-  geo.scale(0.06, 0.06, 0.06);
+  // Scale to visible size (~15-20cm including scale variation)
+  geo.scale(0.15, 0.15, 0.15);
 
   return geo;
 }
@@ -129,9 +129,9 @@ function generatePath(): THREE.CatmullRomCurve3 {
   const count = 5 + Math.floor(Math.random() * 4);
   for (let i = 0; i < count; i++) {
     points.push(new THREE.Vector3(
-      (Math.random() - 0.5) * 8,
-      0.4 + Math.random() * 2.5,
-      (Math.random() - 0.5) * 8,
+      (Math.random() - 0.5) * 6,
+      0.5 + Math.random() * 2.0,
+      (Math.random() - 0.5) * 6 + 2,
     ));
   }
   return new THREE.CatmullRomCurve3(points, true);
@@ -174,8 +174,8 @@ export function createSticklebacks(scene: THREE.Scene): (elapsed: number, dt: nu
       swimPhase: Math.random() * Math.PI * 2,
     };
 
-    // Slight size variation
-    const scale = 0.8 + Math.random() * 0.5;
+    // Size variation
+    const scale = 1.0 + Math.random() * 0.4;
     mesh.scale.setScalar(scale);
 
     scene.add(mesh);
@@ -205,9 +205,9 @@ export function createSticklebacks(scene: THREE.Scene): (elapsed: number, dt: nu
       for (let v = 0; v < posAttr.count; v++) {
         const i3 = v * 3;
         const bz = base[i3 + 2]; // base Z position
-        // Normalize Z (body is 0 to ~0.06 after scaling, but we work in pre-scale coords)
-        const zNorm = bz / 0.06; // 0 at nose, ~1 at tail
-        const amplitude = zNorm * zNorm * 0.0025;
+        // Normalize Z (body is 0 to ~0.15 after scaling)
+        const zNorm = bz / 0.15; // 0 at nose, ~1 at tail
+        const amplitude = zNorm * zNorm * 0.006;
         const wave = Math.sin(elapsed * 8 + fish.swimPhase - zNorm * Math.PI * 2);
         arr[i3] = base[i3] + wave * amplitude; // displace X
       }
