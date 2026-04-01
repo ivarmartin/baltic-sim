@@ -7,6 +7,7 @@ import { createParticles } from './effects/particles';
 import { createBladderwrack } from './vegetation/bladderwrack';
 import { createSticklebacks } from './creatures/stickleback';
 import { createPerch } from './creatures/perch';
+import { createShipwreck } from './scene/shipwreck';
 import { setupCaustics } from './effects/caustics';
 import { createUnderwaterEffect, UnderwaterEffects } from './effects/underwater';
 import { injectDepthLighting, setDepthDarkenEnabled, setFogGradientEnabled, updateDepthTime } from './effects/depth-lighting';
@@ -62,6 +63,8 @@ updates.push(sticklebackResult.update);
 const perchResult = createPerch(scene);
 updates.push(perchResult.update);
 
+const shipwreckResult = createShipwreck(scene);
+
 // Wire camera views to fish hold system (view 1 = Perch, view 2 = Stickleback)
 handlers.onViewChange = (index) => {
   perchResult.setHold(index === 1);
@@ -79,6 +82,7 @@ injectDepthLighting(jettyResult.woodMaterial);
 injectDepthLighting(sticklebackResult.material);
 injectDepthLighting(perchResult.material);
 injectDepthLighting(bladderwrackResult.material);
+injectDepthLighting(shipwreckResult.material);
 
 // --- Post-processing (god rays + base color grading only) ---
 let underwater: UnderwaterEffects | null = null;

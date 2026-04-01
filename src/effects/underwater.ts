@@ -38,8 +38,8 @@ const UnderwaterShader = {
       vec2 uv = vUv;
 
       // Subtle water refraction distortion
-      uv.x += sin(uv.y * 18.0 + uTime * 0.5) * 0.0015;
-      uv.y += cos(uv.x * 14.0 + uTime * 0.35) * 0.0012;
+      uv.x += sin(uv.y * 18.0 + uTime * 0.5) * 0.00075;
+      uv.y += cos(uv.x * 14.0 + uTime * 0.35) * 0.0006;
 
       vec4 color = texture2D(tDiffuse, uv);
 
