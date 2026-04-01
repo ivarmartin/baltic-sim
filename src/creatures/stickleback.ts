@@ -192,9 +192,9 @@ export function createSticklebacks(scene: THREE.Scene): (elapsed: number, dt: nu
       const pos = fish.path.getPointAt(fish.t);
       fish.mesh.position.copy(pos);
 
-      // Orient along path tangent
+      // Orient along path tangent (subtract because mesh -Z faces lookAt target, but nose is +Z)
       fish.path.getTangentAt(fish.t, _tangent);
-      _lookAt.copy(pos).add(_tangent);
+      _lookAt.copy(pos).sub(_tangent);
       fish.mesh.lookAt(_lookAt);
 
       // Body undulation: sinusoidal wave along Z with increasing amplitude
