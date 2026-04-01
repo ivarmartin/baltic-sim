@@ -17,6 +17,7 @@ const UnderwaterShader = {
     uGodRays: { value: 1.0 },
     uLightScreenPos: { value: new THREE.Vector2(0.5, 0.0) },
     uGodRayIntensity: { value: 0.5 },
+    uUnderwaterMix: { value: 1.0 },
   },
   vertexShader: `
     varying vec2 vUv;
@@ -32,24 +33,25 @@ const UnderwaterShader = {
     uniform float uGodRays;
     uniform vec2 uLightScreenPos;
     uniform float uGodRayIntensity;
+    uniform float uUnderwaterMix;
     varying vec2 vUv;
 
     void main() {
       vec2 uv = vUv;
 
-      // Subtle water refraction distortion
-      uv.x += sin(uv.y * 18.0 + uTime * 0.5) * 0.00075;
-      uv.y += cos(uv.x * 14.0 + uTime * 0.35) * 0.0006;
+      // Subtle water refraction distortion (scaled by underwater mix)
+      uv.x += sin(uv.y * 18.0 + uTime * 0.5) * 0.00075 * uUnderwaterMix;
+      uv.y += cos(uv.x * 14.0 + uTime * 0.35) * 0.0006 * uUnderwaterMix;
 
       vec4 color = texture2D(tDiffuse, uv);
 
-      // Base color grading: push toward murky green
-      color.r *= 0.78;
-      color.g *= 0.95;
-      color.b *= 0.85;
+      // Base color grading: push toward murky green (scaled by mix)
+      color.r *= mix(1.0, 0.78, uUnderwaterMix);
+      color.g *= mix(1.0, 0.95, uUnderwaterMix);
+      color.b *= mix(1.0, 0.85, uUnderwaterMix);
 
       // --- God rays ---
-      if (uGodRays > 0.5) {
+      if (uGodRays > 0.5 && uUnderwaterMix > 0.1) {
         vec2 deltaUv = (vUv - uLightScreenPos) * 0.015;
         float illumination = 0.0;
         vec2 sampleUv = vUv;
@@ -66,13 +68,13 @@ const UnderwaterShader = {
 
         // Fade god rays toward the bottom of screen (deeper = less light)
         float rayFade = smoothstep(0.0, 0.6, vUv.y);
-        vec3 rayColor = vec3(0.12, 0.28, 0.18) * illumination * uGodRayIntensity * rayFade;
+        vec3 rayColor = vec3(0.12, 0.28, 0.18) * illumination * uGodRayIntensity * rayFade * uUnderwaterMix;
         color.rgb += rayColor;
       }
 
-      // --- Vignette ---
+      // --- Vignette (scaled by mix) ---
       float dist = length(vUv - 0.5);
-      float vignette = 1.0 - dist * dist * uVignetteStrength;
+      float vignette = 1.0 - dist * dist * uVignetteStrength * uUnderwaterMix;
       color.rgb *= clamp(vignette, 0.0, 1.0);
 
       gl_FragColor = color;
@@ -84,6 +86,7 @@ export interface UnderwaterEffects {
   composer: EffectComposer;
   update: (elapsed: number, camera: THREE.Camera, lightWorldPos: THREE.Vector3) => void;
   setGodRays: (on: boolean) => void;
+  setMix: (t: number) => void;
 }
 
 export function createUnderwaterEffect(
@@ -119,6 +122,9 @@ export function createUnderwaterEffect(
     },
     setGodRays(on: boolean) {
       underwaterPass.uniforms.uGodRays.value = on ? 1.0 : 0.0;
+    },
+    setMix(t: number) {
+      underwaterPass.uniforms.uUnderwaterMix.value = Math.max(0, Math.min(1, t));
     },
   };
 }

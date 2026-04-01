@@ -3,7 +3,12 @@ import * as THREE from 'three';
 const PARTICLE_COUNT = 600;
 const BOX_SIZE = { x: 12, y: 5, z: 12 };
 
-export function createParticles(scene: THREE.Scene): (elapsed: number, dt: number) => void {
+export interface ParticleSystem {
+  update: (elapsed: number, dt: number) => void;
+  setDensity: (factor: number) => void;
+}
+
+export function createParticles(scene: THREE.Scene): ParticleSystem {
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(PARTICLE_COUNT * 3);
 
@@ -42,7 +47,10 @@ export function createParticles(scene: THREE.Scene): (elapsed: number, dt: numbe
   const points = new THREE.Points(geometry, material);
   scene.add(points);
 
-  return function updateParticles(elapsed: number, dt: number) {
+  // Visible count for density control
+  let visibleCount = PARTICLE_COUNT;
+
+  function update(elapsed: number, dt: number) {
     const pos = geometry.attributes.position as THREE.BufferAttribute;
     const arr = pos.array as Float32Array;
 
@@ -62,5 +70,12 @@ export function createParticles(scene: THREE.Scene): (elapsed: number, dt: numbe
     }
 
     pos.needsUpdate = true;
-  };
+    geometry.setDrawRange(0, visibleCount);
+  }
+
+  function setDensity(factor: number) {
+    visibleCount = Math.floor(PARTICLE_COUNT * Math.max(0, Math.min(1, factor)));
+  }
+
+  return { update, setDensity };
 }

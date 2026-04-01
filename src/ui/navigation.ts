@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getCameraViews } from '../stages/stage-data';
 
 export interface CameraView {
   name: string;
@@ -6,37 +7,23 @@ export interface CameraView {
   lookAt: THREE.Vector3;
 }
 
-export const cameraViews: CameraView[] = [
-  {
-    name: 'Jetty',
-    position: new THREE.Vector3(2.5, 1.4, 1.5),
-    lookAt: new THREE.Vector3(0, 1.2, -2.5),
-  },
-  {
-    name: 'Perch',
-    position: new THREE.Vector3(2.0, 0.9, 1.0),
-    lookAt: new THREE.Vector3(1.5, 0.85, 1.0),
-  },
-  {
-    name: 'Stickleback',
-    position: new THREE.Vector3(0.3, 0.5, -0.2),
-    lookAt: new THREE.Vector3(0.1, 0.45, -0.3),
-  },
-];
+const cameraViews: CameraView[] = getCameraViews();
 
 interface NavigationState {
   currentIndex: number;
   isTransitioning: boolean;
 }
 
-const TRANSITION_DURATION = 1.8; // seconds
+let transitionDuration = 1.8; // seconds (default)
 
 export function createNavigation(
   camera: THREE.PerspectiveCamera,
   cameraRig: THREE.Group,
   onViewChange?: (index: number, view: CameraView) => void,
+  onTransitionComplete?: (index: number) => void,
 ): {
   update: (dt: number) => void;
+  setTransitionDuration: (seconds: number) => void;
   dispose: () => void;
 } {
   const state: NavigationState = {
@@ -63,8 +50,8 @@ export function createNavigation(
         </svg>
       </button>
       <div class="nav-label">
-        <span class="nav-counter">1 / 3</span>
-        <span class="nav-name">Jetty</span>
+        <span class="nav-counter">1 / ${cameraViews.length}</span>
+        <span class="nav-name">${cameraViews[0].name}</span>
       </div>
       <button class="nav-btn nav-next" aria-label="Next view">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -152,10 +139,11 @@ export function createNavigation(
 
     .nav-name {
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       color: rgba(255, 255, 255, 0.9);
       margin-top: 1px;
+      white-space: nowrap;
     }
 
     @media (max-width: 480px) {
@@ -163,7 +151,7 @@ export function createNavigation(
       .nav-btn { width: 40px; height: 40px; }
       .nav-wrapper { gap: 10px; }
       .nav-label { padding: 6px 14px; min-width: 70px; }
-      .nav-name { font-size: 13px; }
+      .nav-name { font-size: 12px; }
       .nav-counter { font-size: 10px; }
     }
   `;
@@ -238,7 +226,7 @@ export function createNavigation(
     if (!state.isTransitioning) return;
 
     transitionTime += dt;
-    const t = Math.min(transitionTime / TRANSITION_DURATION, 1.0);
+    const t = Math.min(transitionTime / transitionDuration, 1.0);
     const eased = easeInOutCubic(t);
 
     // Interpolate position
@@ -250,7 +238,12 @@ export function createNavigation(
 
     if (t >= 1.0) {
       state.isTransitioning = false;
+      onTransitionComplete?.(state.currentIndex);
     }
+  }
+
+  function setTransitionDurationFn(seconds: number) {
+    transitionDuration = seconds;
   }
 
   function dispose() {
@@ -259,5 +252,5 @@ export function createNavigation(
     style.remove();
   }
 
-  return { update, dispose };
+  return { update, setTransitionDuration: setTransitionDurationFn, dispose };
 }

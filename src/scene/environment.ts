@@ -2,6 +2,8 @@ import * as THREE from 'three';
 
 export interface EnvironmentResult {
   sunLight: THREE.DirectionalLight;
+  ambient: THREE.AmbientLight;
+  hemi: THREE.HemisphereLight;
 }
 
 export function setupEnvironment(scene: THREE.Scene): EnvironmentResult {
@@ -31,5 +33,5 @@ export function setupEnvironment(scene: THREE.Scene): EnvironmentResult {
   const hemi = new THREE.HemisphereLight(0x3a6a4a, 0x0a1a0a, 0.3);
   scene.add(hemi);
 
-  return { sunLight: sun };
+  return { sunLight: sun, ambient, hemi };
 }

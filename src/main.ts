@@ -13,6 +13,19 @@ import { createUnderwaterEffect, UnderwaterEffects } from './effects/underwater'
 import { injectDepthLighting, setDepthDarkenEnabled, setFogGradientEnabled, updateDepthTime } from './effects/depth-lighting';
 import { createControls } from './ui/controls';
 import { createNavigation } from './ui/navigation';
+import { createNarrative } from './ui/narrative';
+import { createStageManager } from './stages/stage-manager';
+import { stages } from './stages/stage-data';
+import { createSkyDome } from './scene/sky-environment';
+import { createReeds } from './scene/reeds';
+import { createHalocline } from './scene/halocline';
+import { createDeadZone } from './scene/dead-zone';
+import { createMussels } from './scene/mussels';
+import { createShipworm } from './scene/shipworm';
+import { createCod } from './creatures/cod';
+import { createPike } from './creatures/pike';
+import { createSticklebackSwarm } from './creatures/stickleback-swarm';
+import { createFilamentousAlgae } from './vegetation/filamentous-algae';
 
 async function init() {
   // --- Renderer ---
@@ -28,7 +41,7 @@ async function init() {
 
   // --- Scene & Camera ---
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 50);
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
 
   // Camera rig for future WebXR support
   const cameraRig = new THREE.Group();
@@ -36,25 +49,19 @@ async function init() {
   cameraRig.add(camera);
   scene.add(cameraRig);
 
-  // --- Camera navigation (replaces OrbitControls) ---
-  const handlers = { onViewChange: null as ((index: number) => void) | null };
-  const navigation = createNavigation(camera, cameraRig, (index) => {
-    handlers.onViewChange?.(index);
-  });
-
   // --- Update system ---
   type UpdateFn = (elapsed: number, dt: number) => void;
   const updates: UpdateFn[] = [];
 
   // --- Setup scene modules ---
-  const { sunLight } = setupEnvironment(scene);
+  const environment = setupEnvironment(scene);
   const seabedResult = createSeabed(scene);
   const jettyResult = createJetty(scene);
   const shipwreckResult = createShipwreck(scene);
   const surface = createWaterSurface(scene);
 
-  const particleUpdate = createParticles(scene);
-  updates.push(particleUpdate);
+  const particles = createParticles(scene);
+  updates.push(particles.update);
 
   const bladderwrackResult = createBladderwrack(scene, seabedResult.rockPositions);
   updates.push(bladderwrackResult.update);
@@ -65,17 +72,29 @@ async function init() {
   const perchResult = await createPerch(scene);
   updates.push(perchResult.update);
 
-  // Wire camera views to fish hold system (view 1 = Perch, view 2 = Stickleback)
-  handlers.onViewChange = (index) => {
-    perchResult.setHold(index === 1);
-    sticklebackResult.setHold(index === 2);
-  };
+  // --- New scene objects for stages ---
+  const skyDome = createSkyDome(scene);
+  const reedsResult = createReeds(scene, new THREE.Vector3(-9, 0, -6));
+  const halocline = createHalocline(scene);
+  const deadZone = createDeadZone(scene);
+  const mussels = createMussels(scene, shipwreckResult.group.position);
+  const shipworm = createShipworm(scene, shipwreckResult.group.position);
+  const algaeResult = createFilamentousAlgae(scene, seabedResult.rockPositions);
+
+  // --- New creatures ---
+  const codResult = createCod(scene);
+  updates.push(codResult.update);
+
+  const pikeResult = createPike(scene, new THREE.Vector3(-11, 0.8, -8));
+  updates.push(pikeResult.update);
+
+  const swarmResult = createSticklebackSwarm(scene, new THREE.Vector3(-10, 1.0, -7));
+  updates.push(swarmResult.update);
 
   // --- Caustics (must be set up before depth injection on seabed) ---
   setupCaustics(seabedResult.seabedMaterial);
 
   // --- Inject depth-based lighting into all materials ---
-  // This wraps any existing onBeforeCompile (caustics, sway) so must come after
   injectDepthLighting(seabedResult.seabedMaterial);
   injectDepthLighting(seabedResult.rockMaterial);
   injectDepthLighting(jettyResult.woodMaterial);
@@ -83,6 +102,8 @@ async function init() {
   injectDepthLighting(sticklebackResult.material);
   injectDepthLighting(perchResult.material);
   injectDepthLighting(bladderwrackResult.material);
+  injectDepthLighting(codResult.material);
+  injectDepthLighting(pikeResult.material);
 
   // --- Post-processing (god rays + base color grading only) ---
   let underwater: UnderwaterEffects | null = null;
@@ -92,8 +113,54 @@ async function init() {
     console.warn('Post-processing unavailable, falling back to direct render', e);
   }
 
+  // --- Narrative UI ---
+  const narrative = createNarrative();
+
+  // --- Stage Manager ---
+  const stageManager = createStageManager({
+    scene,
+    camera,
+    cameraRig,
+    renderer,
+    environment,
+    narrative,
+    groups: {
+      sky: skyDome,
+      filamentousAlgae: algaeResult.group,
+      sticklebackSwarm: swarmResult.mesh,
+      pike: pikeResult.group,
+      reeds: reedsResult.group,
+      cod: codResult.group,
+      halocline: halocline.mesh,
+      deadZone,
+      mussels,
+      shipworm,
+    },
+    setParticleDensity: (f) => particles.setDensity(f),
+    setSticklebackHold: (h) => sticklebackResult.setHold(h),
+    setPerchHold: (h) => perchResult.setHold(h),
+  });
+
+  // --- Camera navigation ---
+  // Use a wrapper so we can reference `navigation` after it's assigned
+  let navRef: { setTransitionDuration: (s: number) => void } | null = null;
+  const navigation = createNavigation(
+    camera,
+    cameraRig,
+    (index) => {
+      // Set transition duration from stage data
+      const stage = stages[index];
+      navRef?.setTransitionDuration(stage.transitionDuration);
+      stageManager.onViewChange(index);
+    },
+    (_index) => {
+      // Transition complete callback (if needed)
+    },
+  );
+  navRef = navigation;
+
   // --- UI Controls ---
-  const lightPos = sunLight.position.clone();
+  const lightPos = environment.sunLight.position.clone();
 
   createControls({
     onDepthDarkening(on) { setDepthDarkenEnabled(on); },
@@ -134,6 +201,18 @@ async function init() {
 
     // Update depth lighting time uniform
     updateDepthTime(elapsed);
+
+    // Update halocline shimmer
+    halocline.update(elapsed);
+
+    // Update filamentous algae sway
+    algaeResult.update(elapsed);
+
+    // Update reeds sway
+    reedsResult.update(elapsed);
+
+    // Update stage manager (environment crossfades, water crossing detection)
+    stageManager.update(elapsed, dt);
 
     // Update post-processing
     if (underwater) {

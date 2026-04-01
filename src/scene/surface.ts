@@ -18,7 +18,7 @@ export function createWaterSurface(scene: THREE.Scene): {
     side: THREE.DoubleSide,
     uniforms: {
       uTime: { value: 0 },
-      uOpacity: { value: 0.35 },
+      uOpacity: { value: 0.18 },
     },
     vertexShader: `
       uniform float uTime;
