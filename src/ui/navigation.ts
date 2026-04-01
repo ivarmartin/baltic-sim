@@ -15,12 +15,12 @@ export const cameraViews: CameraView[] = [
   {
     name: 'Perch',
     position: new THREE.Vector3(2.0, 0.9, 1.0),
-    lookAt: new THREE.Vector3(0.5, 0.8, 1.0),
+    lookAt: new THREE.Vector3(1.5, 0.85, 1.0),
   },
   {
     name: 'Stickleback',
     position: new THREE.Vector3(0.3, 0.5, -0.2),
-    lookAt: new THREE.Vector3(-0.3, 0.4, -0.5),
+    lookAt: new THREE.Vector3(0.1, 0.45, -0.3),
   },
 ];
 
