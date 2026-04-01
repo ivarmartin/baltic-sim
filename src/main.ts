@@ -1,15 +1,16 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { setupEnvironment } from './scene/environment';
 import { createSeabed } from './scene/seabed';
 import { createJetty } from './scene/jetty';
+import { createWaterSurface } from './scene/surface';
 import { createParticles } from './effects/particles';
 import { createBladderwrack } from './vegetation/bladderwrack';
 import { createSticklebacks } from './creatures/stickleback';
 import { createPerch } from './creatures/perch';
 import { setupCaustics } from './effects/caustics';
-import { createUnderwaterEffect, updateUnderwaterEffect } from './effects/underwater';
+import { createUnderwaterEffect, UnderwaterEffects } from './effects/underwater';
+import { createControls } from './ui/controls';
 
 // --- Renderer ---
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -48,9 +49,11 @@ type UpdateFn = (elapsed: number, dt: number) => void;
 const updates: UpdateFn[] = [];
 
 // --- Setup scene modules ---
-setupEnvironment(scene);
+const { sunLight } = setupEnvironment(scene);
 const seabedResult = createSeabed(scene);
 createJetty(scene);
+
+const surface = createWaterSurface(scene);
 
 const particleUpdate = createParticles(scene);
 updates.push(particleUpdate);
@@ -67,12 +70,22 @@ updates.push(perchUpdate);
 setupCaustics(seabedResult.seabedMaterial);
 
 // --- Post-processing ---
-let composer: EffectComposer | null = null;
+let underwater: UnderwaterEffects | null = null;
 try {
-  composer = createUnderwaterEffect(renderer, scene, camera);
+  underwater = createUnderwaterEffect(renderer, scene, camera);
 } catch (e) {
   console.warn('Post-processing unavailable, falling back to direct render', e);
 }
+
+// --- UI Controls ---
+const lightPos = sunLight.position.clone();
+
+createControls({
+  onDepthDarkening(on) { underwater?.setDepthDarken(on); },
+  onWaterSurface(on) { surface.setVisible(on); },
+  onGodRays(on) { underwater?.setGodRays(on); },
+  onFogGradient(on) { underwater?.setFogGradient(on); },
+});
 
 // --- Resize ---
 function onResize() {
@@ -82,7 +95,7 @@ function onResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  if (composer) composer.setSize(w, h);
+  if (underwater) underwater.composer.setSize(w, h);
 }
 window.addEventListener('resize', onResize);
 
@@ -97,17 +110,22 @@ renderer.setAnimationLoop(() => {
     fn(elapsed, dt);
   }
 
+  // Update surface animation
+  surface.update(elapsed);
+
   // Update caustics time uniform
   const causticUpdate = seabedResult.seabedMaterial.userData.updateCaustics;
   if (causticUpdate) causticUpdate(elapsed);
 
-  // Update post-processing time uniform
-  updateUnderwaterEffect(elapsed);
+  // Update post-processing
+  if (underwater) {
+    underwater.update(elapsed, camera, lightPos);
+  }
 
   controls.update();
 
-  if (composer) {
-    composer.render();
+  if (underwater) {
+    underwater.composer.render();
   } else {
     renderer.render(scene, camera);
   }

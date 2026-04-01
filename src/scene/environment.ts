@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 
-export function setupEnvironment(scene: THREE.Scene): void {
+export interface EnvironmentResult {
+  sunLight: THREE.DirectionalLight;
+}
+
+export function setupEnvironment(scene: THREE.Scene): EnvironmentResult {
   // Murky green Baltic fog - exponential for natural falloff
   scene.fog = new THREE.FogExp2(0x1a3a2a, 0.18);
   scene.background = new THREE.Color(0x0d2818);
@@ -26,4 +30,6 @@ export function setupEnvironment(scene: THREE.Scene): void {
   // Hemisphere fill for subtle color variation
   const hemi = new THREE.HemisphereLight(0x3a6a4a, 0x0a1a0a, 0.3);
   scene.add(hemi);
+
+  return { sunLight: sun };
 }
