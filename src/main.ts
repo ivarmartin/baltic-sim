@@ -10,6 +10,7 @@ import { createSticklebacks } from './creatures/stickleback';
 import { createPerch } from './creatures/perch';
 import { setupCaustics } from './effects/caustics';
 import { createUnderwaterEffect, UnderwaterEffects } from './effects/underwater';
+import { injectDepthLighting, setDepthDarkenEnabled, setFogGradientEnabled, updateDepthTime } from './effects/depth-lighting';
 import { createControls } from './ui/controls';
 
 // --- Renderer ---
@@ -51,25 +52,34 @@ const updates: UpdateFn[] = [];
 // --- Setup scene modules ---
 const { sunLight } = setupEnvironment(scene);
 const seabedResult = createSeabed(scene);
-createJetty(scene);
-
+const jettyResult = createJetty(scene);
 const surface = createWaterSurface(scene);
 
 const particleUpdate = createParticles(scene);
 updates.push(particleUpdate);
 
-const bladderwrackUpdate = createBladderwrack(scene, seabedResult.rockPositions);
-updates.push(bladderwrackUpdate);
+const bladderwrackResult = createBladderwrack(scene, seabedResult.rockPositions);
+updates.push(bladderwrackResult.update);
 
-const fishUpdate = createSticklebacks(scene);
-updates.push(fishUpdate);
+const sticklebackResult = createSticklebacks(scene);
+updates.push(sticklebackResult.update);
 
-const perchUpdate = createPerch(scene);
-updates.push(perchUpdate);
+const perchResult = createPerch(scene);
+updates.push(perchResult.update);
 
+// --- Caustics (must be set up before depth injection on seabed) ---
 setupCaustics(seabedResult.seabedMaterial);
 
-// --- Post-processing ---
+// --- Inject depth-based lighting into all materials ---
+// This wraps any existing onBeforeCompile (caustics, sway) so must come after
+injectDepthLighting(seabedResult.seabedMaterial);
+injectDepthLighting(seabedResult.rockMaterial);
+injectDepthLighting(jettyResult.woodMaterial);
+injectDepthLighting(sticklebackResult.material);
+injectDepthLighting(perchResult.material);
+injectDepthLighting(bladderwrackResult.material);
+
+// --- Post-processing (god rays + base color grading only) ---
 let underwater: UnderwaterEffects | null = null;
 try {
   underwater = createUnderwaterEffect(renderer, scene, camera);
@@ -81,10 +91,10 @@ try {
 const lightPos = sunLight.position.clone();
 
 createControls({
-  onDepthDarkening(on) { underwater?.setDepthDarken(on); },
+  onDepthDarkening(on) { setDepthDarkenEnabled(on); },
   onWaterSurface(on) { surface.setVisible(on); },
   onGodRays(on) { underwater?.setGodRays(on); },
-  onFogGradient(on) { underwater?.setFogGradient(on); },
+  onFogGradient(on) { setFogGradientEnabled(on); },
 });
 
 // --- Resize ---
@@ -116,6 +126,9 @@ renderer.setAnimationLoop(() => {
   // Update caustics time uniform
   const causticUpdate = seabedResult.seabedMaterial.userData.updateCaustics;
   if (causticUpdate) causticUpdate(elapsed);
+
+  // Update depth lighting time uniform
+  updateDepthTime(elapsed);
 
   // Update post-processing
   if (underwater) {

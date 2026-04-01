@@ -5,11 +5,8 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /**
- * Underwater post-processing with toggleable effects:
- * - Base color grading + vignette (always on)
- * - Depth-based darkening (screen-space vertical gradient)
- * - Vertical fog gradient (denser toward bottom of screen)
- * - God rays (screen-space radial blur from light source)
+ * Post-processing: base color grading, vignette, refraction distortion, god rays.
+ * Depth darkening and fog gradient are now handled per-material (see depth-lighting.ts).
  */
 
 const UnderwaterShader = {
@@ -17,11 +14,7 @@ const UnderwaterShader = {
     tDiffuse: { value: null },
     uTime: { value: 0 },
     uVignetteStrength: { value: 1.2 },
-    // Toggles (1.0 = on, 0.0 = off)
-    uDepthDarken: { value: 1.0 },
-    uFogGradient: { value: 1.0 },
     uGodRays: { value: 1.0 },
-    // God ray params
     uLightScreenPos: { value: new THREE.Vector2(0.5, 0.0) },
     uGodRayIntensity: { value: 0.5 },
   },
@@ -36,8 +29,6 @@ const UnderwaterShader = {
     uniform sampler2D tDiffuse;
     uniform float uTime;
     uniform float uVignetteStrength;
-    uniform float uDepthDarken;
-    uniform float uFogGradient;
     uniform float uGodRays;
     uniform vec2 uLightScreenPos;
     uniform float uGodRayIntensity;
@@ -57,29 +48,8 @@ const UnderwaterShader = {
       color.g *= 0.95;
       color.b *= 0.85;
 
-      // Screen-space depth proxy: bottom of screen = deeper, top = shallower
-      // vUv.y: 0 = bottom (deeper), 1 = top (surface)
-      float depthFactor = 1.0 - vUv.y; // 0 at top, 1 at bottom
-
-      // --- Depth-based darkening ---
-      if (uDepthDarken > 0.5) {
-        // Upper part of screen (near surface) stays brighter
-        // Lower part gets progressively darker
-        float attenuation = 1.0 - depthFactor * 0.55;
-        color.rgb *= attenuation;
-      }
-
-      // --- Vertical fog gradient ---
-      if (uFogGradient > 0.5) {
-        // Thicker fog toward the bottom
-        float fogStrength = depthFactor * depthFactor * 0.4;
-        vec3 fogColor = mix(vec3(0.10, 0.22, 0.15), vec3(0.06, 0.14, 0.09), depthFactor);
-        color.rgb = mix(color.rgb, fogColor, fogStrength);
-      }
-
       // --- God rays ---
       if (uGodRays > 0.5) {
-        // Screen-space radial blur from projected light position
         vec2 deltaUv = (vUv - uLightScreenPos) * 0.015;
         float illumination = 0.0;
         vec2 sampleUv = vUv;
@@ -94,13 +64,13 @@ const UnderwaterShader = {
           weight *= decay;
         }
 
-        // Tint god rays warm aqua-green, stronger toward the top of screen
-        float rayFade = smoothstep(0.8, 0.0, depthFactor); // fade out toward bottom
+        // Fade god rays toward the bottom of screen (deeper = less light)
+        float rayFade = smoothstep(0.0, 0.6, vUv.y);
         vec3 rayColor = vec3(0.12, 0.28, 0.18) * illumination * uGodRayIntensity * rayFade;
         color.rgb += rayColor;
       }
 
-      // --- Vignette (always on) ---
+      // --- Vignette ---
       float dist = length(vUv - 0.5);
       float vignette = 1.0 - dist * dist * uVignetteStrength;
       color.rgb *= clamp(vignette, 0.0, 1.0);
@@ -113,8 +83,6 @@ const UnderwaterShader = {
 export interface UnderwaterEffects {
   composer: EffectComposer;
   update: (elapsed: number, camera: THREE.Camera, lightWorldPos: THREE.Vector3) => void;
-  setDepthDarken: (on: boolean) => void;
-  setFogGradient: (on: boolean) => void;
   setGodRays: (on: boolean) => void;
 }
 
@@ -134,7 +102,6 @@ export function createUnderwaterEffect(
   const outputPass = new OutputPass();
   composer.addPass(outputPass);
 
-  // Temp vector for screen-space projection
   const _lightScreenPos = new THREE.Vector3();
 
   return {
@@ -149,12 +116,6 @@ export function createUnderwaterEffect(
         _lightScreenPos.x * 0.5 + 0.5,
         _lightScreenPos.y * 0.5 + 0.5,
       );
-    },
-    setDepthDarken(on: boolean) {
-      underwaterPass.uniforms.uDepthDarken.value = on ? 1.0 : 0.0;
-    },
-    setFogGradient(on: boolean) {
-      underwaterPass.uniforms.uFogGradient.value = on ? 1.0 : 0.0;
     },
     setGodRays(on: boolean) {
       underwaterPass.uniforms.uGodRays.value = on ? 1.0 : 0.0;

@@ -215,7 +215,12 @@ interface PerchInstance {
   bodyScale: number;
 }
 
-export function createPerch(scene: THREE.Scene): (elapsed: number, dt: number) => void {
+export interface PerchResult {
+  update: (elapsed: number, dt: number) => void;
+  material: THREE.MeshStandardMaterial;
+}
+
+export function createPerch(scene: THREE.Scene): PerchResult {
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
     roughness: 0.35,
@@ -254,7 +259,7 @@ export function createPerch(scene: THREE.Scene): (elapsed: number, dt: number) =
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
 
-  return function updatePerch(elapsed: number, dt: number) {
+  const updatePerch = function updatePerch(elapsed: number, dt: number) {
     for (const fish of fishes) {
       // Advance along path
       fish.t = (fish.t + fish.speed * dt) % 1;
@@ -289,4 +294,6 @@ export function createPerch(scene: THREE.Scene): (elapsed: number, dt: number) =
       }
     }
   };
+
+  return { update: updatePerch, material };
 }
