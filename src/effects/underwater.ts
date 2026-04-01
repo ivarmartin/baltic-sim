@@ -7,31 +7,23 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 /**
  * Underwater post-processing with toggleable effects:
  * - Base color grading + vignette (always on)
- * - Depth-based darkening (light attenuates with depth)
- * - Vertical fog gradient (denser at depth)
+ * - Depth-based darkening (screen-space vertical gradient)
+ * - Vertical fog gradient (denser toward bottom of screen)
  * - God rays (screen-space radial blur from light source)
  */
 
 const UnderwaterShader = {
   uniforms: {
     tDiffuse: { value: null },
-    tDepth: { value: null },
     uTime: { value: 0 },
     uVignetteStrength: { value: 1.2 },
-    uCameraNear: { value: 0.1 },
-    uCameraFar: { value: 50.0 },
-    uCameraPosition: { value: new THREE.Vector3() },
-    uInverseProjectionMatrix: { value: new THREE.Matrix4() },
-    uInverseViewMatrix: { value: new THREE.Matrix4() },
-    // Toggles
+    // Toggles (1.0 = on, 0.0 = off)
     uDepthDarken: { value: 1.0 },
     uFogGradient: { value: 1.0 },
     uGodRays: { value: 1.0 },
     // God ray params
     uLightScreenPos: { value: new THREE.Vector2(0.5, 0.0) },
-    uGodRayIntensity: { value: 0.6 },
-    // Surface height for depth calculation
-    uSurfaceY: { value: 4.5 },
+    uGodRayIntensity: { value: 0.5 },
   },
   vertexShader: `
     varying vec2 vUv;
@@ -42,37 +34,14 @@ const UnderwaterShader = {
   `,
   fragmentShader: `
     uniform sampler2D tDiffuse;
-    uniform sampler2D tDepth;
     uniform float uTime;
     uniform float uVignetteStrength;
-    uniform float uCameraNear;
-    uniform float uCameraFar;
-    uniform vec3 uCameraPosition;
-    uniform mat4 uInverseProjectionMatrix;
-    uniform mat4 uInverseViewMatrix;
     uniform float uDepthDarken;
     uniform float uFogGradient;
     uniform float uGodRays;
     uniform vec2 uLightScreenPos;
     uniform float uGodRayIntensity;
-    uniform float uSurfaceY;
     varying vec2 vUv;
-
-    float getLinearDepth(vec2 uv) {
-      float fragDepth = texture2D(tDepth, uv).r;
-      float ndc = fragDepth * 2.0 - 1.0;
-      float linearDepth = (2.0 * uCameraNear * uCameraFar) / (uCameraFar + uCameraNear - ndc * (uCameraFar - uCameraNear));
-      return linearDepth;
-    }
-
-    vec3 getWorldPos(vec2 uv) {
-      float depth = texture2D(tDepth, uv).r;
-      vec4 clipPos = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-      vec4 viewPos = uInverseProjectionMatrix * clipPos;
-      viewPos /= viewPos.w;
-      vec4 worldPos = uInverseViewMatrix * viewPos;
-      return worldPos.xyz;
-    }
 
     void main() {
       vec2 uv = vUv;
@@ -88,40 +57,36 @@ const UnderwaterShader = {
       color.g *= 0.95;
       color.b *= 0.85;
 
-      // --- Reconstruct world position for depth effects ---
-      vec3 worldPos = getWorldPos(vUv);
-      float worldY = worldPos.y;
-      float depthBelowSurface = clamp((uSurfaceY - worldY) / uSurfaceY, 0.0, 1.0);
+      // Screen-space depth proxy: bottom of screen = deeper, top = shallower
+      // vUv.y: 0 = bottom (deeper), 1 = top (surface)
+      float depthFactor = 1.0 - vUv.y; // 0 at top, 1 at bottom
 
       // --- Depth-based darkening ---
       if (uDepthDarken > 0.5) {
-        // Exponential light attenuation with depth
-        float attenuation = exp(-depthBelowSurface * 2.5);
-        attenuation = mix(1.0, attenuation, 0.7); // don't go fully black
+        // Upper part of screen (near surface) stays brighter
+        // Lower part gets progressively darker
+        float attenuation = 1.0 - depthFactor * 0.55;
         color.rgb *= attenuation;
       }
 
       // --- Vertical fog gradient ---
       if (uFogGradient > 0.5) {
-        // Denser fog at depth, thinner near surface
-        float linearDepth = getLinearDepth(vUv);
-        float fogDensity = 0.12 + depthBelowSurface * 0.15; // more fog deeper
-        float fogFactor = 1.0 - exp(-fogDensity * linearDepth);
-        // Fog color: darker green at depth, lighter green near surface
-        vec3 fogColor = mix(vec3(0.08, 0.18, 0.12), vec3(0.12, 0.25, 0.18), 1.0 - depthBelowSurface);
-        color.rgb = mix(color.rgb, fogColor, fogFactor * 0.5);
+        // Thicker fog toward the bottom
+        float fogStrength = depthFactor * depthFactor * 0.4;
+        vec3 fogColor = mix(vec3(0.10, 0.22, 0.15), vec3(0.06, 0.14, 0.09), depthFactor);
+        color.rgb = mix(color.rgb, fogColor, fogStrength);
       }
 
       // --- God rays ---
       if (uGodRays > 0.5) {
-        // Screen-space radial blur from light position
-        vec2 deltaUv = (vUv - uLightScreenPos) * 0.02;
+        // Screen-space radial blur from projected light position
+        vec2 deltaUv = (vUv - uLightScreenPos) * 0.015;
         float illumination = 0.0;
         vec2 sampleUv = vUv;
-        float decay = 0.96;
-        float weight = 0.4;
+        float decay = 0.97;
+        float weight = 0.3;
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 40; i++) {
           sampleUv -= deltaUv;
           vec4 sampleColor = texture2D(tDiffuse, clamp(sampleUv, 0.0, 1.0));
           float brightness = dot(sampleColor.rgb, vec3(0.3, 0.5, 0.2));
@@ -129,8 +94,9 @@ const UnderwaterShader = {
           weight *= decay;
         }
 
-        // Tint god rays with warm aqua-green
-        vec3 rayColor = vec3(0.15, 0.35, 0.25) * illumination * uGodRayIntensity;
+        // Tint god rays warm aqua-green, stronger toward the top of screen
+        float rayFade = smoothstep(0.8, 0.0, depthFactor); // fade out toward bottom
+        vec3 rayColor = vec3(0.12, 0.28, 0.18) * illumination * uGodRayIntensity * rayFade;
         color.rgb += rayColor;
       }
 
@@ -157,41 +123,24 @@ export function createUnderwaterEffect(
   scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
 ): UnderwaterEffects {
-  // Create render target with depth texture
-  const size = renderer.getSize(new THREE.Vector2());
-  const renderTarget = new THREE.WebGLRenderTarget(size.x, size.y, {
-    depthTexture: new THREE.DepthTexture(size.x, size.y),
-    depthBuffer: true,
-  });
-  renderTarget.depthTexture!.format = THREE.DepthFormat;
-  renderTarget.depthTexture!.type = THREE.UnsignedIntType;
-
-  const composer = new EffectComposer(renderer, renderTarget);
+  const composer = new EffectComposer(renderer);
 
   const renderPass = new RenderPass(scene, camera);
   composer.addPass(renderPass);
 
   const underwaterPass = new ShaderPass(UnderwaterShader);
-  underwaterPass.uniforms.tDepth.value = renderTarget.depthTexture;
-  underwaterPass.uniforms.uCameraNear.value = camera.near;
-  underwaterPass.uniforms.uCameraFar.value = camera.far;
   composer.addPass(underwaterPass);
 
   const outputPass = new OutputPass();
   composer.addPass(outputPass);
 
-  // Temp vectors for projection
+  // Temp vector for screen-space projection
   const _lightScreenPos = new THREE.Vector3();
 
   return {
     composer,
     update(elapsed: number, cam: THREE.Camera, lightWorldPos: THREE.Vector3) {
       underwaterPass.uniforms.uTime.value = elapsed;
-      underwaterPass.uniforms.uCameraPosition.value.copy(cam.position);
-      underwaterPass.uniforms.uInverseProjectionMatrix.value.copy(
-        (cam as THREE.PerspectiveCamera).projectionMatrixInverse,
-      );
-      underwaterPass.uniforms.uInverseViewMatrix.value.copy(cam.matrixWorld);
 
       // Project light position to screen space for god rays
       _lightScreenPos.copy(lightWorldPos);
