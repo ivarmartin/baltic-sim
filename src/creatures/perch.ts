@@ -261,9 +261,9 @@ export function createPerch(scene: THREE.Scene): (elapsed: number, dt: number) =
       const pos = fish.path.getPointAt(fish.t);
       fish.mesh.position.copy(pos);
 
-      // Orient along path tangent
+      // Orient along path tangent (subtract because mesh -Z faces lookAt target, but nose is +Z)
       fish.path.getTangentAt(fish.t, _tangent);
-      _lookAt.copy(pos).add(_tangent);
+      _lookAt.copy(pos).sub(_tangent);
       fish.mesh.lookAt(_lookAt);
 
       // Body undulation — perch have a stiffer swim, less tail amplitude than small fish
