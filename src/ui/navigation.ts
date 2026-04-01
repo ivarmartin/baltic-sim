@@ -13,14 +13,14 @@ export const cameraViews: CameraView[] = [
     lookAt: new THREE.Vector3(0, 1.2, -2.5),
   },
   {
-    name: 'Surface',
-    position: new THREE.Vector3(0, 1.0, 0),
-    lookAt: new THREE.Vector3(0.5, 4.5, -1.0),
+    name: 'Perch',
+    position: new THREE.Vector3(2.0, 0.9, 1.0),
+    lookAt: new THREE.Vector3(0.5, 0.8, 1.0),
   },
   {
-    name: 'Seabed',
-    position: new THREE.Vector3(1.0, 1.2, 2.0),
-    lookAt: new THREE.Vector3(0, 0.15, 0.5),
+    name: 'Stickleback',
+    position: new THREE.Vector3(0.3, 0.5, -0.2),
+    lookAt: new THREE.Vector3(-0.3, 0.4, -0.5),
   },
 ];
 

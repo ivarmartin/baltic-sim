@@ -189,7 +189,7 @@ function createPerchGeometry(): THREE.BufferGeometry {
 }
 
 /**
- * Generate a perch swim path — perch patrol near structures (jetty, rocks).
+ * Generate a random perch swim path — perch patrol near structures.
  */
 function generatePerchPath(): THREE.CatmullRomCurve3 {
   const points: THREE.Vector3[] = [];
@@ -204,6 +204,42 @@ function generatePerchPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3(points, true);
 }
 
+/** The mark position for the narrative perch (where it pauses in front of its camera). */
+export const PERCH_MARK = new THREE.Vector3(0.5, 0.8, 1.0);
+
+/** Fixed patrol path for the narrative perch — loops near the Perch camera view. */
+function createPresetPerchPath(): THREE.CatmullRomCurve3 {
+  return new THREE.CatmullRomCurve3([
+    new THREE.Vector3(1.5, 0.95, -1.5),
+    new THREE.Vector3(0.8, 0.85, -0.3),
+    new THREE.Vector3(0.5, 0.8, 1.0),      // mark area — side-on to camera
+    new THREE.Vector3(0.2, 0.85, 2.3),
+    new THREE.Vector3(-0.5, 0.95, 2.8),
+    new THREE.Vector3(-1.0, 1.0, 1.5),
+    new THREE.Vector3(0.0, 1.0, -0.5),
+  ], true);
+}
+
+/** Find the arc-length t parameter on a curve closest to a world position. */
+function findClosestT(path: THREE.CatmullRomCurve3, target: THREE.Vector3): number {
+  let bestT = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const t = i / 200;
+    const d = path.getPointAt(t).distanceTo(target);
+    if (d < bestDist) {
+      bestDist = d;
+      bestT = t;
+    }
+  }
+  return bestT;
+}
+
+/** Forward arc distance on the circular [0, 1) parameter ring. */
+function forwardDist(current: number, target: number): number {
+  return target >= current ? target - current : 1 - current + target;
+}
+
 interface PerchInstance {
   mesh: THREE.Mesh;
   geometry: THREE.BufferGeometry;
@@ -213,11 +249,16 @@ interface PerchInstance {
   speed: number;
   swimPhase: number;
   bodyScale: number;
+  isPreset: boolean;
+  markT: number;
+  holdRequested: boolean;
+  isHolding: boolean;
 }
 
 export interface PerchResult {
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
+  setHold: (hold: boolean) => void;
 }
 
 export function createPerch(scene: THREE.Scene): PerchResult {
@@ -237,19 +278,24 @@ export function createPerch(scene: THREE.Scene): PerchResult {
 
     const basePositions = new Float32Array(geometry.attributes.position.array);
 
-    // Size variation: 0.85x to 1.2x (roughly 25-35cm)
-    const scale = 0.85 + Math.random() * 0.35;
+    const isPreset = i === 0;
+    const path = isPreset ? createPresetPerchPath() : generatePerchPath();
+    const scale = isPreset ? 1.0 : (0.85 + Math.random() * 0.35);
     mesh.scale.setScalar(scale);
 
     const fish: PerchInstance = {
       mesh,
       geometry,
       basePositions,
-      path: generatePerchPath(),
+      path,
       t: Math.random(),
-      speed: 0.008 + Math.random() * 0.006, // slower than sticklebacks
+      speed: isPreset ? 0.06 : (0.008 + Math.random() * 0.006),
       swimPhase: Math.random() * Math.PI * 2,
       bodyScale: 0.30,
+      isPreset,
+      markT: isPreset ? findClosestT(path, PERCH_MARK) : 0,
+      holdRequested: false,
+      isHolding: false,
     };
 
     scene.add(mesh);
@@ -261,17 +307,46 @@ export function createPerch(scene: THREE.Scene): PerchResult {
 
   const updatePerch = function updatePerch(elapsed: number, dt: number) {
     for (const fish of fishes) {
-      // Advance along path
-      fish.t = (fish.t + fish.speed * dt) % 1;
+      // --- Advance along path ---
+      if (fish.isPreset && fish.holdRequested) {
+        if (fish.isHolding) {
+          // At mark — stay put (body undulation still runs below)
+          fish.t = fish.markT;
+        } else {
+          // Seek the mark: swim forward, decelerate on approach
+          const dist = forwardDist(fish.t, fish.markT);
+          if (dist < 0.002) {
+            fish.t = fish.markT;
+            fish.isHolding = true;
+          } else {
+            let speed = fish.speed;
+            // Smooth deceleration in the last 8 % of arc before mark
+            if (dist < 0.08) {
+              speed *= Math.max(dist / 0.08, 0.05);
+            }
+            const prevDist = dist;
+            fish.t = (fish.t + speed * dt) % 1;
+            // Detect if we overshot the mark (forward distance jumped up)
+            if (forwardDist(fish.t, fish.markT) > prevDist) {
+              fish.t = fish.markT;
+              fish.isHolding = true;
+            }
+          }
+        }
+      } else {
+        if (fish.isPreset) fish.isHolding = false;
+        fish.t = (fish.t + fish.speed * dt) % 1;
+      }
+
+      // --- Position & orient ---
       const pos = fish.path.getPointAt(fish.t);
       fish.mesh.position.copy(pos);
 
-      // Orient along path tangent (subtract because mesh -Z faces lookAt target, but nose is +Z)
       fish.path.getTangentAt(fish.t, _tangent);
       _lookAt.copy(pos).sub(_tangent);
       fish.mesh.lookAt(_lookAt);
 
-      // Body undulation — perch have a stiffer swim, less tail amplitude than small fish
+      // --- Body undulation (always active, even when holding) ---
       const posAttr = fish.geometry.attributes.position;
       const arr = posAttr.array as Float32Array;
       const base = fish.basePositions;
@@ -279,21 +354,23 @@ export function createPerch(scene: THREE.Scene): PerchResult {
       for (let v = 0; v < posAttr.count; v++) {
         const i3 = v * 3;
         const bz = base[i3 + 2];
-        const zNorm = bz / fish.bodyScale; // 0 at nose, ~1 at tail
+        const zNorm = bz / fish.bodyScale;
         const amplitude = zNorm * zNorm * 0.012;
         const wave = Math.sin(elapsed * 5 + fish.swimPhase - zNorm * Math.PI * 2);
         arr[i3] = base[i3] + wave * amplitude;
       }
 
       posAttr.needsUpdate = true;
-
-      // Occasionally pick a new patrol route
-      if (Math.random() < 0.0003) {
-        fish.path = generatePerchPath();
-        fish.t = 0;
-      }
     }
   };
 
-  return { update: updatePerch, material };
+  function setHold(hold: boolean) {
+    const preset = fishes[0];
+    if (preset) {
+      preset.holdRequested = hold;
+      if (!hold) preset.isHolding = false;
+    }
+  }
+
+  return { update: updatePerch, material, setHold };
 }

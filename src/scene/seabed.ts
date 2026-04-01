@@ -8,7 +8,7 @@ export interface SeabedResult {
 
 export function createSeabed(scene: THREE.Scene): SeabedResult {
   // --- Ground plane with gentle undulation ---
-  const groundGeo = new THREE.PlaneGeometry(40, 40, 64, 64);
+  const groundGeo = new THREE.PlaneGeometry(120, 120, 128, 128);
   groundGeo.rotateX(-Math.PI / 2);
 
   // Displace vertices for rolling terrain

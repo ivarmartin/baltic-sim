@@ -35,7 +35,10 @@ cameraRig.add(camera);
 scene.add(cameraRig);
 
 // --- Camera navigation (replaces OrbitControls) ---
-const navigation = createNavigation(camera, cameraRig);
+const handlers = { onViewChange: null as ((index: number) => void) | null };
+const navigation = createNavigation(camera, cameraRig, (index) => {
+  handlers.onViewChange?.(index);
+});
 
 // --- Update system ---
 type UpdateFn = (elapsed: number, dt: number) => void;
@@ -58,6 +61,12 @@ updates.push(sticklebackResult.update);
 
 const perchResult = createPerch(scene);
 updates.push(perchResult.update);
+
+// Wire camera views to fish hold system (view 1 = Perch, view 2 = Stickleback)
+handlers.onViewChange = (index) => {
+  perchResult.setHold(index === 1);
+  sticklebackResult.setHold(index === 2);
+};
 
 // --- Caustics (must be set up before depth injection on seabed) ---
 setupCaustics(seabedResult.seabedMaterial);

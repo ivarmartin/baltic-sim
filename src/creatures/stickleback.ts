@@ -137,6 +137,42 @@ function generatePath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3(points, true);
 }
 
+/** The mark position for the narrative stickleback. */
+export const STICKLEBACK_MARK = new THREE.Vector3(-0.3, 0.4, -0.5);
+
+/** Fixed patrol path for the narrative stickleback — loops near the Stickleback camera view. */
+function createPresetSticklebackPath(): THREE.CatmullRomCurve3 {
+  return new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0.2, 0.5, -2.0),
+    new THREE.Vector3(-0.1, 0.45, -1.2),
+    new THREE.Vector3(-0.3, 0.4, -0.5),    // mark area — side-on to camera
+    new THREE.Vector3(-0.4, 0.45, 0.2),
+    new THREE.Vector3(-0.6, 0.5, 0.8),
+    new THREE.Vector3(-0.3, 0.48, 0.0),
+    new THREE.Vector3(0.0, 0.48, -1.0),
+  ], true);
+}
+
+/** Find the arc-length t parameter on a curve closest to a world position. */
+function findClosestT(path: THREE.CatmullRomCurve3, target: THREE.Vector3): number {
+  let bestT = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const t = i / 200;
+    const d = path.getPointAt(t).distanceTo(target);
+    if (d < bestDist) {
+      bestDist = d;
+      bestT = t;
+    }
+  }
+  return bestT;
+}
+
+/** Forward arc distance on the circular [0, 1) parameter ring. */
+function forwardDist(current: number, target: number): number {
+  return target >= current ? target - current : 1 - current + target;
+}
+
 interface FishInstance {
   mesh: THREE.Mesh;
   geometry: THREE.BufferGeometry;
@@ -145,11 +181,16 @@ interface FishInstance {
   t: number;
   speed: number;
   swimPhase: number;
+  isPreset: boolean;
+  markT: number;
+  holdRequested: boolean;
+  isHolding: boolean;
 }
 
 export interface SticklebackResult {
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
+  setHold: (hold: boolean) => void;
 }
 
 export function createSticklebacks(scene: THREE.Scene): SticklebackResult {
@@ -169,19 +210,24 @@ export function createSticklebacks(scene: THREE.Scene): SticklebackResult {
 
     const basePositions = new Float32Array(geometry.attributes.position.array);
 
+    const isPreset = i === 0;
+    const path = isPreset ? createPresetSticklebackPath() : generatePath();
+    const scale = isPreset ? 1.5 : (0.8 + Math.random() * 0.5);
+    mesh.scale.setScalar(scale);
+
     const fish: FishInstance = {
       mesh,
       geometry,
       basePositions,
-      path: generatePath(),
+      path,
       t: Math.random(),
-      speed: 0.015 + Math.random() * 0.01,
+      speed: isPreset ? 0.08 : (0.015 + Math.random() * 0.01),
       swimPhase: Math.random() * Math.PI * 2,
+      isPreset,
+      markT: isPreset ? findClosestT(path, STICKLEBACK_MARK) : 0,
+      holdRequested: false,
+      isHolding: false,
     };
-
-    // Slight size variation
-    const scale = 0.8 + Math.random() * 0.5;
-    mesh.scale.setScalar(scale);
 
     scene.add(mesh);
     fishes.push(fish);
@@ -192,40 +238,66 @@ export function createSticklebacks(scene: THREE.Scene): SticklebackResult {
 
   const updateFish = function updateFish(elapsed: number, dt: number) {
     for (const fish of fishes) {
-      // Advance along path
-      fish.t = (fish.t + fish.speed * dt) % 1;
+      // --- Advance along path ---
+      if (fish.isPreset && fish.holdRequested) {
+        if (fish.isHolding) {
+          fish.t = fish.markT;
+        } else {
+          const dist = forwardDist(fish.t, fish.markT);
+          if (dist < 0.002) {
+            fish.t = fish.markT;
+            fish.isHolding = true;
+          } else {
+            let speed = fish.speed;
+            if (dist < 0.08) {
+              speed *= Math.max(dist / 0.08, 0.05);
+            }
+            const prevDist = dist;
+            fish.t = (fish.t + speed * dt) % 1;
+            if (forwardDist(fish.t, fish.markT) > prevDist) {
+              fish.t = fish.markT;
+              fish.isHolding = true;
+            }
+          }
+        }
+      } else {
+        if (fish.isPreset) fish.isHolding = false;
+        fish.t = (fish.t + fish.speed * dt) % 1;
+      }
+
+      // --- Position & orient ---
       const pos = fish.path.getPointAt(fish.t);
       fish.mesh.position.copy(pos);
 
-      // Orient along path tangent (subtract because mesh -Z faces lookAt target, but nose is +Z)
       fish.path.getTangentAt(fish.t, _tangent);
       _lookAt.copy(pos).sub(_tangent);
       fish.mesh.lookAt(_lookAt);
 
-      // Body undulation: sinusoidal wave along Z with increasing amplitude
+      // --- Body undulation (always active, even when holding) ---
       const posAttr = fish.geometry.attributes.position;
       const arr = posAttr.array as Float32Array;
       const base = fish.basePositions;
 
       for (let v = 0; v < posAttr.count; v++) {
         const i3 = v * 3;
-        const bz = base[i3 + 2]; // base Z position
-        // Normalize Z (body is 0 to ~0.06 after scaling)
-        const zNorm = bz / 0.06; // 0 at nose, ~1 at tail
+        const bz = base[i3 + 2];
+        const zNorm = bz / 0.06;
         const amplitude = zNorm * zNorm * 0.0025;
         const wave = Math.sin(elapsed * 8 + fish.swimPhase - zNorm * Math.PI * 2);
-        arr[i3] = base[i3] + wave * amplitude; // displace X
+        arr[i3] = base[i3] + wave * amplitude;
       }
 
       posAttr.needsUpdate = true;
-
-      // Generate new path when loop completes (already handled by modulo, but regenerate occasionally)
-      if (Math.random() < 0.0005) {
-        fish.path = generatePath();
-        fish.t = 0;
-      }
     }
   };
 
-  return { update: updateFish, material };
+  function setHold(hold: boolean) {
+    const preset = fishes[0];
+    if (preset) {
+      preset.holdRequested = hold;
+      if (!hold) preset.isHolding = false;
+    }
+  }
+
+  return { update: updateFish, material, setHold };
 }
