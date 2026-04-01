@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 export interface SeabedResult {
   seabedMaterial: THREE.MeshStandardMaterial;
+  rockMaterial: THREE.MeshStandardMaterial;
   rockPositions: THREE.Vector3[];
 }
 
@@ -63,5 +64,5 @@ export function createSeabed(scene: THREE.Scene): SeabedResult {
     rockPositions.push(new THREE.Vector3(rx, 0, rz));
   }
 
-  return { seabedMaterial, rockPositions };
+  return { seabedMaterial, rockMaterial, rockPositions };
 }

@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 
-export function createJetty(scene: THREE.Scene): THREE.Group {
+export interface JettyResult {
+  group: THREE.Group;
+  woodMaterial: THREE.MeshStandardMaterial;
+}
+
+export function createJetty(scene: THREE.Scene): JettyResult {
   const group = new THREE.Group();
 
   const woodMaterial = new THREE.MeshStandardMaterial({
@@ -82,5 +87,5 @@ export function createJetty(scene: THREE.Scene): THREE.Group {
   group.add(ladderGroup);
 
   scene.add(group);
-  return group;
+  return { group, woodMaterial };
 }

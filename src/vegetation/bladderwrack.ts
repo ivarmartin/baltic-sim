@@ -102,10 +102,15 @@ function createClump(position: THREE.Vector3, material: THREE.MeshStandardMateri
   return clump;
 }
 
+export interface BladderwrackResult {
+  update: (elapsed: number, dt: number) => void;
+  material: THREE.MeshStandardMaterial;
+}
+
 export function createBladderwrack(
   scene: THREE.Scene,
   rockPositions: THREE.Vector3[],
-): (elapsed: number, dt: number) => void {
+): BladderwrackResult {
   // Material with sway animation via onBeforeCompile
   const material = new THREE.MeshStandardMaterial({
     color: 0x3a4a1a,
@@ -181,9 +186,11 @@ export function createBladderwrack(
     clumps.push(clump);
   }
 
-  return function updateBladderwrack(elapsed: number, _dt: number) {
+  const updateBladderwrack = function updateBladderwrack(elapsed: number, _dt: number) {
     if (shaderRef) {
       shaderRef.uniforms.uTime.value = elapsed;
     }
   };
+
+  return { update: updateBladderwrack, material };
 }

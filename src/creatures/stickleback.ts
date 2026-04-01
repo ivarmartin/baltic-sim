@@ -147,7 +147,12 @@ interface FishInstance {
   swimPhase: number;
 }
 
-export function createSticklebacks(scene: THREE.Scene): (elapsed: number, dt: number) => void {
+export interface SticklebackResult {
+  update: (elapsed: number, dt: number) => void;
+  material: THREE.MeshStandardMaterial;
+}
+
+export function createSticklebacks(scene: THREE.Scene): SticklebackResult {
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
     roughness: 0.4,
@@ -185,7 +190,7 @@ export function createSticklebacks(scene: THREE.Scene): (elapsed: number, dt: nu
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
 
-  return function updateFish(elapsed: number, dt: number) {
+  const updateFish = function updateFish(elapsed: number, dt: number) {
     for (const fish of fishes) {
       // Advance along path
       fish.t = (fish.t + fish.speed * dt) % 1;
@@ -221,4 +226,6 @@ export function createSticklebacks(scene: THREE.Scene): (elapsed: number, dt: nu
       }
     }
   };
+
+  return { update: updateFish, material };
 }
