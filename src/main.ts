@@ -180,6 +180,7 @@ async function init() {
     setParticleDensity: (f) => particles.setDensity(f),
     setSticklebackHold: (h) => sticklebackResult.setHold(h),
     setPikeHold: (h) => pikeResult.setHold(h),
+    setCodHold: (h) => codResult.setHold(h),
     setPerchHold: (h) => perchResult.setHold(h),
   });
 

@@ -30,6 +30,7 @@ export interface StageManagerDeps {
   setSticklebackHold?: (hold: boolean) => void;
   setPerchHold?: (hold: boolean) => void;
   setPikeHold?: (hold: boolean) => void;
+  setCodHold?: (hold: boolean) => void;
 }
 
 export interface StageManager {
@@ -104,6 +105,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     deps.setSticklebackHold?.(false);
     deps.setPerchHold?.(false);
     deps.setPikeHold?.(false);
+    deps.setCodHold?.(false);
     deps.setParticleDensity?.(1.0);
 
     if (callbackId === 'stickleback-hold') {
@@ -112,6 +114,8 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
       deps.setPerchHold?.(true);
     } else if (callbackId === 'pike-hold') {
       deps.setPikeHold?.(true);
+    } else if (callbackId === 'cod-hold') {
+      deps.setCodHold?.(true);
     }
 
     // Dead zone particle density

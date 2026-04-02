@@ -15,6 +15,7 @@ export interface Chapter {
   id: string;
   title: string;
   subtitle: string;
+  type?: 'chapter' | 'appendix';
   stages: StageDefinition[];
   /** Maps stage index → array of visibility group keys to show. */
   stageVisibility: Record<number, string[]>;
@@ -231,6 +232,75 @@ const pikeCallbacks: Record<number, string> = {
 };
 
 // ─────────────────────────────────────────────────────────────
+//  Appendix — Baltic Fish Species
+// ─────────────────────────────────────────────────────────────
+
+const fishSpeciesStages: StageDefinition[] = [
+  {
+    name: 'Perch',
+    cameraView: {
+      name: 'Perch',
+      position: new THREE.Vector3(2.2, 0.9, 1.5),
+      lookAt: new THREE.Vector3(1.5, 0.85, 1.0),
+    },
+    transitionDuration: 2.0,
+    environment: 'shallow',
+    narrative:
+      'European perch (Perca fluviatilis). Length: 15\u201345 cm. A striped predator of shallow coastal waters. Perch are visual hunters \u2014 they use their large eyes to spot prey in the murky Baltic. They eat smaller fish, crustaceans, and insect larvae. Once one of the most common fish along the Swedish coast, perch populations have declined as their nursery habitats have been degraded.',
+  },
+  {
+    name: 'Pike',
+    cameraView: {
+      name: 'Pike',
+      position: new THREE.Vector3(-10.2, 0.9, -7.3),
+      lookAt: new THREE.Vector3(-11, 0.8, -8),
+    },
+    transitionDuration: 2.0,
+    environment: 'shallow',
+    narrative:
+      'Northern pike (Esox lucius). Length: 40\u2013100 cm. The top predator of the Baltic\u2019s shallow bays. Pike are ambush hunters \u2014 they lie motionless among reeds until prey comes close, then strike in milliseconds. A single pike can eat hundreds of sticklebacks in a season. They are a keystone species: when pike disappear, the whole bay ecosystem can collapse.',
+  },
+  {
+    name: 'Three-spined Stickleback',
+    cameraView: {
+      name: 'Three-spined Stickleback',
+      position: new THREE.Vector3(0.7, 0.5, 0.2),
+      lookAt: new THREE.Vector3(0.1, 0.45, -0.3),
+    },
+    transitionDuration: 2.0,
+    environment: 'shallow',
+    narrative:
+      'Three-spined stickleback (Gasterosteus aculeatus). Length: 4\u20138 cm. Tiny but hugely influential. Males build nests from plant fibres and guard the eggs fiercely. Their populations have exploded fifty-fold since the 1990s due to the decline of predators like cod and pike. In vast swarms, they devour the eggs of larger fish species, accelerating the ecological imbalance in coastal waters.',
+  },
+  {
+    name: 'Atlantic Cod',
+    cameraView: {
+      name: 'Atlantic Cod',
+      position: new THREE.Vector3(3.8, -2.3, -14.8),
+      lookAt: new THREE.Vector3(3, -2.8, -15.5),
+    },
+    transitionDuration: 2.5,
+    environment: 'deep',
+    narrative:
+      'Atlantic cod (Gadus morhua). Length: 20\u201330 cm today (historically up to 100 cm). Once the king of the Baltic, cod could grow as long as a child\u2019s arm. Decades of overfishing and shrinking oxygen zones have left only stunted, thin individuals. The ghostly outline beside this cod shows its former size. All Baltic cod fishing has been banned, but recovery remains uncertain.',
+  },
+];
+
+const fishSpeciesVisibility: Record<number, string[]> = {
+  0: [],           // Perch is always in scene (not a visibility group)
+  1: ['pike', 'reeds'],
+  2: [],           // Stickleback is always in scene
+  3: ['cod'],
+};
+
+const fishSpeciesCallbacks: Record<number, string> = {
+  0: 'perch-hold',
+  1: 'pike-hold',
+  2: 'stickleback-hold',
+  3: 'cod-hold',
+};
+
+// ─────────────────────────────────────────────────────────────
 //  Export
 // ─────────────────────────────────────────────────────────────
 
@@ -253,6 +323,15 @@ export const chapters: Chapter[] = [
     stages: pikeStages,
     stageVisibility: pikeVisibility,
     stageCallbacks: pikeCallbacks,
+  },
+  {
+    id: 'fish-species',
+    type: 'appendix',
+    title: 'Baltic Fish Species',
+    subtitle: 'A close-up guide to the fish of the Baltic Sea.',
+    stages: fishSpeciesStages,
+    stageVisibility: fishSpeciesVisibility,
+    stageCallbacks: fishSpeciesCallbacks,
   },
 ];
 

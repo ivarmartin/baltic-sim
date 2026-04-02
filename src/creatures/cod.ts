@@ -118,10 +118,34 @@ function createCodGeometry(): THREE.BufferGeometry {
   return geo;
 }
 
+/** Find the closest t parameter on a path to a target world position. */
+function findClosestT(path: THREE.CatmullRomCurve3, target: THREE.Vector3): number {
+  let bestT = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const t = i / 200;
+    const d = path.getPointAt(t).distanceTo(target);
+    if (d < bestDist) {
+      bestDist = d;
+      bestT = t;
+    }
+  }
+  return bestT;
+}
+
+/** Forward arc distance on the circular [0, 1) parameter ring. */
+function forwardDist(current: number, target: number): number {
+  return target >= current ? target - current : 1 - current + target;
+}
+
+/** Mark position for the cod hold — side-on to camera, close. */
+const COD_MARK = new THREE.Vector3(3, -2.8, -15.5);
+
 export interface CodResult {
   group: THREE.Group;
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
+  setHold: (hold: boolean) => void;
 }
 
 export function createCod(scene: THREE.Scene): CodResult {
@@ -170,8 +194,34 @@ export function createCod(scene: THREE.Scene): CodResult {
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
 
+  // Hold state (decelerate-on-path, same as perch/stickleback)
+  let holdRequested = false;
+  let isHolding = false;
+  const markT = findClosestT(path, COD_MARK);
+
+  function setHold(value: boolean) {
+    holdRequested = value;
+    if (!value) isHolding = false;
+  }
+
   function update(elapsed: number, dt: number) {
-    t = (t + speed * dt) % 1;
+    if (holdRequested && !isHolding) {
+      const dist = forwardDist(t, markT);
+      if (dist < 0.002) {
+        t = markT;
+        isHolding = true;
+      } else {
+        let s = speed;
+        if (dist < 0.08) {
+          s *= Math.max(dist / 0.08, 0.05);
+        }
+        t = (t + s * dt) % 1;
+      }
+    } else if (isHolding) {
+      t = markT;
+    } else {
+      t = (t + speed * dt) % 1;
+    }
 
     const pos = path.getPointAt(t);
     codMesh.position.copy(pos);
@@ -189,15 +239,16 @@ export function createCod(scene: THREE.Scene): CodResult {
     _lookAt.copy(ghostMesh.position).sub(_tangent);
     ghostMesh.lookAt(_lookAt);
 
-    // Body undulation on the real cod
+    // Body undulation on the real cod (reduced when holding)
     const posAttr = codGeo.attributes.position;
     const arr = posAttr.array as Float32Array;
+    const holding = holdRequested || isHolding;
     for (let v = 0; v < posAttr.count; v++) {
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
       const zNorm = bz / 0.15;
-      const amplitude = zNorm * zNorm * 0.005;
-      const wave = Math.sin(elapsed * 5 + swimPhase - zNorm * Math.PI * 2);
+      const amplitude = zNorm * zNorm * (holding ? 0.002 : 0.005);
+      const wave = Math.sin(elapsed * (holding ? 2.5 : 5) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
     }
     posAttr.needsUpdate = true;
@@ -206,5 +257,5 @@ export function createCod(scene: THREE.Scene): CodResult {
   group.visible = false;
   scene.add(group);
 
-  return { group, update, material };
+  return { group, update, material, setHold };
 }
