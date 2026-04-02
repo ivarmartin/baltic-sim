@@ -105,7 +105,7 @@ async function init() {
   updates.push(swarmResult.update);
 
   // --- Pike chapter assets ---
-  const sealResult = createSeal(scene, new THREE.Vector3(-10, 0.5, -7));
+  const sealResult = await createSeal(scene, new THREE.Vector3(-10, 0.5, -7));
   updates.push(sealResult.update);
 
   const cormorantResult = createCormorant(scene, new THREE.Vector3(-10, 1.0, -7));
