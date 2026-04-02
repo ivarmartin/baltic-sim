@@ -412,6 +412,11 @@ async function init() {
     // Update filamentous algae sway
     algaeResult.update(elapsed);
 
+    // Update vegetation pike avoidance
+    const pikePos = pikeResult.getPosition();
+    reedsResult.setPikePos(pikePos);
+    bladderwrackResult.setPikePos(pikePos);
+
     // Update reeds sway
     reedsResult.update(elapsed);
 

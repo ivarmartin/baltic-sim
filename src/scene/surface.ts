@@ -9,7 +9,7 @@ export function createWaterSurface(scene: THREE.Scene): {
   update: (elapsed: number) => void;
   setVisible: (v: boolean) => void;
 } {
-  const geometry = new THREE.PlaneGeometry(30, 30, 32, 32);
+  const geometry = new THREE.PlaneGeometry(120, 120, 64, 64);
   geometry.rotateX(Math.PI / 2); // face downward
 
   const material = new THREE.ShaderMaterial({
@@ -57,9 +57,9 @@ export function createWaterSurface(scene: THREE.Scene): {
           pattern * shimmer
         );
 
-        // Brighter toward center (Fresnel-like falloff at edges)
+        // Gentle falloff only at far edges
         float dist = length(vUv - 0.5) * 2.0;
-        float falloff = 1.0 - smoothstep(0.3, 1.0, dist);
+        float falloff = 1.0 - smoothstep(0.85, 1.0, dist);
 
         gl_FragColor = vec4(color, uOpacity * falloff * (0.6 + pattern * 0.4));
       }

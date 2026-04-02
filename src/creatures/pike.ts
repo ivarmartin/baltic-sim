@@ -29,6 +29,7 @@ export interface PikeResult {
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
   setHold: (hold: boolean) => void;
+  getPosition: () => THREE.Vector3;
 }
 
 export async function createPike(scene: THREE.Scene, position: THREE.Vector3): Promise<PikeResult> {
@@ -73,10 +74,10 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
   // Patrol path crosses the camera's line of sight at the mark for a profile view
   const path = new THREE.CatmullRomCurve3([
     new THREE.Vector3(-18.75, 0.90, -4.05),
-    new THREE.Vector3(-14.75, 0.70, -6.85),
-    new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark - side-on to camera
-    new THREE.Vector3(-10.75, 0.90, -12.05),
-    new THREE.Vector3(-13.55, 1.10, -14.85),
+    new THREE.Vector3(-16.0, 0.70, -7.65),
+    new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark - angled toward camera
+    new THREE.Vector3(-9.75, 0.90, -10.0),
+    new THREE.Vector3(-12.55, 1.10, -13.85),
     new THREE.Vector3(-17.95, 1.10, -12.05),
     new THREE.Vector3(-19.95, 0.90, -6.85),
   ], true);
@@ -141,5 +142,5 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
   group.visible = false;
   scene.add(group);
 
-  return { group, update, material, setHold };
+  return { group, update, material, setHold, getPosition: () => mesh.position };
 }

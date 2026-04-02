@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(npx vite:*)",
+      "Bash(git -C d:/git/baltic-sim status)",
+      "Bash(git -C d:/git/baltic-sim diff --stat)",
+      "Bash(git -C d:/git/baltic-sim log --oneline -3)",
+      "Bash(git -C d:/git/baltic-sim add src/creatures/perch.ts src/creatures/stickleback.ts src/main.ts src/ui/navigation.ts tsconfig.json public/assets/perch.glb)",
+      "Bash(git -C d:/git/baltic-sim commit -m ':*)",
+      "Bash(git -C d:/git/baltic-sim push origin main)",
+      "Bash(npm ls:*)",
+      "Bash(git pull:*)",
+      "Bash(gh pr:*)",
+      "Bash(ls d:/git/baltic-sim/node_modules/three/examples/jsm/utils/BufferGeometryUtils*)",
+      "Bash(node -e \"const m = require.resolve\\('three/examples/jsm/utils/BufferGeometryUtils.js'\\); console.log\\(m\\)\")",
+      "Bash(node -e ':*)",
+      "Bash(node --experimental-vm-modules -e ':*)",
+      "Bash(grep -E \"\\\\.ts$\")",
+      "Bash(git fetch:*)",
+      "Bash(git ls-tree:*)"
+    ]
+  }
+}
