@@ -132,8 +132,8 @@ const pikeStages: StageDefinition[] = [
     name: 'Meet the Pike',
     cameraView: {
       name: 'Meet the Pike',
-      position: new THREE.Vector3(-9.5, 1.2, -5),
-      lookAt: new THREE.Vector3(-11, 0.8, -7),
+      position: new THREE.Vector3(-10.5, 0.9, -7),
+      lookAt: new THREE.Vector3(-11, 0.8, -8),
     },
     transitionDuration: 2.5,
     environment: 'shallow',
