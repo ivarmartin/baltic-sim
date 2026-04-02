@@ -112,8 +112,8 @@ function createCodGeometry(): THREE.BufferGeometry {
   geo.setIndex(indices);
   geo.computeVertexNormals();
 
-  // Scale: ~25cm thin modern cod
-  geo.scale(0.15, 0.15, 0.15);
+  // Scale: ~45cm thin modern cod (still small compared to historical size)
+  geo.scale(0.4, 0.4, 0.4);
 
   return geo;
 }
@@ -246,7 +246,7 @@ export function createCod(scene: THREE.Scene): CodResult {
     for (let v = 0; v < posAttr.count; v++) {
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
-      const zNorm = bz / 0.15;
+      const zNorm = bz / 0.4;
       const amplitude = zNorm * zNorm * (holding ? 0.002 : 0.005);
       const wave = Math.sin(elapsed * (holding ? 2.5 : 5) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;

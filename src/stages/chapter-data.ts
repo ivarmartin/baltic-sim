@@ -276,11 +276,11 @@ const fishSpeciesStages: StageDefinition[] = [
     name: 'Atlantic Cod',
     cameraView: {
       name: 'Atlantic Cod',
-      position: new THREE.Vector3(3.8, -2.3, -14.8),
+      position: new THREE.Vector3(3.2, -2.7, -15.2),
       lookAt: new THREE.Vector3(3, -2.8, -15.5),
     },
     transitionDuration: 2.5,
-    environment: 'deep',
+    environment: 'mid-depth',
     narrative:
       'Atlantic cod (Gadus morhua). Length: 20\u201330 cm today (historically up to 100 cm). Once the king of the Baltic, cod could grow as long as a child\u2019s arm. Decades of overfishing and shrinking oxygen zones have left only stunted, thin individuals. The ghostly outline beside this cod shows its former size. All Baltic cod fishing has been banned, but recovery remains uncertain.',
   },
