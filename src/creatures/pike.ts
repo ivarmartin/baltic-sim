@@ -52,9 +52,7 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
   (sourceMesh as THREE.Mesh).updateWorldMatrix(true, false);
   geometry.applyMatrix4((sourceMesh as THREE.Mesh).matrixWorld);
 
-  // Rotate so nose (-Y in GLB) aligns with -Z (Three.js lookAt forward),
-  // with dorsal fin pointing +Y (up)
-  geometry.rotateX(-Math.PI / 2);
+  // Blender -Y nose becomes +Z after glTF coord conversion; flip to -Z for lookAt
   geometry.rotateY(Math.PI);
 
   // Compute body extent along Z for undulation normalization

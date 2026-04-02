@@ -287,9 +287,9 @@ const fishSpeciesStages: StageDefinition[] = [
 ];
 
 const fishSpeciesVisibility: Record<number, string[]> = {
-  0: [],           // Perch is always in scene (not a visibility group)
+  0: ['pike', 'reeds'],  // Pike patrolling in background so it's already swimming when we cut to it
   1: ['pike', 'reeds'],
-  2: [],           // Stickleback is always in scene
+  2: ['cod'],             // Cod patrolling in background before its stage
   3: ['cod'],
 };
 
