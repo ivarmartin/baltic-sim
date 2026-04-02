@@ -68,7 +68,7 @@ const introStages: StageDefinition[] = [
     name: 'The Shrinking Cod',
     cameraView: {
       name: 'The Shrinking Cod',
-      position: new THREE.Vector3(3, -2, -14),
+      position: new THREE.Vector3(3.6, -1.4, -12.2),
       lookAt: new THREE.Vector3(2, -3, -17),
     },
     transitionDuration: 2.5,
@@ -276,7 +276,7 @@ const fishSpeciesStages: StageDefinition[] = [
     name: 'Atlantic Cod',
     cameraView: {
       name: 'Atlantic Cod',
-      position: new THREE.Vector3(3.2, -2.7, -15.2),
+      position: new THREE.Vector3(4.3, -2.2, -13.6),
       lookAt: new THREE.Vector3(3, -2.8, -15.5),
     },
     transitionDuration: 2.5,
