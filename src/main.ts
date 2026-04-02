@@ -28,7 +28,6 @@ import { createSticklebackSwarm } from './creatures/stickleback-swarm';
 import { createFilamentousAlgae } from './vegetation/filamentous-algae';
 import { createStartScreen } from './ui/start-screen';
 import { createMenu } from './ui/menu';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createSeal } from './creatures/seal';
 import { createAmbientSeal } from './creatures/ambient-seal';
 import { createCormorant } from './creatures/cormorant';
@@ -228,15 +227,13 @@ async function init() {
   );
   navRef = navigation;
 
-  // --- Developer free-cam controls ---
-  const orbitControls = new OrbitControls(camera, renderer.domElement);
-  orbitControls.enableDamping = true;
-  orbitControls.dampingFactor = 0.1;
-  orbitControls.enabled = false;
-
-  // WASD key state
+  // --- Developer fly-cam controls ---
   const moveKeys = { w: false, a: false, s: false, d: false, q: false, e: false };
   const moveSpeed = 5;
+  const lookSensitivity = 0.003;
+  let flyYaw = 0;
+  let flyPitch = 0;
+  let isDragging = false;
 
   function onDevKeyDown(ev: KeyboardEvent) {
     const k = ev.key.toLowerCase();
@@ -246,34 +243,79 @@ async function init() {
     const k = ev.key.toLowerCase();
     if (k in moveKeys) (moveKeys as Record<string, boolean>)[k] = false;
   }
+  function onMouseDown(ev: MouseEvent) {
+    if (ev.button === 0) isDragging = true;
+  }
+  function onMouseUp() {
+    isDragging = false;
+  }
+  function onMouseMove(ev: MouseEvent) {
+    if (!isDragging) return;
+    flyYaw -= ev.movementX * lookSensitivity;
+    flyPitch -= ev.movementY * lookSensitivity;
+    flyPitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, flyPitch));
+  }
+  function onTouchStart(ev: TouchEvent) {
+    if (ev.touches.length === 1) isDragging = true;
+  }
+  function onTouchEnd() {
+    isDragging = false;
+  }
+  let lastTouchX = 0, lastTouchY = 0;
+  function onTouchMoveHandler(ev: TouchEvent) {
+    if (!isDragging || ev.touches.length !== 1) return;
+    const touch = ev.touches[0];
+    if (lastTouchX !== 0 || lastTouchY !== 0) {
+      const dx = touch.clientX - lastTouchX;
+      const dy = touch.clientY - lastTouchY;
+      flyYaw -= dx * lookSensitivity;
+      flyPitch -= dy * lookSensitivity;
+      flyPitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, flyPitch));
+    }
+    lastTouchX = touch.clientX;
+    lastTouchY = touch.clientY;
+  }
+  function onTouchEndReset() {
+    lastTouchX = 0;
+    lastTouchY = 0;
+  }
 
   function enableDevMode() {
-    // Set orbit target to where the camera is currently looking
+    // Derive yaw/pitch from current camera world direction
     const dir = new THREE.Vector3();
     camera.getWorldDirection(dir);
-    const worldPos = new THREE.Vector3();
-    camera.getWorldPosition(worldPos);
-    orbitControls.target.copy(worldPos).add(dir.multiplyScalar(3));
-    orbitControls.enabled = true;
-    orbitControls.update();
+    flyYaw = Math.atan2(-dir.x, -dir.z);
+    flyPitch = Math.asin(Math.max(-1, Math.min(1, dir.y)));
     window.addEventListener('keydown', onDevKeyDown);
     window.addEventListener('keyup', onDevKeyUp);
+    renderer.domElement.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousemove', onMouseMove);
+    renderer.domElement.addEventListener('touchstart', onTouchStart);
+    window.addEventListener('touchend', onTouchEnd);
+    window.addEventListener('touchmove', onTouchMoveHandler);
+    window.addEventListener('touchend', onTouchEndReset);
   }
 
   function disableDevMode() {
-    orbitControls.enabled = false;
-    // Reset all keys
     for (const k of Object.keys(moveKeys)) (moveKeys as Record<string, boolean>)[k] = false;
+    isDragging = false;
+    lastTouchX = 0;
+    lastTouchY = 0;
     window.removeEventListener('keydown', onDevKeyDown);
     window.removeEventListener('keyup', onDevKeyUp);
+    renderer.domElement.removeEventListener('mousedown', onMouseDown);
+    window.removeEventListener('mouseup', onMouseUp);
+    window.removeEventListener('mousemove', onMouseMove);
+    renderer.domElement.removeEventListener('touchstart', onTouchStart);
+    window.removeEventListener('touchend', onTouchEnd);
+    window.removeEventListener('touchmove', onTouchMoveHandler);
+    window.removeEventListener('touchend', onTouchEndReset);
   }
 
   navigation.onDevModeChange((active) => {
-    if (active) {
-      enableDevMode();
-    } else {
-      disableDevMode();
-    }
+    if (active) enableDevMode();
+    else disableDevMode();
   });
 
   // --- Chapter selection ---
@@ -354,11 +396,13 @@ async function init() {
 
     // Update camera transition
     if (navigation.isDevMode()) {
-      // WASD movement relative to camera orientation
-      const forward = new THREE.Vector3();
-      camera.getWorldDirection(forward);
-      forward.normalize();
-      const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+      // Apply yaw/pitch look direction
+      const euler = new THREE.Euler(flyPitch, flyYaw, 0, 'YXZ');
+      camera.quaternion.setFromEuler(euler);
+
+      // WASD movement relative to look direction
+      const forward = new THREE.Vector3(0, 0, -1).applyEuler(euler);
+      const right = new THREE.Vector3(1, 0, 0).applyEuler(euler);
       const move = new THREE.Vector3();
       if (moveKeys.w) move.add(forward);
       if (moveKeys.s) move.sub(forward);
@@ -369,9 +413,7 @@ async function init() {
       if (move.lengthSq() > 0) {
         move.normalize().multiplyScalar(moveSpeed * dt);
         cameraRig.position.add(move);
-        orbitControls.target.add(move);
       }
-      orbitControls.update();
     } else {
       navigation.update(dt);
     }
