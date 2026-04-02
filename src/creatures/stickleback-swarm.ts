@@ -1,106 +1,109 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /**
  * Large stickleback swarm using InstancedMesh for performance.
- * 300 instances with GPU-driven body sway via onBeforeCompile.
+ * 300 instances using the stickleback GLB model.
  */
 
 const SWARM_COUNT = 300;
-
-/** Simplified stickleback geometry for instancing. */
-function createSwarmFishGeometry(): THREE.BufferGeometry {
-  const segsAround = 6;
-  const bodyLength = 1.0;
-
-  const profile: [number, number, number][] = [
-    [0.00, 0.02, 0.03],
-    [0.10, 0.08, 0.12],
-    [0.30, 0.12, 0.18],
-    [0.50, 0.12, 0.19],
-    [0.70, 0.07, 0.12],
-    [0.85, 0.03, 0.05],
-    [1.00, 0.00, 0.00],
-  ];
-
-  const vertices: number[] = [];
-  const colors: number[] = [];
-  const indices: number[] = [];
-
-  for (let s = 0; s < profile.length; s++) {
-    const [zNorm, xR, yR] = profile[s];
-    const z = zNorm * bodyLength;
-    for (let a = 0; a < segsAround; a++) {
-      const angle = (a / segsAround) * Math.PI * 2;
-      vertices.push(Math.cos(angle) * xR, Math.sin(angle) * yR, z);
-      const topness = Math.max(0, Math.sin(angle));
-      colors.push(0.35 + (1 - topness) * 0.35, 0.42 + (1 - topness) * 0.30, 0.30 + (1 - topness) * 0.25);
-    }
-  }
-
-  for (let s = 0; s < profile.length - 1; s++) {
-    for (let a = 0; a < segsAround; a++) {
-      const curr = s * segsAround + a;
-      const next = s * segsAround + (a + 1) % segsAround;
-      const currNext = (s + 1) * segsAround + a;
-      const nextNext = (s + 1) * segsAround + (a + 1) % segsAround;
-      indices.push(curr, next, currNext);
-      indices.push(next, nextNext, currNext);
-    }
-  }
-
-  // Small tail
-  const tailBaseIdx = vertices.length / 3;
-  vertices.push(0, 0, 0.94); colors.push(0.5, 0.55, 0.45);
-  vertices.push(-0.06, 0.05, 1.08); colors.push(0.45, 0.5, 0.4);
-  vertices.push(0.06, 0.05, 1.08); colors.push(0.45, 0.5, 0.4);
-  vertices.push(-0.06, -0.05, 1.08); colors.push(0.55, 0.6, 0.5);
-  vertices.push(0.06, -0.05, 1.08); colors.push(0.55, 0.6, 0.5);
-
-  indices.push(tailBaseIdx, tailBaseIdx + 1, tailBaseIdx + 2);
-  indices.push(tailBaseIdx, tailBaseIdx + 3, tailBaseIdx + 4);
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-  geo.scale(0.05, 0.05, 0.05);
-
-  return geo;
-}
 
 export interface SwarmResult {
   mesh: THREE.InstancedMesh;
   update: (elapsed: number, dt: number) => void;
 }
 
-export function createSticklebackSwarm(scene: THREE.Scene, center: THREE.Vector3): SwarmResult {
-  const geometry = createSwarmFishGeometry();
+export async function createSticklebackSwarm(scene: THREE.Scene, center: THREE.Vector3): Promise<SwarmResult> {
+  // Load stickleback GLB model
+  const loader = new GLTFLoader();
+  const gltf = await loader.loadAsync(import.meta.env.BASE_URL + 'assets/stickleback.glb');
 
-  const material = new THREE.MeshStandardMaterial({
-    vertexColors: true,
-    roughness: 0.4,
-    metalness: 0.15,
-    side: THREE.DoubleSide,
+  // Collect all meshes and merge into a single geometry
+  const meshes: THREE.Mesh[] = [];
+  let firstMaterial: THREE.MeshStandardMaterial | null = null;
+  gltf.scene.traverse((child) => {
+    if ((child as THREE.Mesh).isMesh) {
+      const m = child as THREE.Mesh;
+      meshes.push(m);
+      if (!firstMaterial) firstMaterial = m.material as THREE.MeshStandardMaterial;
+    }
   });
+  if (meshes.length === 0) throw new Error('No mesh found in stickleback.glb');
+
+  // Bake each mesh's world transform into its geometry and merge
+  // Pad missing attributes so mergeGeometries works across meshes with different attr sets
+  const geos: THREE.BufferGeometry[] = [];
+  const allAttrs = new Set<string>();
+  for (const m of meshes) {
+    const g = m.geometry.clone();
+    m.updateWorldMatrix(true, false);
+    g.applyMatrix4(m.matrixWorld);
+    for (const name of Object.keys(g.attributes)) allAttrs.add(name);
+    geos.push(g);
+  }
+  for (const g of geos) {
+    for (const name of allAttrs) {
+      if (!g.attributes[name]) {
+        const ref = geos.find((o) => o.attributes[name])!.attributes[name];
+        const itemSize = ref.itemSize;
+        g.setAttribute(name, new THREE.BufferAttribute(
+          new Float32Array(g.attributes.position.count * itemSize), itemSize,
+        ));
+      }
+    }
+  }
+  const geometry = geos.length === 1 ? geos[0] : mergeGeometries(geos, false);
+
+  // Flip nose to +Z so rotation.y faces fish in travel direction
+  geometry.rotateY(Math.PI);
+
+  // Scale geometry to match procedural swarm convention (~0.05m body)
+  geometry.computeBoundingBox();
+  const rawLength = geometry.boundingBox!.max.z - geometry.boundingBox!.min.z;
+  const scaleFactor = 0.05 / rawLength;
+  geometry.scale(scaleFactor, scaleFactor, scaleFactor);
+
+  // Use the GLB's baked material
+  const material = firstMaterial!.clone();
+  material.side = THREE.DoubleSide;
 
   const mesh = new THREE.InstancedMesh(geometry, material, SWARM_COUNT);
   mesh.castShadow = true;
   mesh.visible = false;
 
-  // Pre-compute per-instance data: orbit radius, orbit speed, Y offset, phase
-  const instanceData: { radius: number; speed: number; yOffset: number; phase: number; yPhase: number }[] = [];
+  // Per-instance data with extra noise parameters to break up uniform orbits
+  interface FishData {
+    radius: number; speed: number; yOffset: number; phase: number; yPhase: number;
+    // Perturbation: radius wobble, lateral drift, dart timing
+    radWobbleAmp: number; radWobbleFreq: number; radWobblePhase: number;
+    driftAmp: number; driftFreq: number; driftPhase: number;
+    dartPhase: number; dartFreq: number;
+    scale: number;
+  }
+  const instanceData: FishData[] = [];
 
   const dummy = new THREE.Object3D();
 
   for (let i = 0; i < SWARM_COUNT; i++) {
     const radius = 0.5 + Math.random() * 3.0;
-    const speed = 0.3 + Math.random() * 0.5;
+    const speed = 0.2 + Math.random() * 0.5;
     const yOffset = (Math.random() - 0.5) * 2.0;
     const phase = Math.random() * Math.PI * 2;
     const yPhase = Math.random() * Math.PI * 2;
 
-    instanceData.push({ radius, speed, yOffset, phase, yPhase });
+    instanceData.push({
+      radius, speed, yOffset, phase, yPhase,
+      radWobbleAmp: 0.15 + Math.random() * 0.4,
+      radWobbleFreq: 0.3 + Math.random() * 0.6,
+      radWobblePhase: Math.random() * Math.PI * 2,
+      driftAmp: 0.2 + Math.random() * 0.5,
+      driftFreq: 0.15 + Math.random() * 0.3,
+      driftPhase: Math.random() * Math.PI * 2,
+      dartPhase: Math.random() * Math.PI * 2,
+      dartFreq: 0.5 + Math.random() * 1.5,
+      scale: 0.7 + Math.random() * 0.6,
+    });
 
     // Initial placement
     const angle = phase;
@@ -109,13 +112,17 @@ export function createSticklebackSwarm(scene: THREE.Scene, center: THREE.Vector3
       center.y + yOffset,
       center.z + Math.sin(angle) * radius,
     );
-    dummy.scale.setScalar(0.7 + Math.random() * 0.6);
+    dummy.scale.setScalar(instanceData[i].scale);
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
   }
 
   mesh.instanceMatrix.needsUpdate = true;
   scene.add(mesh);
+
+  // Reusable vectors for facing direction
+  const _prev = new THREE.Vector3();
+  const _curr = new THREE.Vector3();
 
   function update(elapsed: number, _dt: number) {
     if (!mesh.visible) return;
@@ -124,23 +131,45 @@ export function createSticklebackSwarm(scene: THREE.Scene, center: THREE.Vector3
       const d = instanceData[i];
       const angle = elapsed * d.speed + d.phase;
 
-      // Orbit around center with slight vertical bobbing
-      dummy.position.set(
-        center.x + Math.cos(angle) * d.radius,
-        center.y + d.yOffset + Math.sin(elapsed * 0.8 + d.yPhase) * 0.15,
-        center.z + Math.sin(angle) * d.radius,
+      // Wobbling radius breaks the perfect circle
+      const r = d.radius + Math.sin(elapsed * d.radWobbleFreq + d.radWobblePhase) * d.radWobbleAmp;
+
+      // Lateral drift perpendicular to orbit (cross-track wander)
+      const drift = Math.sin(elapsed * d.driftFreq + d.driftPhase) * d.driftAmp;
+
+      // Small occasional dart (burst of displacement along orbit tangent)
+      const dartRaw = Math.sin(elapsed * d.dartFreq + d.dartPhase);
+      const dart = dartRaw > 0.85 ? (dartRaw - 0.85) * 3.0 : 0;
+
+      const effAngle = angle + dart * 0.15;
+
+      const x = center.x + Math.cos(effAngle) * r + Math.sin(effAngle) * drift;
+      const z = center.z + Math.sin(effAngle) * r - Math.cos(effAngle) * drift;
+      const y = center.y + d.yOffset + Math.sin(elapsed * 0.8 + d.yPhase) * 0.15;
+
+      _curr.set(x, y, z);
+
+      // Compute previous position for facing direction
+      const pAngle = (elapsed - 0.016) * d.speed + d.phase;
+      const pDartRaw = Math.sin((elapsed - 0.016) * d.dartFreq + d.dartPhase);
+      const pDart = pDartRaw > 0.85 ? (pDartRaw - 0.85) * 3.0 : 0;
+      const pEffAngle = pAngle + pDart * 0.15;
+      const pR = d.radius + Math.sin((elapsed - 0.016) * d.radWobbleFreq + d.radWobblePhase) * d.radWobbleAmp;
+      const pDrift = Math.sin((elapsed - 0.016) * d.driftFreq + d.driftPhase) * d.driftAmp;
+      _prev.set(
+        center.x + Math.cos(pEffAngle) * pR + Math.sin(pEffAngle) * pDrift,
+        center.y + d.yOffset + Math.sin((elapsed - 0.016) * 0.8 + d.yPhase) * 0.15,
+        center.z + Math.sin(pEffAngle) * pR - Math.cos(pEffAngle) * pDrift,
       );
 
-      // Face direction of travel
-      const nextAngle = angle + 0.05;
-      const dx = Math.cos(nextAngle) * d.radius - Math.cos(angle) * d.radius;
-      const dz = Math.sin(nextAngle) * d.radius - Math.sin(angle) * d.radius;
+      const dx = _curr.x - _prev.x;
+      const dz = _curr.z - _prev.z;
+
+      dummy.position.copy(_curr);
       dummy.rotation.y = Math.atan2(dx, dz);
+      dummy.rotation.z = Math.sin(angle) * 0.12;
 
-      // Slight banking into turns
-      dummy.rotation.z = Math.sin(angle) * 0.15;
-
-      dummy.scale.setScalar(0.7 + (i % 5) * 0.1);
+      dummy.scale.setScalar(d.scale);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }

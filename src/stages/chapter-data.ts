@@ -264,7 +264,7 @@ const fishSpeciesStages: StageDefinition[] = [
     name: 'Three-spined Stickleback',
     cameraView: {
       name: 'Three-spined Stickleback',
-      position: new THREE.Vector3(0.7, 0.5, 0.2),
+      position: new THREE.Vector3(0.35, 0.46, -0.05),
       lookAt: new THREE.Vector3(0.1, 0.45, -0.3),
     },
     transitionDuration: 2.0,

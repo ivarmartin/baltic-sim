@@ -78,7 +78,7 @@ async function init() {
   const bladderwrackResult = createBladderwrack(scene, seabedResult.rockPositions);
   updates.push(bladderwrackResult.update);
 
-  const sticklebackResult = createSticklebacks(scene);
+  const sticklebackResult = await createSticklebacks(scene);
   updates.push(sticklebackResult.update);
 
   const perchResult = await createPerch(scene);
@@ -100,7 +100,7 @@ async function init() {
   const pikeResult = await createPike(scene, new THREE.Vector3(-11, 0.8, -8));
   updates.push(pikeResult.update);
 
-  const swarmResult = createSticklebackSwarm(scene, new THREE.Vector3(-10, 1.0, -7));
+  const swarmResult = await createSticklebackSwarm(scene, new THREE.Vector3(-10, 1.0, -7));
   updates.push(swarmResult.update);
 
   // --- Pike chapter assets ---
