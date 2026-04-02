@@ -23,6 +23,7 @@ export function createNavigation(
   update: (dt: number) => void;
   setTransitionDuration: (seconds: number) => void;
   loadViews: (views: CameraView[]) => void;
+  setCurrentName: (name: string) => void;
   show: () => void;
   hide: () => void;
   dispose: () => void;
@@ -320,5 +321,9 @@ export function createNavigation(
     style.remove();
   }
 
-  return { update, setTransitionDuration: setTransitionDurationFn, loadViews, show, hide, dispose };
+  function setCurrentName(name: string) {
+    nameEl.textContent = name;
+  }
+
+  return { update, setTransitionDuration: setTransitionDurationFn, loadViews, setCurrentName, show, hide, dispose };
 }

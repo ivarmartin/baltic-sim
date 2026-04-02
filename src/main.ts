@@ -27,6 +27,7 @@ import { createPike } from './creatures/pike';
 import { createSticklebackSwarm } from './creatures/stickleback-swarm';
 import { createFilamentousAlgae } from './vegetation/filamentous-algae';
 import { createStartScreen } from './ui/start-screen';
+import { createMenu } from './ui/menu';
 import { createSeal } from './creatures/seal';
 import { createCormorant } from './creatures/cormorant';
 import { createPikeFry } from './creatures/pike-fry';
@@ -186,6 +187,7 @@ async function init() {
     setPikeHold: (h) => pikeResult.setHold(h),
     setCodHold: (h) => codResult.setHold(h),
     setPerchHold: (h) => perchResult.setHold(h),
+    setNavName: (name) => navigation.setCurrentName(name),
   });
 
   // --- Camera navigation ---
@@ -224,12 +226,15 @@ async function init() {
   const startScreen = createStartScreen(chapters, (chapter) => {
     currentChapter = chapter;
     const views = getChapterCameraViews(chapter);
-    stageManager.loadChapter(chapter);
     navigation.loadViews(views);
+    stageManager.loadChapter(chapter);
     startScreen.hide();
     navigation.show();
     narrative.show();
   });
+
+  // --- Menu (hamburger + language selector) ---
+  createMenu();
 
   // --- UI Controls ---
   const lightPos = environment.sunLight.position.clone();

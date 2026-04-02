@@ -1,4 +1,5 @@
 import type { Chapter } from '../stages/chapter-data';
+import { t, onLocaleChange } from '../i18n';
 
 export interface StartScreen {
   show: () => void;
@@ -16,26 +17,36 @@ export function createStartScreen(
   const chapterEntries = chapters.filter((ch) => ch.type !== 'appendix');
   const appendixEntries = chapters.filter((ch) => ch.type === 'appendix');
 
+  function getChapterText(ch: Chapter) {
+    const tr = t().chapters[ch.id];
+    return {
+      title: tr?.title || ch.title,
+      subtitle: tr?.subtitle || ch.subtitle,
+    };
+  }
+
   function buildCards(items: Chapter[]): string {
     return items
-      .map(
-        (ch) => `
+      .map((ch) => {
+        const text = getChapterText(ch);
+        return `
       <button class="chapter-card" data-chapter-id="${ch.id}" data-type="${ch.type || 'chapter'}">
-        <span class="chapter-title">${ch.title}</span>
-        <span class="chapter-subtitle">${ch.subtitle}</span>
-      </button>`,
-      )
+        <span class="chapter-title">${text.title}</span>
+        <span class="chapter-subtitle">${text.subtitle}</span>
+      </button>`;
+      })
       .join('');
   }
 
+  const tr = t();
   const appendixSection = appendixEntries.length > 0
-    ? `<div class="appendix-divider"><span>Species Guides</span></div>${buildCards(appendixEntries)}`
+    ? `<div class="appendix-divider"><span>${tr.ui.speciesGuides}</span></div>${buildCards(appendixEntries)}`
     : '';
 
   overlay.innerHTML = `
     <div class="start-inner">
-      <h1 class="start-heading">Baltic Sea</h1>
-      <p class="start-subheading">Choose a chapter</p>
+      <h1 class="start-heading">${tr.ui.siteTitle}</h1>
+      <p class="start-subheading">${tr.ui.chooseChapter}</p>
       <div class="chapter-list">
         ${buildCards(chapterEntries)}
         ${appendixSection}
@@ -206,6 +217,31 @@ export function createStartScreen(
     });
   });
 
+  // Grab references for reactive text updates
+  const headingEl = overlay.querySelector('.start-heading') as HTMLElement;
+  const subheadingEl = overlay.querySelector('.start-subheading') as HTMLElement;
+  const dividerEl = overlay.querySelector('.appendix-divider span') as HTMLElement | null;
+
+  function updateText() {
+    const tr = t();
+    headingEl.textContent = tr.ui.siteTitle;
+    subheadingEl.textContent = tr.ui.chooseChapter;
+    if (dividerEl) dividerEl.textContent = tr.ui.speciesGuides;
+
+    cards.forEach((card) => {
+      const id = (card as HTMLElement).dataset.chapterId;
+      const chapter = chapters.find((c) => c.id === id);
+      if (!chapter) return;
+      const text = getChapterText(chapter);
+      const titleEl = card.querySelector('.chapter-title') as HTMLElement;
+      const subtitleEl = card.querySelector('.chapter-subtitle') as HTMLElement;
+      titleEl.textContent = text.title;
+      subtitleEl.textContent = text.subtitle;
+    });
+  }
+
+  const unsubLocale = onLocaleChange(() => updateText());
+
   return {
     show() {
       overlay.classList.remove('hidden');
@@ -214,6 +250,7 @@ export function createStartScreen(
       overlay.classList.add('hidden');
     },
     dispose() {
+      unsubLocale();
       overlay.remove();
       style.remove();
     },

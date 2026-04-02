@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { Chapter, EnvironmentPreset } from './chapter-data';
 import type { NarrativeUI } from '../ui/narrative';
 import type { EnvironmentResult } from '../scene/environment';
+import { t, onLocaleChange } from '../i18n';
 
 /** Environment presets: fogColor, fogDensity, bgColor, sunIntensity, ambientIntensity, hemiIntensity, exposure */
 const presets: Record<EnvironmentPreset, { fogColor: THREE.Color; fogDensity: number; bgColor: THREE.Color; sunIntensity: number; ambientIntensity: number; hemiIntensity: number; exposure: number }> = {
@@ -31,6 +32,7 @@ export interface StageManagerDeps {
   setPerchHold?: (hold: boolean) => void;
   setPikeHold?: (hold: boolean) => void;
   setCodHold?: (hold: boolean) => void;
+  setNavName?: (name: string) => void;
 }
 
 export interface StageManager {
@@ -49,6 +51,24 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
   let targetEnvironment: EnvironmentPreset = 'shallow';
   let envTransitionT = 1.0;
   const envTransitionSpeed = 1.5;
+
+  function getStageText(chapter: Chapter, index: number) {
+    const translated = t().chapters[chapter.id]?.stages[index];
+    const stage = chapter.stages[index];
+    return {
+      name: translated?.name || stage.name,
+      narrative: translated?.narrative || stage.narrative,
+    };
+  }
+
+  function refreshText() {
+    if (!currentChapter) return;
+    const { name, narrative } = getStageText(currentChapter, currentStage);
+    deps.narrative.setText(name, narrative, currentChapter.type === 'appendix');
+    deps.setNavName?.(name);
+  }
+
+  const unsubLocale = onLocaleChange(() => refreshText());
 
   function applyEnvironmentInstant(preset: EnvironmentPreset) {
     const p = presets[preset];
@@ -136,7 +156,9 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     targetEnvironment = stage.environment;
     envTransitionT = 1.0;
 
-    narrative.setText(stage.name, stage.narrative, chapter.type === 'appendix');
+    const text = getStageText(chapter, 0);
+    narrative.setText(text.name, text.narrative, chapter.type === 'appendix');
+    deps.setNavName?.(text.name);
     narrative.show();
 
     showGroupsForStage(chapter, 0);
@@ -150,11 +172,12 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     currentStage = index;
     showGroupsForStage(currentChapter, index);
 
-    const stage = currentChapter.stages[index];
-    narrative.setText(stage.name, stage.narrative, currentChapter.type === 'appendix');
+    const text = getStageText(currentChapter, index);
+    narrative.setText(text.name, text.narrative, currentChapter.type === 'appendix');
+    deps.setNavName?.(text.name);
 
     prevEnvironment = targetEnvironment;
-    targetEnvironment = stage.environment;
+    targetEnvironment = currentChapter.stages[index].environment;
     envTransitionT = 0;
 
     applyCallbacks(currentChapter, index);
@@ -168,7 +191,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
   }
 
   function dispose() {
-    // Nothing to clean up currently
+    unsubLocale();
   }
 
   return { update, onViewChange, loadChapter, dispose };
