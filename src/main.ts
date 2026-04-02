@@ -64,12 +64,21 @@ async function init() {
   cameraRig.add(camera);
   scene.add(cameraRig);
 
+  // Camera sees both environment (layer 0) and creatures (layer 1)
+  camera.layers.enable(1);
+
   // --- Update system ---
   type UpdateFn = (elapsed: number, dt: number) => void;
   const updates: UpdateFn[] = [];
 
   // --- Setup scene modules (shared across all chapters) ---
   const environment = setupEnvironment(scene);
+
+  // Lights must illuminate both layers
+  environment.sunLight.layers.enable(1);
+  environment.ambient.layers.enable(1);
+  environment.hemi.layers.enable(1);
+
   const seabedResult = createSeabed(scene);
   const jettyResult = createJetty(scene);
   const shipwreckResult = createShipwreck(scene);
@@ -127,6 +136,23 @@ async function init() {
   updates.push(restoredWetlandResult.update);
 
   const pikeEggsResult = createPikeEggs(scene, new THREE.Vector3(-10, 0, -7.5));
+
+  // --- Assign creatures to layer 1 (excluded from god ray occlusion render) ---
+  const creatureRoots = [
+    sticklebackResult.group,
+    perchResult.group,
+    ambientSealResult.group,
+    pikeResult.group,
+    codResult.group,
+    swarmResult.mesh,
+    sealResult.group,
+    cormorantResult.group,
+    pikeFryResult.group,
+    smallFishResult.group,
+  ];
+  for (const root of creatureRoots) {
+    root.traverse((child: THREE.Object3D) => { child.layers.set(1); });
+  }
 
   // --- Caustics (must be set up before depth injection on seabed) ---
   setupCaustics(seabedResult.seabedMaterial);
@@ -352,7 +378,10 @@ async function init() {
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    if (underwater) underwater.composer.setSize(w, h);
+    if (underwater) {
+      underwater.composer.setSize(w, h);
+      underwater.setSize(w, h);
+    }
   }
   window.addEventListener('resize', onResize);
 
@@ -419,6 +448,7 @@ async function init() {
     }
 
     if (underwater) {
+      underwater.renderOcclusion(scene, camera);
       underwater.composer.render();
     } else {
       renderer.render(scene, camera);

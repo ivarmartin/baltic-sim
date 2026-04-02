@@ -12,6 +12,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const UnderwaterShader = {
   uniforms: {
     tDiffuse: { value: null },
+    tOcclusion: { value: null },
     uTime: { value: 0 },
     uVignetteStrength: { value: 1.2 },
     uGodRays: { value: 1.0 },
@@ -28,6 +29,7 @@ const UnderwaterShader = {
   `,
   fragmentShader: `
     uniform sampler2D tDiffuse;
+    uniform sampler2D tOcclusion;
     uniform float uTime;
     uniform float uVignetteStrength;
     uniform float uGodRays;
@@ -60,7 +62,7 @@ const UnderwaterShader = {
 
         for (int i = 0; i < 40; i++) {
           sampleUv -= deltaUv;
-          vec4 sampleColor = texture2D(tDiffuse, clamp(sampleUv, 0.0, 1.0));
+          vec4 sampleColor = texture2D(tOcclusion, clamp(sampleUv, 0.0, 1.0));
           float brightness = dot(sampleColor.rgb, vec3(0.3, 0.5, 0.2));
           illumination += brightness * weight;
           weight *= decay;
@@ -100,8 +102,10 @@ const UnderwaterShader = {
 export interface UnderwaterEffects {
   composer: EffectComposer;
   update: (elapsed: number, camera: THREE.Camera, lightWorldPos: THREE.Vector3) => void;
+  renderOcclusion: (scene: THREE.Scene, camera: THREE.Camera) => void;
   setGodRays: (on: boolean) => void;
   setMix: (t: number) => void;
+  setSize: (width: number, height: number) => void;
 }
 
 export function createUnderwaterEffect(
@@ -122,6 +126,13 @@ export function createUnderwaterEffect(
 
   const _lightScreenPos = new THREE.Vector3();
 
+  // Occlusion target: environment-only render for god ray sampling
+  const occlusionTarget = new THREE.WebGLRenderTarget(
+    renderer.domElement.clientWidth * renderer.getPixelRatio(),
+    renderer.domElement.clientHeight * renderer.getPixelRatio(),
+  );
+  underwaterPass.uniforms.tOcclusion.value = occlusionTarget.texture;
+
   return {
     composer,
     update(elapsed: number, cam: THREE.Camera, lightWorldPos: THREE.Vector3) {
@@ -135,11 +146,26 @@ export function createUnderwaterEffect(
         _lightScreenPos.y * 0.5 + 0.5,
       );
     },
+    renderOcclusion(scene: THREE.Scene, cam: THREE.Camera) {
+      // Render environment only (layer 0) for god ray sampling
+      const savedMask = cam.layers.mask;
+      cam.layers.set(0);
+      renderer.setRenderTarget(occlusionTarget);
+      renderer.render(scene, cam);
+      renderer.setRenderTarget(null);
+      cam.layers.mask = savedMask;
+    },
     setGodRays(on: boolean) {
       underwaterPass.uniforms.uGodRays.value = on ? 1.0 : 0.0;
     },
     setMix(t: number) {
       underwaterPass.uniforms.uUnderwaterMix.value = Math.max(0, Math.min(1, t));
+    },
+    setSize(width: number, height: number) {
+      occlusionTarget.setSize(
+        width * renderer.getPixelRatio(),
+        height * renderer.getPixelRatio(),
+      );
     },
   };
 }

@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 export const AMBIENT_SEAL_MARK = new THREE.Vector3(-20, 3.5, -3);
 
 export interface AmbientSealResult {
+  group: THREE.Object3D;
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
   setHold: (hold: boolean) => void;
@@ -193,5 +194,5 @@ export async function createAmbientSeal(scene: THREE.Scene): Promise<AmbientSeal
     if (!hold) isHolding = false;
   }
 
-  return { update, material, setHold };
+  return { group, update, material, setHold };
 }

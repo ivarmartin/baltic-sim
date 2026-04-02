@@ -72,6 +72,7 @@ interface PerchInstance {
 }
 
 export interface PerchResult {
+  group: THREE.Object3D;
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
   setHold: (hold: boolean) => void;
@@ -108,6 +109,7 @@ export async function createPerch(scene: THREE.Scene): Promise<PerchResult> {
   // Use the GLB's baked material
   const material = ((sourceMesh as THREE.Mesh).material as THREE.MeshStandardMaterial).clone();
 
+  const group = new THREE.Group();
   const fishes: PerchInstance[] = [];
 
   for (let i = 0; i < PERCH_COUNT; i++) {
@@ -138,9 +140,10 @@ export async function createPerch(scene: THREE.Scene): Promise<PerchResult> {
       isHolding: false,
     };
 
-    scene.add(mesh);
+    group.add(mesh);
     fishes.push(fish);
   }
+  scene.add(group);
 
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
@@ -208,5 +211,5 @@ export async function createPerch(scene: THREE.Scene): Promise<PerchResult> {
     }
   }
 
-  return { update: updatePerch, material, setHold };
+  return { group, update: updatePerch, material, setHold };
 }

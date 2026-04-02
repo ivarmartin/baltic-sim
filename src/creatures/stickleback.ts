@@ -71,6 +71,7 @@ interface FishInstance {
 }
 
 export interface SticklebackResult {
+  group: THREE.Object3D;
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
   setHold: (hold: boolean) => void;
@@ -133,6 +134,7 @@ export async function createSticklebacks(scene: THREE.Scene): Promise<Sticklebac
   const material = firstMaterial!.clone();
   material.side = THREE.DoubleSide;
 
+  const group = new THREE.Group();
   const fishes: FishInstance[] = [];
 
   for (let i = 0; i < FISH_COUNT; i++) {
@@ -161,9 +163,10 @@ export async function createSticklebacks(scene: THREE.Scene): Promise<Sticklebac
       isHolding: false,
     };
 
-    scene.add(mesh);
+    group.add(mesh);
     fishes.push(fish);
   }
+  scene.add(group);
 
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
@@ -231,5 +234,5 @@ export async function createSticklebacks(scene: THREE.Scene): Promise<Sticklebac
     }
   }
 
-  return { update: updateFish, material, setHold };
+  return { group, update: updateFish, material, setHold };
 }
