@@ -133,9 +133,9 @@ export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeRes
   const _lookAt = new THREE.Vector3();
 
   let hold = false;
-  // Hold position: right in front of camera, facing toward it
-  const holdPos = new THREE.Vector3(position.x + 0.3, position.y, position.z + 1.2);
-  const holdLookAt = new THREE.Vector3(position.x + 0.3, position.y, position.z + 3);
+  // Hold position: close in front of camera, broadside view
+  const holdPos = new THREE.Vector3(position.x + 0.2, position.y + 0.1, position.z + 3.5);
+  const holdLookAt = new THREE.Vector3(position.x + 2, position.y + 0.1, position.z + 3.5);
 
   function setHold(value: boolean) {
     hold = value;
