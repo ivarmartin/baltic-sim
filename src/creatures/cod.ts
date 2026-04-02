@@ -211,7 +211,7 @@ export function createCod(scene: THREE.Scene): CodResult {
         t = markT;
         isHolding = true;
       } else {
-        let s = speed;
+        let s = Math.max(speed, dist / 2.0);
         if (dist < 0.08) {
           s *= Math.max(dist / 0.08, 0.05);
         }

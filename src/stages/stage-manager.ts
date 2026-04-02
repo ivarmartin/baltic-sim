@@ -136,7 +136,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     targetEnvironment = stage.environment;
     envTransitionT = 1.0;
 
-    narrative.setText(stage.narrative);
+    narrative.setText(stage.name, stage.narrative, chapter.type === 'appendix');
     narrative.show();
 
     showGroupsForStage(chapter, 0);
@@ -151,7 +151,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     showGroupsForStage(currentChapter, index);
 
     const stage = currentChapter.stages[index];
-    narrative.setText(stage.narrative);
+    narrative.setText(stage.name, stage.narrative, currentChapter.type === 'appendix');
 
     prevEnvironment = targetEnvironment;
     targetEnvironment = stage.environment;

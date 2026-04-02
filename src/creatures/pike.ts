@@ -72,17 +72,17 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
 
   // Patrol path crosses the camera's line of sight at the mark for a profile view
   const path = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-12.5, 0.75, -7.5),
-    new THREE.Vector3(-12.1, 0.70, -8.2),
+    new THREE.Vector3(-18.75, 0.90, -4.05),
+    new THREE.Vector3(-14.75, 0.70, -6.85),
     new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark — side-on to camera
-    new THREE.Vector3(-11.2, 0.75, -9.3),
-    new THREE.Vector3(-10.5, 0.80, -9.0),
-    new THREE.Vector3(-10.5, 0.85, -8.0),
-    new THREE.Vector3(-11.5, 0.80, -7.2),
+    new THREE.Vector3(-10.75, 0.90, -12.05),
+    new THREE.Vector3(-13.55, 1.10, -14.85),
+    new THREE.Vector3(-17.95, 1.10, -12.05),
+    new THREE.Vector3(-19.95, 0.90, -6.85),
   ], true);
 
   let t = 0.7; // start on far side of loop, away from perch camera
-  const speed = 0.03;
+  const speed = 0.0075;
   const swimPhase = Math.random() * Math.PI * 2;
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
@@ -104,7 +104,7 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
         t = markT;
         isHolding = true;
       } else {
-        let s = speed;
+        let s = Math.max(speed, dist / 2.0);
         if (dist < 0.08) {
           s *= Math.max(dist / 0.08, 0.05);
         }
@@ -131,8 +131,8 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
       const zNorm = (bz - zMin) / bodyLength; // 0 at nose, 1 at tail
-      const amplitude = zNorm * zNorm * (holding ? 0.002 : 0.006);
-      const wave = Math.sin(elapsed * (holding ? 3 : 6) + swimPhase - zNorm * Math.PI * 2);
+      const amplitude = zNorm * zNorm * (holding ? 0.004 : 0.012);
+      const wave = Math.sin(elapsed * (holding ? 6 : 12) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
     }
     posAttr.needsUpdate = true;

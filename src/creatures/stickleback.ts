@@ -248,7 +248,7 @@ export function createSticklebacks(scene: THREE.Scene): SticklebackResult {
             fish.t = fish.markT;
             fish.isHolding = true;
           } else {
-            let speed = fish.speed;
+            let speed = Math.max(fish.speed, dist / 2.0);
             if (dist < 0.08) {
               speed *= Math.max(dist / 0.08, 0.05);
             }
