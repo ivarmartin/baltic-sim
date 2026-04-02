@@ -94,6 +94,29 @@ function createPikeGeometry(): THREE.BufferGeometry {
   return geo;
 }
 
+/** Find the closest t parameter on a path to a target world position. */
+function findClosestT(path: THREE.CatmullRomCurve3, target: THREE.Vector3): number {
+  let bestT = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const t = i / 200;
+    const d = path.getPointAt(t).distanceTo(target);
+    if (d < bestDist) {
+      bestDist = d;
+      bestT = t;
+    }
+  }
+  return bestT;
+}
+
+/** Forward arc distance on the circular [0, 1) parameter ring. */
+function forwardDist(current: number, target: number): number {
+  return target >= current ? target - current : 1 - current + target;
+}
+
+/** Mark position for pike hold — side-on to camera, close. */
+const PIKE_MARK = new THREE.Vector3(-11, 0.8, -8);
+
 export interface PikeResult {
   group: THREE.Group;
   update: (elapsed: number, dt: number) => void;
@@ -132,40 +155,52 @@ export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeRes
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
 
-  let hold = false;
-  // Hold position: close in front of camera, broadside view
-  const holdPos = new THREE.Vector3(position.x + 0.2, position.y + 0.1, position.z + 3.5);
-  const holdLookAt = new THREE.Vector3(position.x + 2, position.y + 0.1, position.z + 3.5);
+  // Hold state (decelerate-on-path, same as perch/stickleback)
+  let holdRequested = false;
+  let isHolding = false;
+  const markT = findClosestT(path, PIKE_MARK);
 
   function setHold(value: boolean) {
-    hold = value;
+    holdRequested = value;
+    if (!value) isHolding = false;
   }
 
   function update(elapsed: number, dt: number) {
-    if (hold) {
-      // Park at hold position, still do subtle undulation
-      mesh.position.lerp(holdPos, 0.03);
-      mesh.lookAt(holdLookAt);
+    if (holdRequested && !isHolding) {
+      const dist = forwardDist(t, markT);
+      if (dist < 0.002) {
+        t = markT;
+        isHolding = true;
+      } else {
+        let s = speed;
+        if (dist < 0.08) {
+          s *= Math.max(dist / 0.08, 0.05);
+        }
+        t = (t + s * dt) % 1;
+      }
+    } else if (isHolding) {
+      t = markT;
     } else {
       t = (t + speed * dt) % 1;
-
-      const pos = path.getPointAt(t);
-      mesh.position.copy(pos);
-
-      path.getTangentAt(t, _tangent);
-      _lookAt.copy(pos).sub(_tangent);
-      mesh.lookAt(_lookAt);
     }
 
+    const pos = path.getPointAt(t);
+    mesh.position.copy(pos);
+
+    path.getTangentAt(t, _tangent);
+    _lookAt.copy(pos).sub(_tangent);
+    mesh.lookAt(_lookAt);
+
     // Subtle body undulation (always active — pike breathes)
+    const holding = holdRequested || isHolding;
     const posAttr = geometry.attributes.position;
     const arr = posAttr.array as Float32Array;
     for (let v = 0; v < posAttr.count; v++) {
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
       const zNorm = bz / 0.7;
-      const amplitude = zNorm * zNorm * (hold ? 0.001 : 0.003);
-      const wave = Math.sin(elapsed * (hold ? 1.5 : 3) + swimPhase - zNorm * Math.PI * 2);
+      const amplitude = zNorm * zNorm * (holding ? 0.001 : 0.003);
+      const wave = Math.sin(elapsed * (holding ? 1.5 : 3) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
     }
     posAttr.needsUpdate = true;

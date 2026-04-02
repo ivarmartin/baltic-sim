@@ -13,21 +13,33 @@ export function createStartScreen(
   const overlay = document.createElement('div');
   overlay.id = 'start-screen';
 
-  const cardsHtml = chapters
-    .map(
-      (ch) => `
-    <button class="chapter-card" data-chapter-id="${ch.id}">
-      <span class="chapter-title">${ch.title}</span>
-      <span class="chapter-subtitle">${ch.subtitle}</span>
-    </button>`,
-    )
-    .join('');
+  const chapterEntries = chapters.filter((ch) => ch.type !== 'appendix');
+  const appendixEntries = chapters.filter((ch) => ch.type === 'appendix');
+
+  function buildCards(items: Chapter[]): string {
+    return items
+      .map(
+        (ch) => `
+      <button class="chapter-card" data-chapter-id="${ch.id}" data-type="${ch.type || 'chapter'}">
+        <span class="chapter-title">${ch.title}</span>
+        <span class="chapter-subtitle">${ch.subtitle}</span>
+      </button>`,
+      )
+      .join('');
+  }
+
+  const appendixSection = appendixEntries.length > 0
+    ? `<div class="appendix-divider"><span>Species Guides</span></div>${buildCards(appendixEntries)}`
+    : '';
 
   overlay.innerHTML = `
     <div class="start-inner">
       <h1 class="start-heading">Baltic Sea</h1>
       <p class="start-subheading">Choose a chapter</p>
-      <div class="chapter-list">${cardsHtml}</div>
+      <div class="chapter-list">
+        ${buildCards(chapterEntries)}
+        ${appendixSection}
+      </div>
     </div>
   `;
 
@@ -120,12 +132,64 @@ export function createStartScreen(
       line-height: 1.4;
     }
 
+    /* Appendix divider */
+    .appendix-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0 2px 0;
+    }
+
+    .appendix-divider::before,
+    .appendix-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .appendix-divider span {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+      white-space: nowrap;
+    }
+
+    /* Appendix card — subtler, smaller */
+    .chapter-card[data-type="appendix"] {
+      padding: 14px 18px;
+      background: rgba(10, 20, 30, 0.4);
+      border-color: rgba(255, 255, 255, 0.08);
+      border-style: dashed;
+    }
+
+    .chapter-card[data-type="appendix"] .chapter-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .chapter-card[data-type="appendix"] .chapter-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .chapter-card[data-type="appendix"]:hover {
+      background: rgba(15, 30, 45, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
     @media (max-width: 480px) {
       .start-heading { font-size: 28px; }
       .start-subheading { font-size: 13px; margin-bottom: 24px; }
       .chapter-card { padding: 14px 16px; }
       .chapter-title { font-size: 15px; }
       .chapter-subtitle { font-size: 12px; }
+      .chapter-card[data-type="appendix"] { padding: 12px 14px; }
+      .chapter-card[data-type="appendix"] .chapter-title { font-size: 13px; }
     }
   `;
 
