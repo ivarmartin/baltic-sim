@@ -6,13 +6,13 @@ import { t, onLocaleChange } from '../i18n';
 
 /** Environment presets: fogColor, fogDensity, bgColor, sunIntensity, ambientIntensity, hemiIntensity, exposure */
 const presets: Record<EnvironmentPreset, { fogColor: THREE.Color; fogDensity: number; bgColor: THREE.Color; sunIntensity: number; ambientIntensity: number; hemiIntensity: number; exposure: number }> = {
-  'above-water': { fogColor: new THREE.Color(0xc8d8e8), fogDensity: 0.01, bgColor: new THREE.Color(0x87ceeb), sunIntensity: 3.0, ambientIntensity: 1.0, hemiIntensity: 0.6, exposure: 2.03 },
-  'shallow':     { fogColor: new THREE.Color(0x1a3a2a), fogDensity: 0.18, bgColor: new THREE.Color(0x0d2818), sunIntensity: 1.8, ambientIntensity: 0.5, hemiIntensity: 0.3, exposure: 1.18 },
-  'mid-depth':   { fogColor: new THREE.Color(0x152e22), fogDensity: 0.22, bgColor: new THREE.Color(0x0a2015), sunIntensity: 1.2, ambientIntensity: 0.35, hemiIntensity: 0.2, exposure: 0.94 },
-  'deep':        { fogColor: new THREE.Color(0x0a1a10), fogDensity: 0.28, bgColor: new THREE.Color(0x060f0a), sunIntensity: 0.6, ambientIntensity: 0.2, hemiIntensity: 0.1, exposure: 0.68 },
-  'dead-zone':   { fogColor: new THREE.Color(0x050a05), fogDensity: 0.38, bgColor: new THREE.Color(0x020504), sunIntensity: 0.15, ambientIntensity: 0.05, hemiIntensity: 0.03, exposure: 0.34 },
-  'shipwreck':   { fogColor: new THREE.Color(0x1a3a2a), fogDensity: 0.20, bgColor: new THREE.Color(0x0d2818), sunIntensity: 1.5, ambientIntensity: 0.45, hemiIntensity: 0.25, exposure: 1.11 },
-  'dead-bay':    { fogColor: new THREE.Color(0x1a3a1a), fogDensity: 0.28, bgColor: new THREE.Color(0x0a200a), sunIntensity: 0.8, ambientIntensity: 0.25, hemiIntensity: 0.15, exposure: 0.77 },
+  'above-water': { fogColor: new THREE.Color(0x87ceeb), fogDensity: 0.01, bgColor: new THREE.Color(0x87ceeb), sunIntensity: 3.0, ambientIntensity: 1.0, hemiIntensity: 0.6, exposure: 2.03 },
+  'shallow':     { fogColor: new THREE.Color(0x0d2818), fogDensity: 0.18, bgColor: new THREE.Color(0x0d2818), sunIntensity: 1.8, ambientIntensity: 0.5, hemiIntensity: 0.3, exposure: 1.18 },
+  'mid-depth':   { fogColor: new THREE.Color(0x0a2015), fogDensity: 0.22, bgColor: new THREE.Color(0x0a2015), sunIntensity: 1.2, ambientIntensity: 0.35, hemiIntensity: 0.2, exposure: 0.94 },
+  'deep':        { fogColor: new THREE.Color(0x060f0a), fogDensity: 0.28, bgColor: new THREE.Color(0x060f0a), sunIntensity: 0.6, ambientIntensity: 0.2, hemiIntensity: 0.1, exposure: 0.68 },
+  'dead-zone':   { fogColor: new THREE.Color(0x020504), fogDensity: 0.38, bgColor: new THREE.Color(0x020504), sunIntensity: 0.15, ambientIntensity: 0.05, hemiIntensity: 0.03, exposure: 0.34 },
+  'shipwreck':   { fogColor: new THREE.Color(0x0d2818), fogDensity: 0.20, bgColor: new THREE.Color(0x0d2818), sunIntensity: 1.5, ambientIntensity: 0.45, hemiIntensity: 0.25, exposure: 1.11 },
+  'dead-bay':    { fogColor: new THREE.Color(0x0a200a), fogDensity: 0.28, bgColor: new THREE.Color(0x0a200a), sunIntensity: 0.8, ambientIntensity: 0.25, hemiIntensity: 0.15, exposure: 0.77 },
 };
 
 export interface StageVisibilityGroups {

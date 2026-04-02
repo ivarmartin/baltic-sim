@@ -8,7 +8,7 @@ export interface EnvironmentResult {
 
 export function setupEnvironment(scene: THREE.Scene): EnvironmentResult {
   // Murky green Baltic fog - exponential for natural falloff
-  scene.fog = new THREE.FogExp2(0x1a3a2a, 0.18);
+  scene.fog = new THREE.FogExp2(0x0d2818, 0.18);
   scene.background = new THREE.Color(0x0d2818);
 
   // Low ambient fill - scattered underwater light
