@@ -22,7 +22,7 @@ function forwardDist(current: number, target: number): number {
 }
 
 /** Mark position for pike hold — side-on to camera, close. */
-const PIKE_MARK = new THREE.Vector3(-11, 0.8, -8);
+const PIKE_MARK = new THREE.Vector3(-11.75, 0.7, -8.65);
 
 export interface PikeResult {
   group: THREE.Group;
