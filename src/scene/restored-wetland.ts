@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Restored wetland blockout — hopeful scene with shallow water,
+ * Restored wetland blockout - hopeful scene with shallow water,
  * grassy vegetation stems, and a simple fish passage.
  */
 
@@ -13,7 +13,7 @@ export interface RestoredWetlandResult {
 export function createRestoredWetland(scene: THREE.Scene, center: THREE.Vector3): RestoredWetlandResult {
   const group = new THREE.Group();
 
-  // Shallow water plane — warm blue-green tint
+  // Shallow water plane - warm blue-green tint
   const waterGeo = new THREE.PlaneGeometry(10, 8);
   waterGeo.rotateX(-Math.PI / 2);
   const waterMat = new THREE.MeshStandardMaterial({
@@ -45,7 +45,7 @@ export function createRestoredWetland(scene: THREE.Scene, center: THREE.Vector3)
   bottom.receiveShadow = true;
   group.add(bottom);
 
-  // Grass/sedge stems — tall green cylinders (like reeds but more grass-like)
+  // Grass/sedge stems - tall green cylinders (like reeds but more grass-like)
   const stemMat = new THREE.MeshStandardMaterial({
     color: 0x5a8a3a,
     roughness: 0.8,
@@ -84,7 +84,7 @@ export function createRestoredWetland(scene: THREE.Scene, center: THREE.Vector3)
     group.add(stem);
   }
 
-  // Fish passage — simple ramp/channel leading into the wetland
+  // Fish passage - simple ramp/channel leading into the wetland
   const passageMat = new THREE.MeshStandardMaterial({
     color: 0x6a6a5a,
     roughness: 0.9,

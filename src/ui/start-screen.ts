@@ -158,7 +158,7 @@ export function createStartScreen(
       white-space: nowrap;
     }
 
-    /* Appendix card — subtler, smaller */
+    /* Appendix card - subtler, smaller */
     .chapter-card[data-type="appendix"] {
       padding: 14px 18px;
       background: rgba(10, 20, 30, 0.4);

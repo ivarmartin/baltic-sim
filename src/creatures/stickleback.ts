@@ -140,12 +140,12 @@ function generatePath(): THREE.CatmullRomCurve3 {
 /** The mark position for the narrative stickleback. */
 export const STICKLEBACK_MARK = new THREE.Vector3(0.1, 0.45, -0.3);
 
-/** Fixed patrol path for the narrative stickleback — loops near the Stickleback camera view. */
+/** Fixed patrol path for the narrative stickleback - loops near the Stickleback camera view. */
 function createPresetSticklebackPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3([
     new THREE.Vector3(0.5, 0.5, -1.5),
     new THREE.Vector3(0.3, 0.47, -0.8),
-    new THREE.Vector3(0.1, 0.45, -0.3),    // mark area — side-on to camera, close
+    new THREE.Vector3(0.1, 0.45, -0.3),    // mark area - side-on to camera, close
     new THREE.Vector3(-0.1, 0.47, 0.2),
     new THREE.Vector3(-0.3, 0.5, 0.7),
     new THREE.Vector3(0.0, 0.48, 0.0),

@@ -7,7 +7,7 @@ const PERCH_COUNT = 3;
 export const PERCH_MARK = new THREE.Vector3(1.5, 0.85, 1.0);
 
 /**
- * Generate a random perch swim path — perch patrol near structures.
+ * Generate a random perch swim path - perch patrol near structures.
  */
 function generatePerchPath(): THREE.CatmullRomCurve3 {
   const points: THREE.Vector3[] = [];
@@ -22,12 +22,12 @@ function generatePerchPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3(points, true);
 }
 
-/** Fixed patrol path for the narrative perch — loops near the Perch camera view. */
+/** Fixed patrol path for the narrative perch - loops near the Perch camera view. */
 function createPresetPerchPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3([
     new THREE.Vector3(2.5, 0.95, -0.5),
     new THREE.Vector3(1.8, 0.88, 0.3),
-    new THREE.Vector3(1.5, 0.85, 1.0),     // mark area — side-on to camera, close
+    new THREE.Vector3(1.5, 0.85, 1.0),     // mark area - side-on to camera, close
     new THREE.Vector3(1.2, 0.88, 1.8),
     new THREE.Vector3(0.5, 0.95, 2.5),
     new THREE.Vector3(-0.5, 1.0, 1.5),

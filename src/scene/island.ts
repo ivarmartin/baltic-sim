@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Rocky island blockout (Askö) — grouped dodecahedrons rising above the water surface.
+ * Rocky island blockout (Askö) - grouped dodecahedrons rising above the water surface.
  * Placeholder geometry for prototyping.
  */
 export function createIsland(scene: THREE.Scene): THREE.Group {

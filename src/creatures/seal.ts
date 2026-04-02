@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Grey seal blockout — recognizable silhouette from merged primitives.
+ * Grey seal blockout - recognizable silhouette from merged primitives.
  * Elongated body, distinct head, front/rear flippers.
  */
 
@@ -26,7 +26,7 @@ export function createSeal(scene: THREE.Scene, center: THREE.Vector3): SealResul
     metalness: 0.05,
   });
 
-  // Body — elongated capsule (built along +X: nose at +X, tail at -X)
+  // Body - elongated capsule (built along +X: nose at +X, tail at -X)
   const bodyGeo = new THREE.CapsuleGeometry(0.18, 0.9, 6, 10);
   bodyGeo.rotateZ(Math.PI / 2);
   const body = new THREE.Mesh(bodyGeo, material);
@@ -87,7 +87,7 @@ export function createSeal(scene: THREE.Scene, center: THREE.Vector3): SealResul
 
   group.scale.setScalar(1.2);
 
-  // Playful swim path — confident arcing loop with depth variation
+  // Playful swim path - confident arcing loop with depth variation
   const path = new THREE.CatmullRomCurve3([
     new THREE.Vector3(center.x - 3,   center.y + 0.4, center.z - 2),
     new THREE.Vector3(center.x - 1.5, center.y + 1.2, center.z - 0.5),
@@ -133,7 +133,7 @@ export function createSeal(scene: THREE.Scene, center: THREE.Vector3): SealResul
     bankQuat.setFromAxisAngle(_tangent, bankAmount);
     group.quaternion.premultiply(bankQuat);
 
-    // Gentle pitch oscillation — nose dips and rises
+    // Gentle pitch oscillation - nose dips and rises
     const pitchAmount = Math.sin(elapsed * 2.0) * 0.05;
     pitchQuat.setFromAxisAngle(_side, pitchAmount);
     group.quaternion.premultiply(pitchQuat);

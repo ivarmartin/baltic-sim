@@ -24,7 +24,7 @@ export interface Chapter {
 }
 
 // ─────────────────────────────────────────────────────────────
-//  Chapter 1 — Intro to the Baltic
+//  Chapter 1 - Intro to the Baltic
 // ─────────────────────────────────────────────────────────────
 
 const introStages: StageDefinition[] = [
@@ -125,7 +125,7 @@ const introVisibility: Record<number, string[]> = {
 };
 
 // ─────────────────────────────────────────────────────────────
-//  Chapter 2 — The Pike
+//  Chapter 2 - The Pike
 // ─────────────────────────────────────────────────────────────
 
 const pikeStages: StageDefinition[] = [
@@ -232,7 +232,7 @@ const pikeCallbacks: Record<number, string> = {
 };
 
 // ─────────────────────────────────────────────────────────────
-//  Appendix — Baltic Fish Species
+//  Appendix - Baltic Fish Species
 // ─────────────────────────────────────────────────────────────
 
 const fishSpeciesStages: StageDefinition[] = [

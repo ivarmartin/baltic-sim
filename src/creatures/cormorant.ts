@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Cormorant blockout — recognizable diving bird silhouette.
+ * Cormorant blockout - recognizable diving bird silhouette.
  * Body, long neck, pointed beak, folded wings.
  */
 
@@ -25,21 +25,21 @@ export function createCormorant(scene: THREE.Scene, center: THREE.Vector3): Corm
     roughness: 0.6,
   });
 
-  // Body — torpedo shape
+  // Body - torpedo shape
   const bodyGeo = new THREE.CapsuleGeometry(0.08, 0.22, 6, 8);
   bodyGeo.rotateZ(Math.PI / 2);
   const body = new THREE.Mesh(bodyGeo, material);
   body.castShadow = true;
   group.add(body);
 
-  // Chest — slightly lighter, front underside
+  // Chest - slightly lighter, front underside
   const chestGeo = new THREE.SphereGeometry(0.07, 6, 4);
   chestGeo.scale(1.0, 0.8, 0.8);
   const chest = new THREE.Mesh(chestGeo, chestMaterial);
   chest.position.set(0.06, -0.03, 0);
   group.add(chest);
 
-  // Neck — chain of small spheres for a curved neck
+  // Neck - chain of small spheres for a curved neck
   const neckSegments = 5;
   for (let i = 0; i < neckSegments; i++) {
     const nf = i / (neckSegments - 1);
@@ -54,21 +54,21 @@ export function createCormorant(scene: THREE.Scene, center: THREE.Vector3): Corm
     group.add(seg);
   }
 
-  // Head — small sphere
+  // Head - small sphere
   const headGeo = new THREE.SphereGeometry(0.03, 6, 4);
   headGeo.scale(1.3, 0.9, 0.9);
   const head = new THREE.Mesh(headGeo, material);
   head.position.set(0.32, 0.16, 0);
   group.add(head);
 
-  // Beak — cone
+  // Beak - cone
   const beakGeo = new THREE.ConeGeometry(0.012, 0.08, 4);
   beakGeo.rotateZ(-Math.PI / 2);
   const beak = new THREE.Mesh(beakGeo, new THREE.MeshStandardMaterial({ color: 0x3a3520, roughness: 0.8 }));
   beak.position.set(0.38, 0.155, 0);
   group.add(beak);
 
-  // Wings — flat elongated shapes, folded along body
+  // Wings - flat elongated shapes, folded along body
   const wingGeo = new THREE.BoxGeometry(0.25, 0.01, 0.12);
   const leftWing = new THREE.Mesh(wingGeo, material);
   leftWing.position.set(-0.02, 0.04, 0.09);
@@ -80,13 +80,13 @@ export function createCormorant(scene: THREE.Scene, center: THREE.Vector3): Corm
   rightWing.rotation.set(-0.1, 0, 0.05);
   group.add(rightWing);
 
-  // Tail — thin wedge
+  // Tail - thin wedge
   const tailGeo = new THREE.BoxGeometry(0.12, 0.008, 0.05);
   const tail = new THREE.Mesh(tailGeo, material);
   tail.position.set(-0.18, 0.01, 0);
   group.add(tail);
 
-  // Webbed feet — two small flat discs tucked under body
+  // Webbed feet - two small flat discs tucked under body
   const footGeo = new THREE.CircleGeometry(0.025, 5);
   const footMat = new THREE.MeshStandardMaterial({ color: 0x2a2a20, roughness: 0.8, side: THREE.DoubleSide });
   const leftFoot = new THREE.Mesh(footGeo, footMat);
@@ -101,7 +101,7 @@ export function createCormorant(scene: THREE.Scene, center: THREE.Vector3): Corm
   // Scale up
   group.scale.setScalar(1.8);
 
-  // Diving path — comes from surface, dives down, goes back up
+  // Diving path - comes from surface, dives down, goes back up
   const path = new THREE.CatmullRomCurve3([
     new THREE.Vector3(center.x - 4, center.y + 3.0, center.z - 1),
     new THREE.Vector3(center.x - 2, center.y + 1.5, center.z),

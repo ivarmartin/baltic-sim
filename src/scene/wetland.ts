@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Drained wetland blockout — conveys lost pike nursery habitat.
+ * Drained wetland blockout - conveys lost pike nursery habitat.
  * Dry brown/grey ground, concrete channel, sparse dead vegetation stubs.
  */
 
@@ -12,7 +12,7 @@ export interface WetlandResult {
 export function createWetland(scene: THREE.Scene, center: THREE.Vector3): WetlandResult {
   const group = new THREE.Group();
 
-  // Ground — dry, cracked-looking flat plane
+  // Ground - dry, cracked-looking flat plane
   const groundGeo = new THREE.PlaneGeometry(8, 6, 8, 6);
   groundGeo.rotateX(-Math.PI / 2);
   // Add slight undulation to ground
@@ -32,7 +32,7 @@ export function createWetland(scene: THREE.Scene, center: THREE.Vector3): Wetlan
   ground.receiveShadow = true;
   group.add(ground);
 
-  // Concrete channel — straightened ditch
+  // Concrete channel - straightened ditch
   const channelWidth = 0.6;
   const channelDepth = 0.3;
   const channelLength = 7;
@@ -61,7 +61,7 @@ export function createWetland(scene: THREE.Scene, center: THREE.Vector3): Wetlan
   rightWall.castShadow = true;
   group.add(rightWall);
 
-  // Dead vegetation stubs — short broken cylinders
+  // Dead vegetation stubs - short broken cylinders
   const stubMat = new THREE.MeshStandardMaterial({
     color: 0x5a4a30,
     roughness: 1.0,

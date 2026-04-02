@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Pike fry — group of ~20 tiny fish darting in a small area.
+ * Pike fry - group of ~20 tiny fish darting in a small area.
  * Simplified pike shape at tiny scale.
  */
 

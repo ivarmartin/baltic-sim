@@ -32,7 +32,7 @@ export function createShipwreck(scene: THREE.Scene): ShipwreckResult {
   // --- Ribs (curved frames arching up from keel) ---
   const ribCount = 7;
   const ribSpacing = keelLength / (ribCount + 1);
-  // Shared rib curve — a half-arch
+  // Shared rib curve - a half-arch
   const ribCurvePoints = [];
   for (let i = 0; i <= 8; i++) {
     const t = (i / 8) * Math.PI; // 0 to PI
@@ -43,7 +43,7 @@ export function createShipwreck(scene: THREE.Scene): ShipwreckResult {
 
   for (let i = 0; i < ribCount; i++) {
     const xPos = -keelLength / 2 + ribSpacing * (i + 1);
-    // Vary height — ribs near bow/stern are shorter (broken off)
+    // Vary height - ribs near bow/stern are shorter (broken off)
     const distFromCenter = Math.abs(xPos) / (keelLength / 2);
     const heightScale = 1.0 - distFromCenter * 0.5;
 

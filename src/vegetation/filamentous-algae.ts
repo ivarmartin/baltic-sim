@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 /**
  * Filamentous algae: thin bright-green strands smothering rocks/bladderwrack.
- * Stage 2 — The Underwater Forest.
+ * Stage 2 - The Underwater Forest.
  */
 
 function createStrandGeometry(length: number): THREE.BufferGeometry {
