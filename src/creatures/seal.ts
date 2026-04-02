@@ -16,20 +16,26 @@ export async function createSeal(scene: THREE.Scene, center: THREE.Vector3): Pro
 
   const model = gltf.scene;
 
-  // Find meshes and primary material
+  // Clone the first material and assign to ALL meshes so depth-lighting covers everything
   let material: THREE.MeshStandardMaterial | null = null;
+  const meshes: THREE.Mesh[] = [];
   model.traverse((child) => {
     if ((child as THREE.Mesh).isMesh) {
+      meshes.push(child as THREE.Mesh);
       const m = child as THREE.Mesh;
       m.castShadow = true;
       if (!material && m.material instanceof THREE.MeshStandardMaterial) {
-        material = m.material;
+        material = m.material.clone();
       }
     }
   });
 
   if (!material) {
     material = new THREE.MeshStandardMaterial({ color: 0x5a6068 });
+  }
+
+  for (const m of meshes) {
+    m.material = material;
   }
 
   // Blender -Y forward → Three.js +Z after glTF conversion;

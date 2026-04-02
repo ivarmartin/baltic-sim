@@ -57,20 +57,27 @@ export async function createAmbientSeal(scene: THREE.Scene): Promise<AmbientSeal
 
   const model = gltf.scene;
 
-  // Find meshes and primary material
+  // Clone the first material and assign to ALL meshes so depth-lighting covers everything
   let material: THREE.MeshStandardMaterial | null = null;
+  const meshes: THREE.Mesh[] = [];
   model.traverse((child) => {
     if ((child as THREE.Mesh).isMesh) {
+      meshes.push(child as THREE.Mesh);
       const m = child as THREE.Mesh;
       m.castShadow = true;
       if (!material && m.material instanceof THREE.MeshStandardMaterial) {
-        material = m.material;
+        material = m.material.clone();
       }
     }
   });
 
   if (!material) {
     material = new THREE.MeshStandardMaterial({ color: 0x5a6068 });
+  }
+
+  // Apply the single cloned material to every mesh
+  for (const m of meshes) {
+    m.material = material;
   }
 
   // Blender -Y forward → Three.js; rotate so forward = +X for path-following
