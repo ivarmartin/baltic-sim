@@ -88,8 +88,8 @@ function createPikeGeometry(): THREE.BufferGeometry {
   geo.setIndex(indices);
   geo.computeVertexNormals();
 
-  // Scale: ~40cm visible in background
-  geo.scale(0.25, 0.25, 0.25);
+  // Scale: ~80cm realistic pike size
+  geo.scale(0.7, 0.7, 0.7);
 
   return geo;
 }
@@ -133,9 +133,9 @@ export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeRes
   const _lookAt = new THREE.Vector3();
 
   let hold = false;
-  // Hold position: right in front of spawn, facing along +z (toward camera)
-  const holdPos = new THREE.Vector3(position.x, position.y, position.z + 0.4);
-  const holdLookAt = new THREE.Vector3(position.x, position.y, position.z + 2);
+  // Hold position: right in front of camera, facing toward it
+  const holdPos = new THREE.Vector3(position.x + 0.3, position.y, position.z + 1.2);
+  const holdLookAt = new THREE.Vector3(position.x + 0.3, position.y, position.z + 3);
 
   function setHold(value: boolean) {
     hold = value;
@@ -163,7 +163,7 @@ export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeRes
     for (let v = 0; v < posAttr.count; v++) {
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
-      const zNorm = bz / 0.25;
+      const zNorm = bz / 0.7;
       const amplitude = zNorm * zNorm * (hold ? 0.001 : 0.003);
       const wave = Math.sin(elapsed * (hold ? 1.5 : 3) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
