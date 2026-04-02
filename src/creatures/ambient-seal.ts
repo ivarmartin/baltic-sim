@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /** The mark position for the narrative ambient seal (where it pauses when held). */
-export const AMBIENT_SEAL_MARK = new THREE.Vector3(-20, 2.0, -3);
+export const AMBIENT_SEAL_MARK = new THREE.Vector3(-20, 3.5, -3);
 
 export interface AmbientSealResult {
   update: (elapsed: number, dt: number) => void;
@@ -12,20 +12,20 @@ export interface AmbientSealResult {
 
 /**
  * Large perimeter oval that stays well outside all camera positions.
- * Y values undulate between 1.4–2.4 to keep the seal near the surface
- * where it's silhouetted against the light above.
+ * Y values undulate between 3.0–4.0 (0.5–1.5 m below the water surface at Y=4.5)
+ * to keep the seal near the surface where it's silhouetted against the light above.
  */
 function createPerimeterPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3([
-    new THREE.Vector3(  5,   2.0,  12),
-    new THREE.Vector3(-15,   1.6,   8),
-    new THREE.Vector3(-20,   2.2,  -3),   // mark area
-    new THREE.Vector3(-18,   1.4, -15),
-    new THREE.Vector3( -5,   2.0, -25),
-    new THREE.Vector3( 10,   1.8, -25),
-    new THREE.Vector3( 25,   2.4, -15),
-    new THREE.Vector3( 28,   1.6,  -2),
-    new THREE.Vector3( 22,   2.0,   8),
+    new THREE.Vector3(  5,   3.5,  12),
+    new THREE.Vector3(-15,   3.1,   8),
+    new THREE.Vector3(-20,   3.7,  -3),   // mark area
+    new THREE.Vector3(-18,   3.0, -15),
+    new THREE.Vector3( -5,   3.5, -25),
+    new THREE.Vector3( 10,   3.3, -25),
+    new THREE.Vector3( 25,   4.0, -15),
+    new THREE.Vector3( 28,   3.1,  -2),
+    new THREE.Vector3( 22,   3.5,   8),
   ], true);
 }
 
