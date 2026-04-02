@@ -36,15 +36,6 @@ export async function createSeal(scene: THREE.Scene, center: THREE.Vector3): Pro
   // rotate so forward = +X to match quaternion path-following code
   model.rotation.y = Math.PI / 2;
 
-  // Scale to match procedural seal size (~1.5 units long)
-  const box = new THREE.Box3().setFromObject(model);
-  const size = new THREE.Vector3();
-  box.getSize(size);
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const targetLength = 1.5;
-  const scaleFactor = targetLength / maxDim;
-  model.scale.setScalar(scaleFactor);
-
   group.add(model);
 
   // Set up animation mixer for embedded swimming animation
@@ -56,16 +47,16 @@ export async function createSeal(scene: THREE.Scene, center: THREE.Vector3): Pro
 
   // Playful swim path - confident arcing loop with depth variation
   const path = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(center.x - 3,   center.y + 0.4, center.z - 2),
-    new THREE.Vector3(center.x - 1.5, center.y + 1.2, center.z - 0.5),
-    new THREE.Vector3(center.x,       center.y + 0.3, center.z + 1),
-    new THREE.Vector3(center.x + 1.5, center.y + 0.8, center.z + 0.5),
-    new THREE.Vector3(center.x + 2.5, center.y + 0.2, center.z - 1),
-    new THREE.Vector3(center.x + 1,   center.y + 1.0, center.z - 2.5),
+    new THREE.Vector3(center.x - 6,   center.y + 0.4, center.z - 4),
+    new THREE.Vector3(center.x - 3,   center.y + 1.2, center.z - 1),
+    new THREE.Vector3(center.x,       center.y + 0.3, center.z + 2),
+    new THREE.Vector3(center.x + 3,   center.y + 0.8, center.z + 1),
+    new THREE.Vector3(center.x + 5,   center.y + 0.2, center.z - 2),
+    new THREE.Vector3(center.x + 2,   center.y + 1.0, center.z - 5),
   ], true);
 
   let pathT = 0;
-  const speed = 0.035;
+  const speed = 0.0385;
   const _tangent = new THREE.Vector3();
 
   // Orientation: build rotation from tangent + world up (no singularity)
