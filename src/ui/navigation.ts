@@ -47,11 +47,6 @@ export function createNavigation(
   container.id = 'nav-ui';
   container.innerHTML = `
     <div class="nav-wrapper">
-      <button class="nav-btn nav-home" aria-label="Back to chapters">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M3 9L9 3L15 9M5 7.5V14.5H8V11H10V14.5H13V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
       <button class="nav-btn nav-prev" aria-label="Previous view">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
           <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -67,6 +62,17 @@ export function createNavigation(
         </svg>
       </button>
     </div>
+  `;
+
+  // Home button lives in its own fixed container (outside #nav-ui's transform)
+  const homeContainer = document.createElement('div');
+  homeContainer.id = 'nav-home-container';
+  homeContainer.innerHTML = `
+    <button class="nav-btn nav-home" aria-label="Back to chapters">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3 9L9 3L15 9M5 7.5V14.5H8V11H10V14.5H13V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   `;
 
   const style = document.createElement('style');
@@ -129,6 +135,20 @@ export function createNavigation(
       pointer-events: none;
     }
 
+    #nav-home-container {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 100;
+      pointer-events: auto;
+      transition: opacity 0.4s ease;
+    }
+
+    #nav-home-container.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .nav-home {
       width: 38px;
       height: 38px;
@@ -168,6 +188,7 @@ export function createNavigation(
     @media (max-width: 480px) {
       #nav-ui { bottom: 20px; }
       .nav-btn { width: 40px; height: 40px; }
+      #nav-home-container { top: 16px; left: 16px; }
       .nav-home { width: 34px; height: 34px; }
       .nav-wrapper { gap: 10px; }
       .nav-label { padding: 6px 14px; min-width: 70px; }
@@ -178,8 +199,9 @@ export function createNavigation(
 
   document.head.appendChild(style);
   document.body.appendChild(container);
+  document.body.appendChild(homeContainer);
 
-  const homeBtn = container.querySelector('.nav-home') as HTMLButtonElement;
+  const homeBtn = homeContainer.querySelector('.nav-home') as HTMLButtonElement;
   const prevBtn = container.querySelector('.nav-prev') as HTMLButtonElement;
   const nextBtn = container.querySelector('.nav-next') as HTMLButtonElement;
   const counterEl = container.querySelector('.nav-counter') as HTMLSpanElement;
@@ -248,6 +270,7 @@ export function createNavigation(
 
   // Start hidden until a chapter is loaded
   container.classList.add('hidden');
+  homeContainer.classList.add('hidden');
 
   // --- Update (called each frame) ---
   function update(dt: number) {
@@ -282,15 +305,18 @@ export function createNavigation(
 
   function show() {
     container.classList.remove('hidden');
+    homeContainer.classList.remove('hidden');
   }
 
   function hide() {
     container.classList.add('hidden');
+    homeContainer.classList.add('hidden');
   }
 
   function dispose() {
     window.removeEventListener('keydown', onKeyDown);
     container.remove();
+    homeContainer.remove();
     style.remove();
   }
 

@@ -9,11 +9,14 @@ export function createNarrative(): NarrativeUI {
   const container = document.createElement('div');
   container.id = 'narrative-ui';
   container.innerHTML = `
-    <div class="narrative-wrapper">
-      <div class="narrative-text"></div>
+    <div class="narrative-card">
+      <div class="narrative-wrapper">
+        <div class="narrative-title"></div>
+        <div class="narrative-body"></div>
+      </div>
       <button class="narrative-toggle" aria-label="Toggle narrative text">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path class="toggle-chevron" d="M3 9L7 5L11 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="toggle-chevron" d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -37,31 +40,37 @@ export function createNarrative(): NarrativeUI {
       opacity: 1;
     }
 
-    .narrative-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
+    .narrative-card {
+      position: relative;
       max-width: 520px;
+      padding-bottom: 14px;
+      pointer-events: auto;
+    }
+
+    .narrative-wrapper {
       padding: 10px 16px;
       background: rgba(10, 30, 20, 0.55);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
-      pointer-events: auto;
     }
 
     .narrative-toggle {
-      align-self: center;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
-      margin-top: 6px;
-      border: none;
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(10, 30, 20, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       color: rgba(255, 255, 255, 0.6);
       cursor: pointer;
       transition: all 0.2s ease;
@@ -70,20 +79,18 @@ export function createNarrative(): NarrativeUI {
     }
 
     .narrative-toggle:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(20, 60, 40, 0.8);
+      border-color: rgba(255, 255, 255, 0.3);
       color: #fff;
     }
 
     .toggle-chevron {
       transition: transform 0.3s ease;
+      transform-origin: center;
     }
 
     #narrative-ui.collapsed .toggle-chevron {
       transform: rotate(180deg);
-    }
-
-    #narrative-ui.collapsed .narrative-toggle {
-      margin-top: 0;
     }
 
     .narrative-title {
@@ -94,31 +101,29 @@ export function createNarrative(): NarrativeUI {
       margin-bottom: 4px;
     }
 
+    #narrative-ui.collapsed .narrative-title {
+      margin-bottom: 0;
+    }
+
     .narrative-body {
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
       font-size: 13px;
       line-height: 1.55;
       color: rgba(255, 255, 255, 0.85);
-    }
-
-    .narrative-text {
       max-height: 250px;
       overflow: hidden;
       transition: max-height 0.4s ease, opacity 0.3s ease;
     }
 
-    #narrative-ui.collapsed .narrative-text {
+    #narrative-ui.collapsed .narrative-body {
       max-height: 0;
       opacity: 0;
     }
 
-    #narrative-ui.collapsed .narrative-wrapper {
-      padding: 6px 12px;
-    }
-
     @media (max-width: 600px) {
       #narrative-ui { bottom: 80px; }
-      .narrative-wrapper { max-width: 90vw; padding: 8px 12px; }
+      .narrative-card { max-width: 90vw; }
+      .narrative-wrapper { padding: 8px 12px; }
       .narrative-title { font-size: 13px; }
       .narrative-body { font-size: 12px; }
     }
@@ -127,7 +132,8 @@ export function createNarrative(): NarrativeUI {
   document.head.appendChild(style);
   document.body.appendChild(container);
 
-  const textEl = container.querySelector('.narrative-text') as HTMLDivElement;
+  const titleEl = container.querySelector('.narrative-title') as HTMLDivElement;
+  const bodyEl = container.querySelector('.narrative-body') as HTMLDivElement;
   const toggleBtn = container.querySelector('.narrative-toggle') as HTMLButtonElement;
 
   toggleBtn.addEventListener('click', () => {
@@ -158,9 +164,8 @@ export function createNarrative(): NarrativeUI {
         titleHtml = `<strong>${escapeHtml(name)}</strong>`;
       }
 
-      textEl.innerHTML =
-        `<div class="narrative-title">${titleHtml}</div>` +
-        `<div class="narrative-body">${escapeHtml(bodyText)}</div>`;
+      titleEl.innerHTML = titleHtml;
+      bodyEl.textContent = bodyText;
       container.classList.remove('collapsed');
     },
     show() {
