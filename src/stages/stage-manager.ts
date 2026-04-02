@@ -32,6 +32,7 @@ export interface StageManagerDeps {
   setPerchHold?: (hold: boolean) => void;
   setPikeHold?: (hold: boolean) => void;
   setCodHold?: (hold: boolean) => void;
+  setAmbientSealHold?: (hold: boolean) => void;
   setNavName?: (name: string) => void;
 }
 
@@ -126,6 +127,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     deps.setPerchHold?.(false);
     deps.setPikeHold?.(false);
     deps.setCodHold?.(false);
+    deps.setAmbientSealHold?.(false);
     deps.setParticleDensity?.(1.0);
 
     if (callbackId === 'stickleback-hold') {
@@ -136,6 +138,8 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
       deps.setPikeHold?.(true);
     } else if (callbackId === 'cod-hold') {
       deps.setCodHold?.(true);
+    } else if (callbackId === 'ambient-seal-hold') {
+      deps.setAmbientSealHold?.(true);
     }
 
     // Dead zone particle density

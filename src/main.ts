@@ -29,6 +29,7 @@ import { createFilamentousAlgae } from './vegetation/filamentous-algae';
 import { createStartScreen } from './ui/start-screen';
 import { createMenu } from './ui/menu';
 import { createSeal } from './creatures/seal';
+import { createAmbientSeal } from './creatures/ambient-seal';
 import { createCormorant } from './creatures/cormorant';
 import { createPikeFry } from './creatures/pike-fry';
 import { createSmallFish } from './creatures/small-fish';
@@ -86,6 +87,9 @@ async function init() {
   const perchResult = await createPerch(scene);
   updates.push(perchResult.update);
 
+  const ambientSealResult = await createAmbientSeal(scene);
+  updates.push(ambientSealResult.update);
+
   // --- Shared scene objects ---
   const skyDome = createSkyDome(scene);
   const reedsResult = createReeds(scene, new THREE.Vector3(-9, 0, -6));
@@ -138,6 +142,7 @@ async function init() {
   injectDepthLighting(codResult.material);
   injectDepthLighting(pikeResult.material);
   injectDepthLighting(sealResult.material);
+  injectDepthLighting(ambientSealResult.material);
   injectDepthLighting(cormorantResult.material);
   injectDepthLighting(smallFishResult.material);
 
@@ -188,6 +193,7 @@ async function init() {
     setPikeHold: (h) => pikeResult.setHold(h),
     setCodHold: (h) => codResult.setHold(h),
     setPerchHold: (h) => perchResult.setHold(h),
+    setAmbientSealHold: (h) => ambientSealResult.setHold(h),
     setNavName: (name) => navigation.setCurrentName(name),
   });
 
