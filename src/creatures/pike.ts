@@ -81,8 +81,8 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
     new THREE.Vector3(-11.5, 0.80, -7.2),
   ], true);
 
-  let t = 0;
-  const speed = 0.01; // very slow
+  let t = 0.7; // start on far side of loop, away from perch camera
+  const speed = 0.03;
   const swimPhase = Math.random() * Math.PI * 2;
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
@@ -131,8 +131,8 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
       const zNorm = (bz - zMin) / bodyLength; // 0 at nose, 1 at tail
-      const amplitude = zNorm * zNorm * (holding ? 0.001 : 0.003);
-      const wave = Math.sin(elapsed * (holding ? 1.5 : 3) + swimPhase - zNorm * Math.PI * 2);
+      const amplitude = zNorm * zNorm * (holding ? 0.002 : 0.006);
+      const wave = Math.sin(elapsed * (holding ? 3 : 6) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
     }
     posAttr.needsUpdate = true;

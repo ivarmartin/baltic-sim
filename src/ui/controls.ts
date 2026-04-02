@@ -19,7 +19,7 @@ export function createControls(callbacks: ControlCallbacks): LightingToggles {
     depthDarkening: true,
     waterSurface: true,
     godRays: true,
-    fogGradient: true,
+    fogGradient: false,
   };
 
   const gui = new GUI({ title: 'Lighting Effects' });

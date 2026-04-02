@@ -6,7 +6,7 @@ import * as THREE from 'three';
  */
 export const depthUniforms = {
   uDepthDarkenEnabled: { value: 1.0 },
-  uFogGradientEnabled: { value: 1.0 },
+  uFogGradientEnabled: { value: 0.0 },
   uSurfaceY: { value: 4.5 },
   uTime: { value: 0.0 },
 };
