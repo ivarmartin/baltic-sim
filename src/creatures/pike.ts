@@ -70,12 +70,15 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
 
   const basePositions = new Float32Array(geometry.attributes.position.array);
 
-  // Very slow patrol path — pike lurks mostly motionless
+  // Patrol path crosses the camera's line of sight at the mark for a profile view
   const path = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(position.x - 0.5, position.y, position.z - 0.5),
-    new THREE.Vector3(position.x, position.y + 0.1, position.z),
-    new THREE.Vector3(position.x + 0.5, position.y, position.z + 0.5),
-    new THREE.Vector3(position.x, position.y - 0.1, position.z),
+    new THREE.Vector3(-12.5, 0.75, -7.5),
+    new THREE.Vector3(-12.1, 0.70, -8.2),
+    new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark — side-on to camera
+    new THREE.Vector3(-11.2, 0.75, -9.3),
+    new THREE.Vector3(-10.5, 0.80, -9.0),
+    new THREE.Vector3(-10.5, 0.85, -8.0),
+    new THREE.Vector3(-11.5, 0.80, -7.2),
   ], true);
 
   let t = 0;
