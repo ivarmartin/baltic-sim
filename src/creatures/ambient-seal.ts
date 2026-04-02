@@ -17,13 +17,13 @@ export interface AmbientSealResult {
 function createPerimeterPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3([
     new THREE.Vector3(  5,   3.5,  12),
-    new THREE.Vector3(-15,   3.5,   8),
-    new THREE.Vector3(-20,   3.5,  -3),   // mark area
-    new THREE.Vector3(-18,   3.5, -15),
+    new THREE.Vector3(-15,   2.8,   8),
+    new THREE.Vector3(-20,   3.8,  -3),   // mark area
+    new THREE.Vector3(-18,   2.5, -15),
     new THREE.Vector3( -5,   3.5, -25),
-    new THREE.Vector3( 10,   3.5, -25),
-    new THREE.Vector3( 25,   3.5, -15),
-    new THREE.Vector3( 28,   3.5,  -2),
+    new THREE.Vector3( 10,   2.9, -25),
+    new THREE.Vector3( 25,   4.2, -15),
+    new THREE.Vector3( 28,   2.7,  -2),
     new THREE.Vector3( 22,   3.5,   8),
   ], true);
 }
