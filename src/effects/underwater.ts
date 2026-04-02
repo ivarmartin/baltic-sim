@@ -90,7 +90,7 @@ const UnderwaterShader = {
         fract(sin(dot(vUv + fract(uTime) + 0.1, vec2(93.9898, 67.345))) * 24634.6345),
         fract(sin(dot(vUv + fract(uTime) + 0.1, vec2(45.4647, 37.158))) * 57382.3456)
       );
-      color.rgb += (dither + dither2 - 1.0) / 255.0;
+      color.rgb += (dither + dither2 - 1.0) / 128.0;
 
       gl_FragColor = color;
     }
