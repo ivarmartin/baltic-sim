@@ -29,6 +29,7 @@ export interface StageManagerDeps {
   setParticleDensity?: (factor: number) => void;
   setSticklebackHold?: (hold: boolean) => void;
   setPerchHold?: (hold: boolean) => void;
+  setPikeHold?: (hold: boolean) => void;
 }
 
 export interface StageManager {
@@ -102,6 +103,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     // Reset all holds by default
     deps.setSticklebackHold?.(false);
     deps.setPerchHold?.(false);
+    deps.setPikeHold?.(false);
     deps.setParticleDensity?.(1.0);
 
     if (callbackId === 'stickleback-hold') {
@@ -109,7 +111,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     } else if (callbackId === 'perch-hold') {
       deps.setPerchHold?.(true);
     } else if (callbackId === 'pike-hold') {
-      // Pike hold can be implemented later if needed
+      deps.setPikeHold?.(true);
     }
 
     // Dead zone particle density

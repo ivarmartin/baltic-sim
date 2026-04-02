@@ -88,8 +88,8 @@ function createPikeGeometry(): THREE.BufferGeometry {
   geo.setIndex(indices);
   geo.computeVertexNormals();
 
-  // Scale: ~40cm visible in background
-  geo.scale(0.25, 0.25, 0.25);
+  // Scale: ~80cm realistic pike size
+  geo.scale(0.7, 0.7, 0.7);
 
   return geo;
 }
@@ -98,6 +98,7 @@ export interface PikeResult {
   group: THREE.Group;
   update: (elapsed: number, dt: number) => void;
   material: THREE.MeshStandardMaterial;
+  setHold: (hold: boolean) => void;
 }
 
 export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeResult {
@@ -131,25 +132,40 @@ export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeRes
   const _tangent = new THREE.Vector3();
   const _lookAt = new THREE.Vector3();
 
+  let hold = false;
+  // Hold position: close in front of camera, broadside view
+  const holdPos = new THREE.Vector3(position.x + 0.2, position.y + 0.1, position.z + 3.5);
+  const holdLookAt = new THREE.Vector3(position.x + 2, position.y + 0.1, position.z + 3.5);
+
+  function setHold(value: boolean) {
+    hold = value;
+  }
+
   function update(elapsed: number, dt: number) {
-    t = (t + speed * dt) % 1;
+    if (hold) {
+      // Park at hold position, still do subtle undulation
+      mesh.position.lerp(holdPos, 0.03);
+      mesh.lookAt(holdLookAt);
+    } else {
+      t = (t + speed * dt) % 1;
 
-    const pos = path.getPointAt(t);
-    mesh.position.copy(pos);
+      const pos = path.getPointAt(t);
+      mesh.position.copy(pos);
 
-    path.getTangentAt(t, _tangent);
-    _lookAt.copy(pos).sub(_tangent);
-    mesh.lookAt(_lookAt);
+      path.getTangentAt(t, _tangent);
+      _lookAt.copy(pos).sub(_tangent);
+      mesh.lookAt(_lookAt);
+    }
 
-    // Subtle body undulation
+    // Subtle body undulation (always active — pike breathes)
     const posAttr = geometry.attributes.position;
     const arr = posAttr.array as Float32Array;
     for (let v = 0; v < posAttr.count; v++) {
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
-      const zNorm = bz / 0.25;
-      const amplitude = zNorm * zNorm * 0.003;
-      const wave = Math.sin(elapsed * 3 + swimPhase - zNorm * Math.PI * 2);
+      const zNorm = bz / 0.7;
+      const amplitude = zNorm * zNorm * (hold ? 0.001 : 0.003);
+      const wave = Math.sin(elapsed * (hold ? 1.5 : 3) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
     }
     posAttr.needsUpdate = true;
@@ -158,5 +174,5 @@ export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeRes
   group.visible = false;
   scene.add(group);
 
-  return { group, update, material };
+  return { group, update, material, setHold };
 }

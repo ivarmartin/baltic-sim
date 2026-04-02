@@ -179,6 +179,7 @@ async function init() {
     groups: visibilityGroups,
     setParticleDensity: (f) => particles.setDensity(f),
     setSticklebackHold: (h) => sticklebackResult.setHold(h),
+    setPikeHold: (h) => pikeResult.setHold(h),
     setPerchHold: (h) => perchResult.setHold(h),
   });
 
