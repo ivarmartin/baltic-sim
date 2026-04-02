@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Pike egg cluster — small translucent spheres on vegetation.
+ * Pike egg cluster - small translucent spheres on vegetation.
  * Visible in pike chapter Stage 3 (Stickleback Invasion).
  */
 

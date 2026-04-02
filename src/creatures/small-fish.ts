@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Small fish school (perch/roach) — ~10 generic small fish swimming in a loose group.
+ * Small fish school (perch/roach) - ~10 generic small fish swimming in a loose group.
  * Simple procedural geometry, background element.
  */
 

@@ -100,7 +100,7 @@ export function createJetty(scene: THREE.Scene): JettyResult {
   const plankDepth = Math.abs(deckZ1 - deckZ0);
   const plankGeo = new THREE.BoxGeometry(plankWidth - 0.02, 0.04, plankDepth);
 
-  // Separate dark material for deck planks — fog disabled so they read as
+  // Separate dark material for deck planks - fog disabled so they read as
   // dark silhouettes when viewed from below through the water surface.
   const deckMaterial = new THREE.MeshStandardMaterial({
     color: 0x3a2a18,

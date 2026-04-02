@@ -21,7 +21,7 @@ function forwardDist(current: number, target: number): number {
   return target >= current ? target - current : 1 - current + target;
 }
 
-/** Mark position for pike hold — side-on to camera, close. */
+/** Mark position for pike hold - side-on to camera, close. */
 const PIKE_MARK = new THREE.Vector3(-11.75, 0.7, -8.65);
 
 export interface PikeResult {
@@ -74,7 +74,7 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
   const path = new THREE.CatmullRomCurve3([
     new THREE.Vector3(-18.75, 0.90, -4.05),
     new THREE.Vector3(-14.75, 0.70, -6.85),
-    new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark — side-on to camera
+    new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark - side-on to camera
     new THREE.Vector3(-10.75, 0.90, -12.05),
     new THREE.Vector3(-13.55, 1.10, -14.85),
     new THREE.Vector3(-17.95, 1.10, -12.05),
@@ -123,7 +123,7 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
     _lookAt.copy(pos).sub(_tangent);
     mesh.lookAt(_lookAt);
 
-    // Subtle body undulation (always active — pike breathes)
+    // Subtle body undulation (always active - pike breathes)
     const holding = holdRequested || isHolding;
     const posAttr = geometry.attributes.position;
     const arr = posAttr.array as Float32Array;

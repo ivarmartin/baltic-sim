@@ -62,7 +62,7 @@ const fragmentEffect = `
 
 /**
  * Inject depth-based lighting into a MeshStandardMaterial.
- * Can be called before or after other onBeforeCompile modifications —
+ * Can be called before or after other onBeforeCompile modifications -
  * it wraps any existing onBeforeCompile callback.
  */
 export function injectDepthLighting(material: THREE.MeshStandardMaterial): void {

@@ -14,7 +14,7 @@ function createCodGeometry(): THREE.BufferGeometry {
     [0.00, 0.02, 0.03],  // nose tip
     [0.04, 0.08, 0.10],  // snout
     [0.10, 0.14, 0.18],  // head
-    [0.20, 0.20, 0.26],  // behind head — wider
+    [0.20, 0.20, 0.26],  // behind head - wider
     [0.35, 0.24, 0.30],  // front body
     [0.50, 0.22, 0.28],  // mid body (max girth)
     [0.65, 0.18, 0.24],  // rear body
@@ -89,7 +89,7 @@ function createCodGeometry(): THREE.BufferGeometry {
   indices.push(dorsalIdx, dorsalIdx + 1, dorsalIdx + 2);
   indices.push(dorsalIdx + 3, dorsalIdx + 4, dorsalIdx + 5);
 
-  // Barbel (chin whisker — iconic cod feature)
+  // Barbel (chin whisker - iconic cod feature)
   const barbelIdx = vertices.length / 3;
   vertices.push(0, -0.10, 0.06); colors.push(0.55, 0.52, 0.45);
   vertices.push(0.005, -0.10, 0.06); colors.push(0.55, 0.52, 0.45);
@@ -138,7 +138,7 @@ function forwardDist(current: number, target: number): number {
   return target >= current ? target - current : 1 - current + target;
 }
 
-/** Mark position for the cod hold — side-on to camera, close. */
+/** Mark position for the cod hold - side-on to camera, close. */
 const COD_MARK = new THREE.Vector3(3, -2.8, -15.5);
 
 export interface CodResult {
