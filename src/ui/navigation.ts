@@ -27,6 +27,8 @@ export function createNavigation(
   show: () => void;
   hide: () => void;
   dispose: () => void;
+  isDevMode: () => boolean;
+  onDevModeChange: (cb: (active: boolean) => void) => void;
 } {
   let cameraViews: CameraView[] = [];
 
@@ -72,6 +74,13 @@ export function createNavigation(
     <button class="nav-btn nav-home" aria-label="Back to chapters">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M3 9L9 3L15 9M5 7.5V14.5H8V11H10V14.5H13V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="nav-btn nav-dev" aria-label="Toggle developer camera">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M3 14.5C3 14.5 4.5 7 9 7C13.5 7 15 14.5 15 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M1 7H5M13 7H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
     </button>
   `;
@@ -155,6 +164,23 @@ export function createNavigation(
       height: 38px;
     }
 
+    #nav-home-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .nav-dev {
+      width: 38px;
+      height: 38px;
+    }
+
+    .nav-dev.active {
+      background: rgba(80, 180, 120, 0.5);
+      border-color: rgba(80, 180, 120, 0.7);
+      color: #fff;
+    }
+
     .nav-label {
       display: flex;
       flex-direction: column;
@@ -191,6 +217,7 @@ export function createNavigation(
       .nav-btn { width: 40px; height: 40px; }
       #nav-home-container { top: 16px; left: 16px; }
       .nav-home { width: 34px; height: 34px; }
+      .nav-dev { width: 34px; height: 34px; }
       .nav-wrapper { gap: 10px; }
       .nav-label { padding: 6px 14px; min-width: 70px; }
       .nav-name { font-size: 12px; }
@@ -203,10 +230,21 @@ export function createNavigation(
   document.body.appendChild(homeContainer);
 
   const homeBtn = homeContainer.querySelector('.nav-home') as HTMLButtonElement;
+  const devBtn = homeContainer.querySelector('.nav-dev') as HTMLButtonElement;
   const prevBtn = container.querySelector('.nav-prev') as HTMLButtonElement;
   const nextBtn = container.querySelector('.nav-next') as HTMLButtonElement;
   const counterEl = container.querySelector('.nav-counter') as HTMLSpanElement;
   const nameEl = container.querySelector('.nav-name') as HTMLSpanElement;
+
+  // Developer mode state
+  let devMode = false;
+  let devModeCallback: ((active: boolean) => void) | null = null;
+
+  function setDevMode(active: boolean) {
+    devMode = active;
+    devBtn.classList.toggle('active', active);
+    devModeCallback?.(active);
+  }
 
   // --- Easing ---
   function easeInOutCubic(t: number): number {
@@ -253,17 +291,29 @@ export function createNavigation(
 
   // --- Event listeners ---
   homeBtn.addEventListener('click', () => {
+    if (devMode) setDevMode(false);
     state.isTransitioning = false;
     onHome?.();
   });
-  prevBtn.addEventListener('click', () => transitionTo(state.currentIndex - 1));
-  nextBtn.addEventListener('click', () => transitionTo(state.currentIndex + 1));
+  devBtn.addEventListener('click', () => {
+    setDevMode(!devMode);
+  });
+  prevBtn.addEventListener('click', () => {
+    if (devMode) setDevMode(false);
+    transitionTo(state.currentIndex - 1);
+  });
+  nextBtn.addEventListener('click', () => {
+    if (devMode) setDevMode(false);
+    transitionTo(state.currentIndex + 1);
+  });
 
   function onKeyDown(e: KeyboardEvent) {
     if (container.classList.contains('hidden')) return;
     if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (devMode) setDevMode(false);
       transitionTo(state.currentIndex - 1);
     } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (devMode) setDevMode(false);
       transitionTo(state.currentIndex + 1);
     }
   }
@@ -325,5 +375,15 @@ export function createNavigation(
     nameEl.textContent = name;
   }
 
-  return { update, setTransitionDuration: setTransitionDurationFn, loadViews, setCurrentName, show, hide, dispose };
+  return {
+    update,
+    setTransitionDuration: setTransitionDurationFn,
+    loadViews,
+    setCurrentName,
+    show,
+    hide,
+    dispose,
+    isDevMode: () => devMode,
+    onDevModeChange: (cb: (active: boolean) => void) => { devModeCallback = cb; },
+  };
 }

@@ -28,6 +28,7 @@ import { createSticklebackSwarm } from './creatures/stickleback-swarm';
 import { createFilamentousAlgae } from './vegetation/filamentous-algae';
 import { createStartScreen } from './ui/start-screen';
 import { createMenu } from './ui/menu';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createSeal } from './creatures/seal';
 import { createAmbientSeal } from './creatures/ambient-seal';
 import { createCormorant } from './creatures/cormorant';
@@ -227,6 +228,54 @@ async function init() {
   );
   navRef = navigation;
 
+  // --- Developer free-cam controls ---
+  const orbitControls = new OrbitControls(camera, renderer.domElement);
+  orbitControls.enableDamping = true;
+  orbitControls.dampingFactor = 0.1;
+  orbitControls.enabled = false;
+
+  // WASD key state
+  const moveKeys = { w: false, a: false, s: false, d: false, q: false, e: false };
+  const moveSpeed = 5;
+
+  function onDevKeyDown(ev: KeyboardEvent) {
+    const k = ev.key.toLowerCase();
+    if (k in moveKeys) (moveKeys as Record<string, boolean>)[k] = true;
+  }
+  function onDevKeyUp(ev: KeyboardEvent) {
+    const k = ev.key.toLowerCase();
+    if (k in moveKeys) (moveKeys as Record<string, boolean>)[k] = false;
+  }
+
+  function enableDevMode() {
+    // Set orbit target to where the camera is currently looking
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    const worldPos = new THREE.Vector3();
+    camera.getWorldPosition(worldPos);
+    orbitControls.target.copy(worldPos).add(dir.multiplyScalar(3));
+    orbitControls.enabled = true;
+    orbitControls.update();
+    window.addEventListener('keydown', onDevKeyDown);
+    window.addEventListener('keyup', onDevKeyUp);
+  }
+
+  function disableDevMode() {
+    orbitControls.enabled = false;
+    // Reset all keys
+    for (const k of Object.keys(moveKeys)) (moveKeys as Record<string, boolean>)[k] = false;
+    window.removeEventListener('keydown', onDevKeyDown);
+    window.removeEventListener('keyup', onDevKeyUp);
+  }
+
+  navigation.onDevModeChange((active) => {
+    if (active) {
+      enableDevMode();
+    } else {
+      disableDevMode();
+    }
+  });
+
   // --- Chapter selection ---
   let currentChapter: typeof chapters[0] | null = null;
 
@@ -304,7 +353,28 @@ async function init() {
     }
 
     // Update camera transition
-    navigation.update(dt);
+    if (navigation.isDevMode()) {
+      // WASD movement relative to camera orientation
+      const forward = new THREE.Vector3();
+      camera.getWorldDirection(forward);
+      forward.normalize();
+      const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+      const move = new THREE.Vector3();
+      if (moveKeys.w) move.add(forward);
+      if (moveKeys.s) move.sub(forward);
+      if (moveKeys.d) move.add(right);
+      if (moveKeys.a) move.sub(right);
+      if (moveKeys.e) move.y += 1;
+      if (moveKeys.q) move.y -= 1;
+      if (move.lengthSq() > 0) {
+        move.normalize().multiplyScalar(moveSpeed * dt);
+        cameraRig.position.add(move);
+        orbitControls.target.add(move);
+      }
+      orbitControls.update();
+    } else {
+      navigation.update(dt);
+    }
 
     if (underwater) {
       underwater.composer.render();
