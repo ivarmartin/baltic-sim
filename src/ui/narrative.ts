@@ -122,7 +122,7 @@ export function createNarrative(): NarrativeUI {
 
     @media (max-width: 600px) {
       #narrative-ui { bottom: 80px; }
-      .narrative-card { max-width: 90vw; }
+      .narrative-card { width: 90vw; max-width: 90vw; }
       .narrative-wrapper { padding: 8px 12px; }
       .narrative-title { font-size: 13px; }
       .narrative-body { font-size: 12px; }

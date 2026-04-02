@@ -23,6 +23,7 @@ export function createControls(callbacks: ControlCallbacks): LightingToggles {
   };
 
   const gui = new GUI({ title: 'Lighting Effects' });
+  gui.domElement.style.display = 'none';
 
   gui.add(params, 'depthDarkening').name('Depth Darkening').onChange(callbacks.onDepthDarkening);
   gui.add(params, 'waterSurface').name('Water Surface').onChange(callbacks.onWaterSurface);
