@@ -37,10 +37,14 @@ import { createPikeEggs } from './scene/pike-eggs';
 
 async function init() {
   // --- Renderer ---
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const supportsP3 = window.matchMedia('(color-gamut: p3)').matches;
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    ...(supportsP3 && { colorSpace: THREE.DisplayP3ColorSpace }),
+  });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.outputColorSpace = supportsP3 ? THREE.DisplayP3ColorSpace : THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.18;
   renderer.shadowMap.enabled = true;
