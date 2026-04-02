@@ -179,7 +179,7 @@ export async function createAmbientSeal(scene: THREE.Scene): Promise<AmbientSeal
     group.quaternion.premultiply(bankQuat);
   }
 
-  group.visible = false;
+  group.visible = true;
   scene.add(group);
 
   function setHold(hold: boolean) {
