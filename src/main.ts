@@ -93,7 +93,7 @@ async function init() {
   const codResult = createCod(scene);
   updates.push(codResult.update);
 
-  const pikeResult = createPike(scene, new THREE.Vector3(-11, 0.8, -8));
+  const pikeResult = await createPike(scene, new THREE.Vector3(-11, 0.8, -8));
   updates.push(pikeResult.update);
 
   const swarmResult = createSticklebackSwarm(scene, new THREE.Vector3(-10, 1.0, -7));

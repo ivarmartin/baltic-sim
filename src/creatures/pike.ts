@@ -1,98 +1,5 @@
 import * as THREE from 'three';
-
-/**
- * Simple pike blockout — elongated predator fish lurking in Stage 3 background.
- */
-
-function createPikeGeometry(): THREE.BufferGeometry {
-  const segsAround = 8;
-  const bodyLength = 1.0;
-
-  // Pike profile: long, narrow, torpedo-shaped with flat snout
-  const profile: [number, number, number][] = [
-    [0.00, 0.04, 0.03],  // nose tip (flat, duck-bill-like)
-    [0.06, 0.06, 0.05],  // snout
-    [0.14, 0.08, 0.08],  // head
-    [0.25, 0.10, 0.12],  // behind head
-    [0.40, 0.11, 0.14],  // front body
-    [0.55, 0.11, 0.14],  // mid body (long and even)
-    [0.70, 0.10, 0.13],  // rear body
-    [0.80, 0.08, 0.10],  // narrowing
-    [0.88, 0.05, 0.07],  // tail peduncle
-    [0.94, 0.03, 0.04],  // tail base
-    [1.00, 0.00, 0.00],  // tail tip
-  ];
-
-  const vertices: number[] = [];
-  const colors: number[] = [];
-  const indices: number[] = [];
-
-  for (let s = 0; s < profile.length; s++) {
-    const [zNorm, xR, yR] = profile[s];
-    const z = zNorm * bodyLength;
-
-    for (let a = 0; a < segsAround; a++) {
-      const angle = (a / segsAround) * Math.PI * 2;
-      const x = Math.cos(angle) * xR;
-      const y = Math.sin(angle) * yR;
-      vertices.push(x, y, z);
-
-      // Pike colors: dark green-brown with lighter belly, yellow-green speckles
-      const topness = Math.max(0, Math.sin(angle));
-      const r = 0.25 + (1 - topness) * 0.40;
-      const g = 0.35 + (1 - topness) * 0.30;
-      const b = 0.15 + (1 - topness) * 0.25;
-      colors.push(r, g, b);
-    }
-  }
-
-  for (let s = 0; s < profile.length - 1; s++) {
-    for (let a = 0; a < segsAround; a++) {
-      const curr = s * segsAround + a;
-      const next = s * segsAround + (a + 1) % segsAround;
-      const currNext = (s + 1) * segsAround + a;
-      const nextNext = (s + 1) * segsAround + (a + 1) % segsAround;
-      indices.push(curr, next, currNext);
-      indices.push(next, nextNext, currNext);
-    }
-  }
-
-  // Tail fin (pike has a large tail set far back)
-  const tailBaseIdx = vertices.length / 3;
-  const tailZ = bodyLength;
-  const tailSpread = 0.10;
-  const tailLength = 0.14;
-
-  vertices.push(0, 0, tailZ - 0.06); colors.push(0.3, 0.38, 0.2);
-  vertices.push(-tailSpread, tailSpread * 0.8, tailZ + tailLength); colors.push(0.28, 0.35, 0.18);
-  vertices.push(0, 0, tailZ + tailLength * 0.7); colors.push(0.28, 0.35, 0.18);
-  vertices.push(tailSpread, tailSpread * 0.8, tailZ + tailLength); colors.push(0.28, 0.35, 0.18);
-  vertices.push(-tailSpread, -tailSpread * 0.8, tailZ + tailLength); colors.push(0.35, 0.42, 0.22);
-  vertices.push(tailSpread, -tailSpread * 0.8, tailZ + tailLength); colors.push(0.35, 0.42, 0.22);
-
-  indices.push(tailBaseIdx, tailBaseIdx + 1, tailBaseIdx + 2);
-  indices.push(tailBaseIdx, tailBaseIdx + 2, tailBaseIdx + 3);
-  indices.push(tailBaseIdx, tailBaseIdx + 4, tailBaseIdx + 2);
-  indices.push(tailBaseIdx, tailBaseIdx + 2, tailBaseIdx + 5);
-
-  // Dorsal fin (set far back, near tail)
-  const dorsalIdx = vertices.length / 3;
-  vertices.push(-0.01, 0.13, 0.72); colors.push(0.28, 0.36, 0.18);
-  vertices.push(0.01, 0.13, 0.72); colors.push(0.28, 0.36, 0.18);
-  vertices.push(0, 0.20, 0.82); colors.push(0.32, 0.40, 0.22);
-  indices.push(dorsalIdx, dorsalIdx + 1, dorsalIdx + 2);
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-
-  // Scale: ~80cm realistic pike size
-  geo.scale(0.7, 0.7, 0.7);
-
-  return geo;
-}
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /** Find the closest t parameter on a path to a target world position. */
 function findClosestT(path: THREE.CatmullRomCurve3, target: THREE.Vector3): number {
@@ -124,17 +31,39 @@ export interface PikeResult {
   setHold: (hold: boolean) => void;
 }
 
-export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeResult {
+export async function createPike(scene: THREE.Scene, position: THREE.Vector3): Promise<PikeResult> {
   const group = new THREE.Group();
 
-  const material = new THREE.MeshStandardMaterial({
-    vertexColors: true,
-    roughness: 0.35,
-    metalness: 0.1,
-    side: THREE.DoubleSide,
+  // Load pike GLB model
+  const loader = new GLTFLoader();
+  const gltf = await loader.loadAsync(import.meta.env.BASE_URL + 'assets/pike.glb');
+
+  let sourceMesh: THREE.Mesh | null = null;
+  gltf.scene.traverse((child) => {
+    if (!sourceMesh && (child as THREE.Mesh).isMesh) {
+      sourceMesh = child as THREE.Mesh;
+    }
   });
 
-  const geometry = createPikeGeometry();
+  if (!sourceMesh) throw new Error('No mesh found in pike.glb');
+
+  // Bake any transforms from the GLB hierarchy into the geometry
+  const geometry = (sourceMesh as THREE.Mesh).geometry.clone();
+  (sourceMesh as THREE.Mesh).updateWorldMatrix(true, false);
+  geometry.applyMatrix4((sourceMesh as THREE.Mesh).matrixWorld);
+
+  // Rotate so nose (-Y in GLB) aligns with -Z (Three.js lookAt forward)
+  geometry.rotateX(Math.PI / 2);
+
+  // Compute body extent along Z for undulation normalization
+  geometry.computeBoundingBox();
+  const zMin = geometry.boundingBox!.min.z;
+  const zMax = geometry.boundingBox!.max.z;
+  const bodyLength = zMax - zMin;
+
+  // Use the GLB's baked material
+  const material = ((sourceMesh as THREE.Mesh).material as THREE.MeshStandardMaterial).clone();
+
   const mesh = new THREE.Mesh(geometry, material);
   mesh.castShadow = true;
   group.add(mesh);
@@ -198,7 +127,7 @@ export function createPike(scene: THREE.Scene, position: THREE.Vector3): PikeRes
     for (let v = 0; v < posAttr.count; v++) {
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
-      const zNorm = bz / 0.7;
+      const zNorm = (bz - zMin) / bodyLength; // 0 at nose, 1 at tail
       const amplitude = zNorm * zNorm * (holding ? 0.001 : 0.003);
       const wave = Math.sin(elapsed * (holding ? 1.5 : 3) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
