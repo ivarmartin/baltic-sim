@@ -15,7 +15,7 @@ import { createControls } from './ui/controls';
 import { createNavigation } from './ui/navigation';
 import { createNarrative } from './ui/narrative';
 import { createStageManager } from './stages/stage-manager';
-import { stages } from './stages/stage-data';
+import { chapters, getChapterCameraViews } from './stages/chapter-data';
 import { createSkyDome } from './scene/sky-environment';
 import { createReeds } from './scene/reeds';
 import { createHalocline } from './scene/halocline';
@@ -26,6 +26,14 @@ import { createCod } from './creatures/cod';
 import { createPike } from './creatures/pike';
 import { createSticklebackSwarm } from './creatures/stickleback-swarm';
 import { createFilamentousAlgae } from './vegetation/filamentous-algae';
+import { createStartScreen } from './ui/start-screen';
+import { createSeal } from './creatures/seal';
+import { createCormorant } from './creatures/cormorant';
+import { createPikeFry } from './creatures/pike-fry';
+import { createSmallFish } from './creatures/small-fish';
+import { createWetland } from './scene/wetland';
+import { createRestoredWetland } from './scene/restored-wetland';
+import { createPikeEggs } from './scene/pike-eggs';
 
 async function init() {
   // --- Renderer ---
@@ -53,7 +61,7 @@ async function init() {
   type UpdateFn = (elapsed: number, dt: number) => void;
   const updates: UpdateFn[] = [];
 
-  // --- Setup scene modules ---
+  // --- Setup scene modules (shared across all chapters) ---
   const environment = setupEnvironment(scene);
   const seabedResult = createSeabed(scene);
   const jettyResult = createJetty(scene);
@@ -72,7 +80,7 @@ async function init() {
   const perchResult = await createPerch(scene);
   updates.push(perchResult.update);
 
-  // --- New scene objects for stages ---
+  // --- Shared scene objects ---
   const skyDome = createSkyDome(scene);
   const reedsResult = createReeds(scene, new THREE.Vector3(-9, 0, -6));
   const halocline = createHalocline(scene);
@@ -81,7 +89,7 @@ async function init() {
   const shipworm = createShipworm(scene, shipwreckResult.group.position);
   const algaeResult = createFilamentousAlgae(scene, seabedResult.rockPositions);
 
-  // --- New creatures ---
+  // --- Shared creatures ---
   const codResult = createCod(scene);
   updates.push(codResult.update);
 
@@ -90,6 +98,25 @@ async function init() {
 
   const swarmResult = createSticklebackSwarm(scene, new THREE.Vector3(-10, 1.0, -7));
   updates.push(swarmResult.update);
+
+  // --- Pike chapter assets ---
+  const sealResult = createSeal(scene, new THREE.Vector3(-10, 0.5, -7));
+  updates.push(sealResult.update);
+
+  const cormorantResult = createCormorant(scene, new THREE.Vector3(-10, 1.0, -7));
+  updates.push(cormorantResult.update);
+
+  const pikeFryResult = createPikeFry(scene, new THREE.Vector3(20, 0.2, -6));
+  updates.push(pikeFryResult.update);
+
+  const smallFishResult = createSmallFish(scene, new THREE.Vector3(-10, 0.6, -7));
+  updates.push(smallFishResult.update);
+
+  const wetlandResult = createWetland(scene, new THREE.Vector3(16, 0, 2));
+  const restoredWetlandResult = createRestoredWetland(scene, new THREE.Vector3(20, 0, -6));
+  updates.push(restoredWetlandResult.update);
+
+  const pikeEggsResult = createPikeEggs(scene, new THREE.Vector3(-10, 0, -7.5));
 
   // --- Caustics (must be set up before depth injection on seabed) ---
   setupCaustics(seabedResult.seabedMaterial);
@@ -104,6 +131,9 @@ async function init() {
   injectDepthLighting(bladderwrackResult.material);
   injectDepthLighting(codResult.material);
   injectDepthLighting(pikeResult.material);
+  injectDepthLighting(sealResult.material);
+  injectDepthLighting(cormorantResult.material);
+  injectDepthLighting(smallFishResult.material);
 
   // --- Post-processing (god rays + base color grading only) ---
   let underwater: UnderwaterEffects | null = null;
@@ -116,6 +146,28 @@ async function init() {
   // --- Narrative UI ---
   const narrative = createNarrative();
 
+  // --- All visibility groups (superset for all chapters) ---
+  const visibilityGroups = {
+    sky: skyDome,
+    filamentousAlgae: algaeResult.group,
+    sticklebackSwarm: swarmResult.mesh,
+    pike: pikeResult.group,
+    reeds: reedsResult.group,
+    cod: codResult.group,
+    halocline: halocline.mesh,
+    deadZone,
+    mussels,
+    shipworm,
+    // Pike chapter groups
+    seal: sealResult.group,
+    cormorant: cormorantResult.group,
+    pikeFry: pikeFryResult.group,
+    smallFish: smallFishResult.group,
+    wetland: wetlandResult.group,
+    restoredWetland: restoredWetlandResult.group,
+    pikeEggs: pikeEggsResult.group,
+  };
+
   // --- Stage Manager ---
   const stageManager = createStageManager({
     scene,
@@ -124,40 +176,54 @@ async function init() {
     renderer,
     environment,
     narrative,
-    groups: {
-      sky: skyDome,
-      filamentousAlgae: algaeResult.group,
-      sticklebackSwarm: swarmResult.mesh,
-      pike: pikeResult.group,
-      reeds: reedsResult.group,
-      cod: codResult.group,
-      halocline: halocline.mesh,
-      deadZone,
-      mussels,
-      shipworm,
-    },
+    groups: visibilityGroups,
     setParticleDensity: (f) => particles.setDensity(f),
     setSticklebackHold: (h) => sticklebackResult.setHold(h),
     setPerchHold: (h) => perchResult.setHold(h),
   });
 
   // --- Camera navigation ---
-  // Use a wrapper so we can reference `navigation` after it's assigned
   let navRef: { setTransitionDuration: (s: number) => void } | null = null;
+
+  function showStartScreen() {
+    navigation.hide();
+    narrative.hide();
+    startScreen.show();
+  }
+
   const navigation = createNavigation(
     camera,
     cameraRig,
     (index) => {
-      // Set transition duration from stage data
-      const stage = stages[index];
-      navRef?.setTransitionDuration(stage.transitionDuration);
+      // Get current chapter stages for transition duration
+      if (currentChapter) {
+        const stage = currentChapter.stages[index];
+        navRef?.setTransitionDuration(stage.transitionDuration);
+      }
       stageManager.onViewChange(index);
     },
     (_index) => {
-      // Transition complete callback (if needed)
+      // Transition complete callback
+    },
+    () => {
+      // Home button pressed
+      showStartScreen();
     },
   );
   navRef = navigation;
+
+  // --- Chapter selection ---
+  let currentChapter: typeof chapters[0] | null = null;
+
+  const startScreen = createStartScreen(chapters, (chapter) => {
+    currentChapter = chapter;
+    const views = getChapterCameraViews(chapter);
+    stageManager.loadChapter(chapter);
+    navigation.loadViews(views);
+    startScreen.hide();
+    navigation.show();
+    narrative.show();
+  });
 
   // --- UI Controls ---
   const lightPos = environment.sunLight.position.clone();
