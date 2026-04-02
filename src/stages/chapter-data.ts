@@ -44,8 +44,8 @@ const introStages: StageDefinition[] = [
     name: 'The Underwater Forest',
     cameraView: {
       name: 'The Underwater Forest',
-      position: new THREE.Vector3(2.0, 2.0, 2.0),
-      lookAt: new THREE.Vector3(0.5, 0.8, -1.0),
+      position: new THREE.Vector3(1.5, 0.5, 1.0),
+      lookAt: new THREE.Vector3(0.5, 0.3, -1.0),
     },
     transitionDuration: 2.5,
     environment: 'shallow',

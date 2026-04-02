@@ -186,6 +186,18 @@ export function createBladderwrack(
     clumps.push(clump);
   }
 
+  // Dense cluster in the bladderwrack camera's field of view (chapter 1, stage 2)
+  for (let i = 0; i < 25; i++) {
+    const pos = new THREE.Vector3(
+      -0.5 + Math.random() * 2.5,   // x: -0.5 to 2.0
+      0,
+      -2.5 + Math.random() * 2.5,   // z: -2.5 to 0.0
+    );
+    const clump = createClump(pos, material);
+    scene.add(clump);
+    clumps.push(clump);
+  }
+
   const updateBladderwrack = function updateBladderwrack(elapsed: number, _dt: number) {
     if (shaderRef) {
       shaderRef.uniforms.uTime.value = elapsed;
