@@ -6,8 +6,8 @@
 
 interface Env {
   OPENROUTER_API_KEY: string;
-  /** Optional: allowed origin for CORS (default: '*') */
-  ALLOWED_ORIGIN?: string;
+  /** Optional: comma-separated allowed origins for CORS (default: '*') */
+  ALLOWED_ORIGINS?: string;
   /** Optional: max requests per IP per minute (default: 20) */
   RATE_LIMIT?: string;
 }
@@ -36,8 +36,13 @@ function corsHeaders(origin: string): Record<string, string> {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const origin = env.ALLOWED_ORIGIN || '*';
-    const cors = corsHeaders(origin);
+    const requestOrigin = request.headers.get('Origin') || '';
+    const allowed = env.ALLOWED_ORIGINS
+      ? env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+      : null;
+    // Allow if no allowlist configured, or if the request origin is in the list
+    const corsOrigin = !allowed ? '*' : allowed.includes(requestOrigin) ? requestOrigin : allowed[0];
+    const cors = corsHeaders(corsOrigin);
 
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
