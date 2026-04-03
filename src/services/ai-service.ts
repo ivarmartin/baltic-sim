@@ -125,6 +125,10 @@ export function createAIService(deps: AIServiceDeps): AIService {
     }
 
     // Current scene (last = highest priority due to recency bias)
+    if (stageText?.narrative) {
+      prompt += '\n\nSTORY TEXT FOR THIS SCENE (use as inspiration for your response):\n';
+      prompt += stageText.narrative;
+    }
     prompt += '\n\nCURRENT SCENE (the visitor is looking at this right now):\n';
     prompt += stageText?.aiPrompt || 'No scene description available.';
 
