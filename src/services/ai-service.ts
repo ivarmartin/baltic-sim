@@ -97,6 +97,7 @@ export function createAIService(deps: AIServiceDeps): AIService {
     return text
       .replace(/\*?navigate_to_stage[:(\s][^*\n]*\*?/gi, '')
       .replace(/\[navigate_to_stage[^\]]*\]/gi, '')
+      .replace(/\*?Navigerar?\s+(nu\s+)?till\s+"?[^"*\n]*"?\*?\.?/gi, '')
       .replace(/\n{3,}/g, '\n\n');
   }
 
