@@ -1,11 +1,13 @@
-/** Placeholder AI configuration — not wired in yet. */
+/** AI configuration for OpenRouter API. */
 export const aiConfig = {
-  /** API endpoint (e.g. OpenRouter, Anthropic, etc.) */
-  endpoint: '',
+  /** OpenRouter chat completions endpoint */
+  endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+  /** API key — set at runtime via aiConfig.apiKey = '...' */
+  apiKey: '',
   /** Model identifier */
-  model: '',
+  model: 'google/gemini-2.0-flash-001',
   /** Max tokens per response */
-  maxTokens: 300,
+  maxTokens: 400,
   /** Sampling temperature */
   temperature: 0.7,
 };
