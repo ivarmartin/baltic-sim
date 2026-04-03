@@ -92,6 +92,14 @@ export function createAIService(deps: AIServiceDeps): AIService {
   // Prompt assembly
   // -------------------------------------------------------------------------
 
+  /** Strip tool-call-like text the model sometimes writes inline instead of using the API. */
+  function cleanToolMentions(text: string): string {
+    return text
+      .replace(/\*?navigate_to_stage[:(\s][^*\n]*\*?/gi, '')
+      .replace(/\[navigate_to_stage[^\]]*\]/gi, '')
+      .replace(/\n{3,}/g, '\n\n');
+  }
+
   function findStageName(stageId: string): string {
     const strings = t();
     // Search all chapters for this stage ID
@@ -241,7 +249,7 @@ export function createAIService(deps: AIServiceDeps): AIService {
           // Text content
           if (delta.content) {
             fullText += delta.content;
-            chatUI.updateStreamingMessage(bubbleEl, fullText);
+            chatUI.updateStreamingMessage(bubbleEl, cleanToolMentions(fullText));
           }
 
           // Tool call deltas
@@ -278,7 +286,7 @@ export function createAIService(deps: AIServiceDeps): AIService {
       }
     }
 
-    return { text: fullText, toolCall };
+    return { text: cleanToolMentions(fullText).trim(), toolCall };
   }
 
   // -------------------------------------------------------------------------
