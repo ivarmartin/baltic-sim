@@ -35,8 +35,10 @@ export function createReeds(scene: THREE.Scene, center: THREE.Vector3): ReedsRes
     shader.vertexShader = shader.vertexShader.replace(
       '#include <begin_vertex>',
       `#include <begin_vertex>
-      float yNorm = max(transformed.y, 0.0) / 5.0;
-      float sway = sin(uTime * 1.2 + modelMatrix[3][0] * 2.0 + transformed.y * 2.0) * yNorm * 0.12;
+      // Recover actual reed height from instance matrix Y-axis scale
+      float reedHeight = length(vec3(modelMatrix[0][1], modelMatrix[1][1], modelMatrix[2][1]));
+      float yNorm = max(transformed.y * reedHeight, 0.0) / 5.0;
+      float sway = sin(uTime * 1.2 + modelMatrix[3][0] * 2.0 + transformed.y * reedHeight * 2.0) * yNorm * 0.12;
       transformed.x += sway;
       transformed.z += cos(uTime * 0.9 + modelMatrix[3][2] * 1.5) * yNorm * 0.07;
       // Pike avoidance – push reed tips aside
@@ -52,9 +54,17 @@ export function createReeds(scene: THREE.Scene, center: THREE.Vector3): ReedsRes
   };
 
   const waterSurface = 4.5;
+  const reedCount = 500;
 
-  // Dense reed bed — terrain-aware heights
-  for (let i = 0; i < 120; i++) {
+  // Unit-height cylinder shared by all instances (pivot at base)
+  const geo = new THREE.CylinderGeometry(0.0075, 0.0115, 1, 4);
+  geo.translate(0, 0.5, 0);
+
+  // Collect valid reed transforms
+  const transforms: THREE.Matrix4[] = [];
+  const dummy = new THREE.Object3D();
+
+  for (let i = 0; i < reedCount; i++) {
     const rx = center.x + (Math.random() - 0.5) * 7;
     const rz = center.z + (Math.random() - 0.5) * 7;
     const groundY = getSeabedHeight(rx, rz);
@@ -65,14 +75,20 @@ export function createReeds(scene: THREE.Scene, center: THREE.Vector3): ReedsRes
 
     // Reeds break the surface by 0.5–2m
     const height = waterDepth + 0.5 + Math.random() * 1.5;
-    const geo = new THREE.CylinderGeometry(0.005, 0.008, height, 4);
-    geo.translate(0, height / 2, 0);
 
-    const reed = new THREE.Mesh(geo, reedMaterial);
-    reed.position.set(rx, groundY, rz);
-    reed.rotation.z = (Math.random() - 0.5) * 0.1;
-    group.add(reed);
+    dummy.position.set(rx, groundY, rz);
+    dummy.scale.set(1, height, 1);
+    dummy.rotation.set(0, 0, (Math.random() - 0.5) * 0.1);
+    dummy.updateMatrix();
+    transforms.push(dummy.matrix.clone());
   }
+
+  const reedMesh = new THREE.InstancedMesh(geo, reedMaterial, transforms.length);
+  for (let i = 0; i < transforms.length; i++) {
+    reedMesh.setMatrixAt(i, transforms[i]);
+  }
+  reedMesh.instanceMatrix.needsUpdate = true;
+  group.add(reedMesh);
 
   // Stickleback nest: small cluster of plant fiber on the bottom
   const nestMaterial = new THREE.MeshStandardMaterial({
