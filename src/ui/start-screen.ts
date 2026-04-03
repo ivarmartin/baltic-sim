@@ -51,7 +51,7 @@ export function createStartScreen(
       <p class="start-subheading">${tr.ui.chooseChapter}</p>
       <div class="mode-toggle">
         <button class="mode-option${currentMode === 'linear' ? ' active' : ''}" data-mode="linear">${tr.ui.modeLinear}</button>
-        <button class="mode-option${currentMode === 'ai-guided' ? ' active' : ''}" data-mode="ai-guided">${tr.ui.modeAiGuided}</button>
+        <button class="mode-option${currentMode === 'ai-guided' ? ' active' : ''}" data-mode="ai-guided"><svg class="ai-star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16 6l-2.91.74L12 10l-1.09-3.26L8 6l2.91-.74z"/><path d="M18 12l.6 1.82L20.4 14.4l-1.8.58L18 16.8l-.6-1.82L15.6 14.4l1.8-.58z"/><path d="M7 14l.4 1.2 1.2.38-1.2.42L7 17.2l-.4-1.2-1.2-.42 1.2-.38z"/></svg>${tr.ui.modeAiGuided}</button>
       </div>
       <div class="chapter-list">
         ${buildCards(chapterEntries)}
@@ -199,6 +199,12 @@ export function createStartScreen(
       border-color: rgba(255, 255, 255, 0.2);
     }
 
+    .ai-star-icon {
+      vertical-align: -2px;
+      margin-right: 4px;
+      opacity: 0.85;
+    }
+
     /* Mode toggle */
     .mode-toggle {
       display: flex;
@@ -297,7 +303,7 @@ export function createStartScreen(
     modeButtons.forEach((btn) => {
       const mode = (btn as HTMLElement).dataset.mode;
       if (mode === 'linear') btn.textContent = tr.ui.modeLinear;
-      else if (mode === 'ai-guided') btn.textContent = tr.ui.modeAiGuided;
+      else if (mode === 'ai-guided') btn.innerHTML = `<svg class="ai-star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16 6l-2.91.74L12 10l-1.09-3.26L8 6l2.91-.74z"/><path d="M18 12l.6 1.82L20.4 14.4l-1.8.58L18 16.8l-.6-1.82L15.6 14.4l1.8-.58z"/><path d="M7 14l.4 1.2 1.2.38-1.2.42L7 17.2l-.4-1.2-1.2-.42 1.2-.38z"/></svg>${tr.ui.modeAiGuided}`;
     });
 
     cards.forEach((card) => {
