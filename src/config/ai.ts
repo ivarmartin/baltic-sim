@@ -5,7 +5,7 @@ export const aiConfig = {
   /** API key — set at runtime via aiConfig.apiKey = '...' */
   apiKey: import.meta.env.VITE_OPENROUTER_API_KEY as string || '',
   /** Model identifier */
-  model: 'anthropic/claude-3.5-haiku',
+  model: 'openai/gpt-4o-mini',
   /** Max tokens per response */
   maxTokens: 400,
   /** Sampling temperature */
