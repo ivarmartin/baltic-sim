@@ -169,8 +169,20 @@ export function createAIService(deps: AIServiceDeps): AIService {
 
   async function callAPI(
     messages: ChatMessage[],
+    options?: { disableTools?: boolean },
   ): Promise<{ text: string; toolCall?: { stageId: string } }> {
     abortController = new AbortController();
+
+    const body: Record<string, unknown> = {
+      model: aiConfig.model,
+      messages,
+      max_tokens: aiConfig.maxTokens,
+      temperature: aiConfig.temperature,
+      stream: true,
+    };
+    if (!options?.disableTools) {
+      body.tools = buildTools();
+    }
 
     const response = await fetch(aiConfig.endpoint, {
       method: 'POST',
@@ -178,14 +190,7 @@ export function createAIService(deps: AIServiceDeps): AIService {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${aiConfig.apiKey}`,
       },
-      body: JSON.stringify({
-        model: aiConfig.model,
-        messages,
-        tools: buildTools(),
-        max_tokens: aiConfig.maxTokens,
-        temperature: aiConfig.temperature,
-        stream: true,
-      }),
+      body: JSON.stringify(body),
       signal: abortController.signal,
     });
 
@@ -309,7 +314,7 @@ export function createAIService(deps: AIServiceDeps): AIService {
     ];
 
     try {
-      const { text } = await callAPI(messages);
+      const { text } = await callAPI(messages, { disableTools: true });
       if (text) {
         addToHistory({ role: 'assistant', content: text });
       }
