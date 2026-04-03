@@ -28,8 +28,8 @@ const introStages: StageDefinition[] = [
   {
     id: 'intro-welcome',
     cameraView: {
-      position: new THREE.Vector3(2.5, 1.4, 1.5),
-      lookAt: new THREE.Vector3(0, 1.2, -2.5),
+      position: new THREE.Vector3(4.5, 2.5, 4.0),
+      lookAt: new THREE.Vector3(0, 0.5, -2.5),
     },
     transitionDuration: 2.5,
     environment: 'shallow',
