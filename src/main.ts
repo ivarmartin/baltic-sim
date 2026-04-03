@@ -105,7 +105,7 @@ async function init() {
 
   // --- Shared scene objects ---
   const skyDome = createSkyDome(scene);
-  const reedsResult = createReeds(scene, new THREE.Vector3(-9, 0, -6));
+  const reedsResult = createReeds(scene, new THREE.Vector3(-20, 0, 10));
   const halocline = createHalocline(scene);
   const deadZone = createDeadZone(scene);
   const mussels = createMussels(scene, shipwreckResult.group.position);
@@ -118,6 +118,21 @@ async function init() {
 
   const pikeResult = await createPike(scene, new THREE.Vector3(-11, 0.8, -8));
   updates.push(pikeResult.update);
+
+  // Shore pike — patrols the reed bed near the shore
+  const shorePikeResult = await createPike(scene, new THREE.Vector3(-20, 2.3, 10), {
+    path: new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-23, 1.5, 7),
+      new THREE.Vector3(-21, 2.0, 9),
+      new THREE.Vector3(-20, 2.3, 10.5),   // mark — in the reeds, side-on to camera
+      new THREE.Vector3(-18.5, 2.8, 11.5),
+      new THREE.Vector3(-17, 2.5, 9.5),
+      new THREE.Vector3(-18.5, 1.8, 7.5),
+      new THREE.Vector3(-22, 1.3, 6),
+    ], true),
+    mark: new THREE.Vector3(-20, 2.3, 10.5),
+  });
+  updates.push(shorePikeResult.update);
 
   const swarmResult = await createSticklebackSwarm(scene, new THREE.Vector3(-10, 1.0, -7));
   updates.push(swarmResult.update);
@@ -146,6 +161,7 @@ async function init() {
     perchResult.group,
     ambientSealResult.group,
     pikeResult.group,
+    shorePikeResult.group,
     codResult.group,
     swarmResult.mesh,
     sealResult.group,
@@ -170,6 +186,7 @@ async function init() {
   injectDepthLighting(bladderwrackResult.material);
   injectDepthLighting(codResult.material);
   injectDepthLighting(pikeResult.material);
+  injectDepthLighting(shorePikeResult.material);
   injectDepthLighting(sealResult.material);
   injectDepthLighting(ambientSealResult.material);
   injectDepthLighting(cormorantResult.material);
@@ -192,6 +209,7 @@ async function init() {
     filamentousAlgae: algaeResult.group,
     sticklebackSwarm: swarmResult.mesh,
     pike: pikeResult.group,
+    shorePike: shorePikeResult.group,
     reeds: reedsResult.group,
     cod: codResult.group,
     halocline: halocline.mesh,
@@ -219,6 +237,7 @@ async function init() {
     setParticleDensity: (f) => particles.setDensity(f),
     setSticklebackHold: (h) => sticklebackResult.setHold(h),
     setPikeHold: (h) => pikeResult.setHold(h),
+    setShorePikeHold: (h) => shorePikeResult.setHold(h),
     setCodHold: (h) => codResult.setHold(h),
     setPerchHold: (h) => perchResult.setHold(h),
     setAmbientSealHold: (h) => ambientSealResult.setHold(h),
@@ -450,8 +469,10 @@ async function init() {
 
     // Update vegetation pike avoidance
     const pikePos = pikeResult.getPosition();
-    reedsResult.setPikePos(pikePos);
     bladderwrackResult.setPikePos(pikePos);
+    // Reeds respond to the shore pike (the one swimming through them)
+    const shorePikePos = shorePikeResult.getPosition();
+    reedsResult.setPikePos(shorePikePos);
 
     // Update reeds sway
     reedsResult.update(elapsed);

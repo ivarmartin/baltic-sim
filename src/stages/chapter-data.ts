@@ -108,8 +108,8 @@ const pikeStages: StageDefinition[] = [
   {
     id: 'pike-meet',
     cameraView: {
-      position: new THREE.Vector3(-10.5, 0.9, -7),
-      lookAt: new THREE.Vector3(-11, 0.8, -8),
+      position: new THREE.Vector3(-18, 2.5, 9),
+      lookAt: new THREE.Vector3(-20, 2.3, 10.5),
     },
     transitionDuration: 2.5,
     environment: 'shallow',
@@ -171,7 +171,7 @@ const pikeStages: StageDefinition[] = [
 ];
 
 const pikeVisibility: Record<string, string[]> = {
-  'pike-meet': ['pike', 'reeds', 'smallFish'],
+  'pike-meet': ['shorePike', 'reeds'],
   'pike-why-it-matters': ['pike', 'reeds', 'smallFish'],
   'pike-lost-nurseries': [],
   'pike-stickleback-invasion': ['sticklebackSwarm', 'reeds', 'pikeEggs'],
@@ -181,7 +181,7 @@ const pikeVisibility: Record<string, string[]> = {
 };
 
 const pikeCallbacks: Record<string, string> = {
-  'pike-meet': 'pike-hold',
+  'pike-meet': 'shore-pike-hold',
   'pike-stickleback-invasion': 'stickleback-hold',
 };
 

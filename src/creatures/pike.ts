@@ -21,8 +21,26 @@ function forwardDist(current: number, target: number): number {
   return target >= current ? target - current : 1 - current + target;
 }
 
-/** Mark position for pike hold - side-on to camera, close. */
-const PIKE_MARK = new THREE.Vector3(-11.75, 0.7, -8.65);
+/** Default mark position for pike hold - side-on to camera, close. */
+const DEFAULT_PIKE_MARK = new THREE.Vector3(-11.75, 0.7, -8.65);
+
+/** Default patrol path - crosses the camera line of sight at the mark. */
+function defaultPikePath(): THREE.CatmullRomCurve3 {
+  return new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-18.75, 0.90, -4.05),
+    new THREE.Vector3(-16.0, 0.70, -7.65),
+    new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark
+    new THREE.Vector3(-9.75, 0.90, -10.0),
+    new THREE.Vector3(-12.55, 1.10, -13.85),
+    new THREE.Vector3(-17.95, 1.10, -12.05),
+    new THREE.Vector3(-19.95, 0.90, -6.85),
+  ], true);
+}
+
+export interface PikeOptions {
+  path?: THREE.CatmullRomCurve3;
+  mark?: THREE.Vector3;
+}
 
 export interface PikeResult {
   group: THREE.Group;
@@ -32,7 +50,7 @@ export interface PikeResult {
   getPosition: () => THREE.Vector3;
 }
 
-export async function createPike(scene: THREE.Scene, position: THREE.Vector3): Promise<PikeResult> {
+export async function createPike(scene: THREE.Scene, position: THREE.Vector3, options?: PikeOptions): Promise<PikeResult> {
   const group = new THREE.Group();
 
   // Load pike GLB model
@@ -71,18 +89,10 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
 
   const basePositions = new Float32Array(geometry.attributes.position.array);
 
-  // Patrol path crosses the camera's line of sight at the mark for a profile view
-  const path = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-18.75, 0.90, -4.05),
-    new THREE.Vector3(-16.0, 0.70, -7.65),
-    new THREE.Vector3(-11.75, 0.70, -8.65),   // near mark - angled toward camera
-    new THREE.Vector3(-9.75, 0.90, -10.0),
-    new THREE.Vector3(-12.55, 1.10, -13.85),
-    new THREE.Vector3(-17.95, 1.10, -12.05),
-    new THREE.Vector3(-19.95, 0.90, -6.85),
-  ], true);
+  const path = options?.path ?? defaultPikePath();
+  const pikeMark = options?.mark ?? DEFAULT_PIKE_MARK;
 
-  let t = 0.7; // start on far side of loop, away from perch camera
+  let t = 0.7; // start on far side of loop
   const speed = 0.0075;
   const swimPhase = Math.random() * Math.PI * 2;
   const _tangent = new THREE.Vector3();
@@ -91,7 +101,7 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3): P
   // Hold state (decelerate-on-path, same as perch/stickleback)
   let holdRequested = false;
   let isHolding = false;
-  const markT = findClosestT(path, PIKE_MARK);
+  const markT = findClosestT(path, pikeMark);
 
   function setHold(value: boolean) {
     holdRequested = value;

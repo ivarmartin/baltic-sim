@@ -31,6 +31,7 @@ export interface StageManagerDeps {
   setSticklebackHold?: (hold: boolean) => void;
   setPerchHold?: (hold: boolean) => void;
   setPikeHold?: (hold: boolean) => void;
+  setShorePikeHold?: (hold: boolean) => void;
   setCodHold?: (hold: boolean) => void;
   setAmbientSealHold?: (hold: boolean) => void;
   setNavName?: (name: string) => void;
@@ -131,6 +132,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     deps.setSticklebackHold?.(false);
     deps.setPerchHold?.(false);
     deps.setPikeHold?.(false);
+    deps.setShorePikeHold?.(false);
     deps.setCodHold?.(false);
     deps.setAmbientSealHold?.(false);
     deps.setParticleDensity?.(1.0);
@@ -141,6 +143,8 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
       deps.setPerchHold?.(true);
     } else if (callbackId === 'pike-hold') {
       deps.setPikeHold?.(true);
+    } else if (callbackId === 'shore-pike-hold') {
+      deps.setShorePikeHold?.(true);
     } else if (callbackId === 'cod-hold') {
       deps.setCodHold?.(true);
     } else if (callbackId === 'ambient-seal-hold') {

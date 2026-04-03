@@ -212,12 +212,12 @@ export function createBladderwrack(
 
   // ── Scattered patches around active camera areas ──────────
 
-  // Stickleback / Pike / Seal bay – sparse bladderwrack (reeds dominate here)
-  for (let i = 0; i < 3; i++) {
+  // Stickleback / Pike / Seal bay – bladderwrack fills old reed area
+  for (let i = 0; i < 12; i++) {
     addClump(new THREE.Vector3(
-      -12 + Math.random() * 5,
+      -12 + Math.random() * 6,
       0,
-      -9 + Math.random() * 4,
+      -9 + Math.random() * 5,
     ));
   }
 

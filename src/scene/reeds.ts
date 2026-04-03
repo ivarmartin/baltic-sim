@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import { getSeabedHeight } from './seabed';
 
 /**
- * Thin reeds growing from the seabed for Stage 3 (shallow bay).
- * Also includes a small stickleback nest made of plant fibers.
+ * Dense reed bed near the shore — reeds grow from the seabed
+ * and break the water surface, adapting to local terrain height.
  */
 
 export interface ReedsResult {
@@ -20,7 +21,7 @@ export function createReeds(scene: THREE.Scene, center: THREE.Vector3): ReedsRes
     side: THREE.DoubleSide,
   });
 
-  // Shader for reed sway
+  // Shader for reed sway + pike avoidance
   let shaderRef: { uniforms: Record<string, THREE.IUniform> } | null = null;
   reedMaterial.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = { value: 0 };
@@ -50,37 +51,25 @@ export function createReeds(scene: THREE.Scene, center: THREE.Vector3): ReedsRes
     shaderRef = shader;
   };
 
-  // Dense reed bed – tall enough to break the surface (Y ≈ 4.5)
-  for (let i = 0; i < 80; i++) {
-    const height = 4.0 + Math.random() * 2.0;  // 4–6 m, surface at 4.5
+  const waterSurface = 4.5;
+
+  // Dense reed bed — terrain-aware heights
+  for (let i = 0; i < 120; i++) {
+    const rx = center.x + (Math.random() - 0.5) * 7;
+    const rz = center.z + (Math.random() - 0.5) * 7;
+    const groundY = getSeabedHeight(rx, rz);
+    const waterDepth = waterSurface - groundY;
+
+    // Skip if above water or too deep for reeds
+    if (waterDepth < 0.2 || waterDepth > 4.5) continue;
+
+    // Reeds break the surface by 0.5–2m
+    const height = waterDepth + 0.5 + Math.random() * 1.5;
     const geo = new THREE.CylinderGeometry(0.005, 0.008, height, 4);
     geo.translate(0, height / 2, 0);
 
     const reed = new THREE.Mesh(geo, reedMaterial);
-    reed.position.set(
-      center.x + (Math.random() - 0.5) * 5,
-      center.y,
-      center.z + (Math.random() - 0.5) * 5,
-    );
-    reed.rotation.z = (Math.random() - 0.5) * 0.1;
-    group.add(reed);
-  }
-
-  // Reed backdrop behind the pike (visible from pike chapter camera)
-  for (let i = 0; i < 40; i++) {
-    const rz = -9.5 + (Math.random() - 0.5) * 3;
-    // Match seabed slope: ground drops 0.4 per unit below Z=-8
-    const groundY = rz < -8 ? -(-rz - 8) * 0.4 : 0;
-    const height = 4.0 + Math.random() * 2.0 - groundY; // taller to compensate
-    const geo = new THREE.CylinderGeometry(0.005, 0.008, height, 4);
-    geo.translate(0, height / 2, 0);
-
-    const reed = new THREE.Mesh(geo, reedMaterial);
-    reed.position.set(
-      -12.5 + (Math.random() - 0.5) * 3,
-      groundY,
-      rz,
-    );
+    reed.position.set(rx, groundY, rz);
     reed.rotation.z = (Math.random() - 0.5) * 0.1;
     group.add(reed);
   }
@@ -108,7 +97,8 @@ export function createReeds(scene: THREE.Scene, center: THREE.Vector3): ReedsRes
     );
     nestGroup.add(fiber);
   }
-  nestGroup.position.set(center.x - 1, center.y, center.z - 1);
+  const nestGroundY = getSeabedHeight(center.x - 1, center.z - 1);
+  nestGroup.position.set(center.x - 1, nestGroundY, center.z - 1);
   group.add(nestGroup);
 
   group.visible = false;
