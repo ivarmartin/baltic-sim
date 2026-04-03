@@ -30,6 +30,7 @@ import { createStartScreen } from './ui/start-screen';
 import { createChatUI } from './ui/chat-ui';
 import { createMenu } from './ui/menu';
 import { getMode } from './mode';
+import { createAIService } from './services/ai-service';
 import { createSeal } from './creatures/seal';
 import { createAmbientSeal } from './creatures/ambient-seal';
 import { createCormorant } from './creatures/cormorant';
@@ -227,6 +228,7 @@ async function init() {
 
   // --- Camera navigation ---
   let navRef: { setTransitionDuration: (s: number) => void } | null = null;
+  let aiServiceRef: { isAINavigating: () => boolean; notifyNavigation: (stageId: string) => Promise<void> } | null = null;
 
   const navigation = createNavigation(
     camera,
@@ -238,6 +240,12 @@ async function init() {
         navRef?.setTransitionDuration(stage.transitionDuration);
       }
       stageManager.onViewChange(index);
+
+      // AI auto-comment on manual navigation (skip if AI itself triggered this)
+      if (getMode() === 'ai-guided' && currentChapter && aiServiceRef && !aiServiceRef.isAINavigating()) {
+        const stageId = currentChapter.stages[index].id;
+        aiServiceRef.notifyNavigation(stageId);
+      }
     },
     (_index) => {
       // Transition complete callback
@@ -343,16 +351,23 @@ async function init() {
   // --- Chat UI (AI-guided mode) ---
   const chatUI = createChatUI();
 
-  // Placeholder: log messages to console until AI is wired in
+  // --- AI Service ---
+  const aiService = createAIService({
+    chatUI,
+    stageManager,
+    goToIndex: (i) => navigation.goToIndex(i),
+  });
+  aiServiceRef = aiService;
+
   chatUI.onSendMessage((message) => {
-    console.log('[AI Chat] User message:', message);
-    chatUI.addMessage('assistant', 'AI guide is not connected yet. This is a placeholder response.');
+    aiService.sendMessage(message);
   });
 
   // --- Chapter selection ---
   let currentChapter: typeof chapters[0] | null = null;
 
   function showStartScreen() {
+    aiService.abort();
     navigation.hide();
     narrative.hide();
     chatUI.hide();
@@ -369,8 +384,10 @@ async function init() {
     if (getMode() === 'ai-guided') {
       narrative.hide();
       chatUI.setChapterContext(chapter);
+      aiService.setChapter(chapter);
       chatUI.show();
-      navigation.showHome();
+      navigation.showAIMode();
+      aiService.generateWelcome();
     } else {
       navigation.show();
       narrative.show();

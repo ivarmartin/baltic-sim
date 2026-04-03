@@ -8,18 +8,34 @@ export interface ChatUI {
   onSendMessage: (callback: (message: string) => void) => void;
   addMessage: (role: 'user' | 'assistant', text: string) => void;
   clearMessages: () => void;
+  showTyping: () => void;
+  hideTyping: () => void;
+  disableSend: () => void;
+  enableSend: () => void;
+  /** Create an empty assistant bubble for streaming; returns the element. */
+  addStreamingMessage: () => HTMLDivElement;
+  /** Update a streaming bubble's text and auto-scroll. */
+  updateStreamingMessage: (el: HTMLDivElement, text: string) => void;
+  /** Rebuild message DOM from saved history (for chapter switching). */
+  restoreHistory: (messages: Array<{ role: 'user' | 'assistant'; text: string }>) => void;
   dispose: () => void;
 }
 
 export function createChatUI(): ChatUI {
   let sendCallback: ((message: string) => void) | null = null;
   let currentChapter: Chapter | null = null;
+  let sendDisabled = false;
 
   const container = document.createElement('div');
   container.id = 'chat-ui';
   container.innerHTML = `
     <div class="chat-card">
       <div class="chat-messages"></div>
+      <div class="chat-typing">
+        <span class="chat-typing-dot"></span>
+        <span class="chat-typing-dot"></span>
+        <span class="chat-typing-dot"></span>
+      </div>
       <div class="chat-input-row">
         <input type="text" class="chat-input" placeholder="${t().ui.chatPlaceholder}" />
         <button class="chat-send">${t().ui.chatSend}</button>
@@ -102,6 +118,39 @@ export function createChatUI(): ChatUI {
       border-bottom-left-radius: 4px;
     }
 
+    /* Typing indicator */
+    .chat-typing {
+      display: none;
+      align-self: flex-start;
+      padding: 4px 14px 8px;
+      gap: 4px;
+    }
+
+    .chat-typing.visible {
+      display: flex;
+    }
+
+    .chat-typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      animation: chat-typing-pulse 1.4s ease-in-out infinite;
+    }
+
+    .chat-typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .chat-typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes chat-typing-pulse {
+      0%, 60%, 100% { opacity: 0.3; transform: scale(1); }
+      30% { opacity: 1; transform: scale(1.2); }
+    }
+
     .chat-input-row {
       display: flex;
       gap: 8px;
@@ -119,7 +168,7 @@ export function createChatUI(): ChatUI {
       font-size: 13px;
       color: rgba(255, 255, 255, 0.9);
       outline: none;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, opacity 0.2s ease;
     }
 
     .chat-input::placeholder {
@@ -128,6 +177,10 @@ export function createChatUI(): ChatUI {
 
     .chat-input:focus {
       border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .chat-input:disabled {
+      opacity: 0.5;
     }
 
     .chat-send {
@@ -156,6 +209,11 @@ export function createChatUI(): ChatUI {
       transform: scale(0.96);
     }
 
+    .chat-send:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
     @media (max-width: 480px) {
       #chat-ui { bottom: 20px; }
       .chat-card { width: 92vw; }
@@ -168,13 +226,14 @@ export function createChatUI(): ChatUI {
   document.body.appendChild(container);
 
   const messagesEl = container.querySelector('.chat-messages') as HTMLDivElement;
+  const typingEl = container.querySelector('.chat-typing') as HTMLDivElement;
   const inputEl = container.querySelector('.chat-input') as HTMLInputElement;
   const sendBtn = container.querySelector('.chat-send') as HTMLButtonElement;
 
   function handleSend() {
+    if (sendDisabled) return;
     const text = inputEl.value.trim();
     if (!text) return;
-    addMessage('user', text);
     inputEl.value = '';
     sendCallback?.(text);
   }
@@ -215,17 +274,46 @@ export function createChatUI(): ChatUI {
     setChapterContext(chapter: Chapter) {
       currentChapter = chapter;
       clearMessages();
-      // Add a welcome message from the AI guide
-      const chapterText = t().chapters[chapter.id];
-      if (chapterText) {
-        addMessage('assistant', `Welcome! Let me guide you through: ${chapterText.title}. What would you like to know?`);
-      }
     },
     onSendMessage(callback: (message: string) => void) {
       sendCallback = callback;
     },
     addMessage,
     clearMessages,
+    showTyping() {
+      typingEl.classList.add('visible');
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    },
+    hideTyping() {
+      typingEl.classList.remove('visible');
+    },
+    disableSend() {
+      sendDisabled = true;
+      inputEl.disabled = true;
+      sendBtn.disabled = true;
+    },
+    enableSend() {
+      sendDisabled = false;
+      inputEl.disabled = false;
+      sendBtn.disabled = false;
+    },
+    addStreamingMessage(): HTMLDivElement {
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg assistant';
+      messagesEl.appendChild(msg);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return msg;
+    },
+    updateStreamingMessage(el: HTMLDivElement, text: string) {
+      el.textContent = text;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    },
+    restoreHistory(messages: Array<{ role: 'user' | 'assistant'; text: string }>) {
+      clearMessages();
+      for (const m of messages) {
+        addMessage(m.role, m.text);
+      }
+    },
     dispose() {
       unsubLocale();
       container.remove();

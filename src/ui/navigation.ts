@@ -27,6 +27,7 @@ export function createNavigation(
   hide: () => void;
   showHome: () => void;
   hideHome: () => void;
+  showAIMode: () => void;
   goToIndex: (index: number) => void;
   dispose: () => void;
   isDevMode: () => boolean;
@@ -196,6 +197,10 @@ export function createNavigation(
       border-radius: 22px;
     }
 
+    #nav-ui.ai-mode .nav-label {
+      display: none;
+    }
+
     .nav-counter {
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
       font-size: 11px;
@@ -356,7 +361,7 @@ export function createNavigation(
   }
 
   function show() {
-    container.classList.remove('hidden');
+    container.classList.remove('hidden', 'ai-mode');
     homeContainer.classList.remove('hidden');
   }
 
@@ -384,6 +389,12 @@ export function createNavigation(
     homeContainer.classList.add('hidden');
   }
 
+  function showAIMode() {
+    container.classList.remove('hidden');
+    container.classList.add('ai-mode');
+    homeContainer.classList.remove('hidden');
+  }
+
   function goToIndex(index: number) {
     transitionTo(index);
   }
@@ -397,6 +408,7 @@ export function createNavigation(
     hide,
     showHome,
     hideHome,
+    showAIMode,
     goToIndex,
     dispose,
     isDevMode: () => devMode,
