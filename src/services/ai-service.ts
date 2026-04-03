@@ -197,12 +197,18 @@ export function createAIService(deps: AIServiceDeps): AIService {
       body.tools = buildTools();
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    // Only send Authorization when using a local API key (dev mode).
+    // In production the Cloudflare Worker injects the key server-side.
+    if (aiConfig.apiKey) {
+      headers.Authorization = `Bearer ${aiConfig.apiKey}`;
+    }
+
     const response = await fetch(aiConfig.endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${aiConfig.apiKey}`,
-      },
+      headers,
       body: JSON.stringify(body),
       signal: abortController.signal,
     });
