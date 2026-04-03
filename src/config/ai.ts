@@ -5,7 +5,7 @@ export const aiConfig = {
    * or directly to OpenRouter for local dev with a personal key.
    */
   endpoint: import.meta.env.VITE_AI_ENDPOINT as string
-    || 'https://baltic-sim-api.ivarmartin.workers.dev',
+    || 'https://baltic-sim-api.ivarhub-1.workers.dev',
   /**
    * API key — only needed for local development (the Worker injects its own
    * key in production). Set via VITE_OPENROUTER_API_KEY in .env.
