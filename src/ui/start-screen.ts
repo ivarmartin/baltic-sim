@@ -1,5 +1,6 @@
 import type { Chapter } from '../stages/chapter-data';
 import { t, onLocaleChange } from '../i18n';
+import { getMode, setMode, onModeChange } from '../mode';
 
 export interface StartScreen {
   show: () => void;
@@ -20,8 +21,8 @@ export function createStartScreen(
   function getChapterText(ch: Chapter) {
     const tr = t().chapters[ch.id];
     return {
-      title: tr?.title || ch.title,
-      subtitle: tr?.subtitle || ch.subtitle,
+      title: tr?.title || ch.id,
+      subtitle: tr?.subtitle || '',
     };
   }
 
@@ -43,10 +44,15 @@ export function createStartScreen(
     ? `<div class="appendix-divider"><span>${tr.ui.speciesGuides}</span></div>${buildCards(appendixEntries)}`
     : '';
 
+  const currentMode = getMode();
   overlay.innerHTML = `
     <div class="start-inner">
       <h1 class="start-heading">${tr.ui.siteTitle}</h1>
       <p class="start-subheading">${tr.ui.chooseChapter}</p>
+      <div class="mode-toggle">
+        <button class="mode-option${currentMode === 'linear' ? ' active' : ''}" data-mode="linear">${tr.ui.modeLinear}</button>
+        <button class="mode-option${currentMode === 'ai-guided' ? ' active' : ''}" data-mode="ai-guided">${tr.ui.modeAiGuided}</button>
+      </div>
       <div class="chapter-list">
         ${buildCards(chapterEntries)}
         ${appendixSection}
@@ -193,6 +199,44 @@ export function createStartScreen(
       border-color: rgba(255, 255, 255, 0.2);
     }
 
+    /* Mode toggle */
+    .mode-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin: 0 auto 28px auto;
+      background: rgba(10, 30, 20, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 4px;
+      max-width: 320px;
+    }
+
+    .mode-option {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+
+    .mode-option:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .mode-option.active {
+      background: rgba(40, 100, 70, 0.55);
+      color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
     @media (max-width: 480px) {
       .start-heading { font-size: 28px; }
       .start-subheading { font-size: 13px; margin-bottom: 24px; }
@@ -201,6 +245,8 @@ export function createStartScreen(
       .chapter-subtitle { font-size: 12px; }
       .chapter-card[data-type="appendix"] { padding: 12px 14px; }
       .chapter-card[data-type="appendix"] .chapter-title { font-size: 13px; }
+      .mode-toggle { max-width: 280px; }
+      .mode-option { font-size: 13px; padding: 8px 14px; }
     }
   `;
 
@@ -217,6 +263,25 @@ export function createStartScreen(
     });
   });
 
+  // Wire up mode toggle
+  const modeButtons = overlay.querySelectorAll('.mode-option');
+  modeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mode = (btn as HTMLElement).dataset.mode as 'linear' | 'ai-guided';
+      setMode(mode);
+    });
+  });
+
+  function updateModeUI() {
+    const mode = getMode();
+    modeButtons.forEach((btn) => {
+      const isActive = (btn as HTMLElement).dataset.mode === mode;
+      btn.classList.toggle('active', isActive);
+    });
+  }
+
+  const unsubMode = onModeChange(() => updateModeUI());
+
   // Grab references for reactive text updates
   const headingEl = overlay.querySelector('.start-heading') as HTMLElement;
   const subheadingEl = overlay.querySelector('.start-subheading') as HTMLElement;
@@ -227,6 +292,13 @@ export function createStartScreen(
     headingEl.textContent = tr.ui.siteTitle;
     subheadingEl.textContent = tr.ui.chooseChapter;
     if (dividerEl) dividerEl.textContent = tr.ui.speciesGuides;
+
+    // Update mode toggle labels
+    modeButtons.forEach((btn) => {
+      const mode = (btn as HTMLElement).dataset.mode;
+      if (mode === 'linear') btn.textContent = tr.ui.modeLinear;
+      else if (mode === 'ai-guided') btn.textContent = tr.ui.modeAiGuided;
+    });
 
     cards.forEach((card) => {
       const id = (card as HTMLElement).dataset.chapterId;
@@ -251,6 +323,7 @@ export function createStartScreen(
     },
     dispose() {
       unsubLocale();
+      unsubMode();
       overlay.remove();
       style.remove();
     },

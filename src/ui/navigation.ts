@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 export interface CameraView {
-  name: string;
   position: THREE.Vector3;
   lookAt: THREE.Vector3;
 }
@@ -26,6 +25,9 @@ export function createNavigation(
   setCurrentName: (name: string) => void;
   show: () => void;
   hide: () => void;
+  showHome: () => void;
+  hideHome: () => void;
+  goToIndex: (index: number) => void;
   dispose: () => void;
   isDevMode: () => boolean;
   onDevModeChange: (cb: (active: boolean) => void) => void;
@@ -284,7 +286,6 @@ export function createNavigation(
     if (cameraViews.length === 0) return;
     const idx = state.currentIndex;
     counterEl.textContent = `${idx + 1} / ${cameraViews.length}`;
-    nameEl.textContent = cameraViews[idx].name;
     prevBtn.disabled = idx === 0;
     nextBtn.disabled = idx === cameraViews.length - 1;
   }
@@ -375,6 +376,18 @@ export function createNavigation(
     nameEl.textContent = name;
   }
 
+  function showHome() {
+    homeContainer.classList.remove('hidden');
+  }
+
+  function hideHome() {
+    homeContainer.classList.add('hidden');
+  }
+
+  function goToIndex(index: number) {
+    transitionTo(index);
+  }
+
   return {
     update,
     setTransitionDuration: setTransitionDurationFn,
@@ -382,6 +395,9 @@ export function createNavigation(
     setCurrentName,
     show,
     hide,
+    showHome,
+    hideHome,
+    goToIndex,
     dispose,
     isDevMode: () => devMode,
     onDevModeChange: (cb: (active: boolean) => void) => { devModeCallback = cb; },

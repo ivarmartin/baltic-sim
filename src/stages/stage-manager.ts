@@ -40,6 +40,8 @@ export interface StageManager {
   update: (elapsed: number, dt: number) => void;
   onViewChange: (index: number) => void;
   loadChapter: (chapter: Chapter) => void;
+  goToStage: (stageId: string) => number;
+  getCurrentStageId: () => string | null;
   dispose: () => void;
 }
 
@@ -54,11 +56,11 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
   const envTransitionSpeed = 1.5;
 
   function getStageText(chapter: Chapter, index: number) {
-    const translated = t().chapters[chapter.id]?.stages[index];
     const stage = chapter.stages[index];
+    const translated = t().chapters[chapter.id]?.stages[stage.id];
     return {
-      name: translated?.name || stage.name,
-      narrative: translated?.narrative || stage.narrative,
+      name: translated?.name || stage.id,
+      narrative: translated?.narrative || '',
     };
   }
 
@@ -104,7 +106,8 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
   }
 
   function showGroupsForStage(chapter: Chapter, index: number) {
-    const keys = chapter.stageVisibility[index] || [];
+    const stageId = chapter.stages[index].id;
+    const keys = chapter.stageVisibility[stageId] || [];
     for (const key of keys) {
       const obj = groups[key];
       if (obj) obj.visible = true;
@@ -112,7 +115,8 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
   }
 
   function hideGroupsForStage(chapter: Chapter, index: number) {
-    const keys = chapter.stageVisibility[index] || [];
+    const stageId = chapter.stages[index].id;
+    const keys = chapter.stageVisibility[stageId] || [];
     for (const key of keys) {
       const obj = groups[key];
       if (obj) obj.visible = false;
@@ -120,7 +124,8 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
   }
 
   function applyCallbacks(chapter: Chapter, index: number) {
-    const callbackId = chapter.stageCallbacks?.[index];
+    const stageId = chapter.stages[index].id;
+    const callbackId = chapter.stageCallbacks?.[stageId];
 
     // Reset all holds by default
     deps.setSticklebackHold?.(false);
@@ -194,9 +199,22 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     }
   }
 
+  function goToStage(stageId: string): number {
+    if (!currentChapter) return -1;
+    const index = currentChapter.stages.findIndex((s) => s.id === stageId);
+    if (index < 0) return -1;
+    onViewChange(index);
+    return index;
+  }
+
+  function getCurrentStageId(): string | null {
+    if (!currentChapter) return null;
+    return currentChapter.stages[currentStage]?.id || null;
+  }
+
   function dispose() {
     unsubLocale();
   }
 
-  return { update, onViewChange, loadChapter, dispose };
+  return { update, onViewChange, loadChapter, goToStage, getCurrentStageId, dispose };
 }
