@@ -7,7 +7,7 @@ export const sv: TranslationStrings = {
     speciesGuides: 'Artguider',
     aboutTitle: 'Om',
     aboutText:
-      'En interaktiv undervattensupplevelse som utforskar Östersjön – ett av jordens mest hotade hav. Dyk under ytan för att lära dig om dess invånare, de utmaningar de står inför och vad vi kan göra för att hjälpa till.',
+      'En interaktiv undervattensupplevelse som utforskar Östersjön – ett av jordens mest hotade hav. Dyk under ytan för att upptäcka vilka som lever här, vad som går fel och vad du kan göra för att hjälpa till.',
     modeLinear: 'Linjär berättelse',
     modeAiGuided: 'AI-guide',
     chatPlaceholder: 'Ställ en fråga till din guide...',
@@ -141,28 +141,28 @@ export const sv: TranslationStrings = {
         'fish-species-perch': {
           name: 'Abborre',
           narrative:
-            'Europeisk abborre (Perca fluviatilis). Längd: 15–45 cm. En randig rovfisk i grunda kustvatten. Abborren är en visuell jägare – den använder sina stora ögon för att hitta byten i det grumliga Östersjövattnet. Den äter mindre fiskar, kräftdjur och insektslarver. En gång en av de vanligaste fiskarna längs den svenska kusten har abborrpopulationerna minskat i takt med att deras uppväxtområden har försämrats.',
+            'Europeisk abborre. Längd: 15–45 cm. Abborren är en randig jägare i grunda vatten – dess mörka ränder och lysande orangea fenor gör den till en av de vackraste fiskarna i Östersjön. Den använder sina stora ögon för att hitta byten i grumligt vatten. Abborren äter mindre fiskar, räkor och insektslarver. Roligt fakta: abborrens ägg kommer ut i långa, geléliknande band som hänger över växter som undervattensgirlanger.',
           aiPrompt:
             'Scen: Närbild av en europeisk abborre (Perca fluviatilis) i grunt vatten. Abborren visar tydliga mörka vertikala ränder och rödaktiga fenor.',
         },
         'fish-species-pike': {
           name: 'Gädda',
           narrative:
-            'Gädda (Esox lucius). Längd: 40–100 cm. Topprovdjuret i Östersjöns grunda vikar. Gäddan är en bakhållsjägare – den ligger orörlig bland vassen tills bytet kommer nära, sedan slår den till på millisekunder. En enda gädda kan äta hundratals storspiggar under en säsong. Den är en nyckelart: när gäddan försvinner kan hela vikens ekosystem kollapsa.',
+            'Gädda. Längd: 40–100 cm (ibland över en meter!). Topprovdjuret i Östersjöns grunda vikar. Gäddan är en bakhållsjägare – den ligger helt stilla bland vassen tills bytet kommer nära, och slår sedan till snabbare än du kan blinka. En enda gädda kan äta hundratals storspiggar under en säsong. Roligt fakta: gäddan återvänder alltid till exakt den plats där den föddes för att lägga sina egna ägg.',
           aiPrompt:
             'Scen: Närbild av en gädda (Esox lucius) bland vass. Gäddans prickiga kamouflagemönster och avlånga kropp syns tydligt.',
         },
         'fish-species-stickleback': {
           name: 'Storspigg',
           narrative:
-            'Storspigg (Gasterosteus aculeatus). Längd: 4–8 cm. Liten men enormt inflytelserik. Hanar bygger bon av växtfibrer och vaktar äggen intensivt. Deras populationer har exploderat femtiofaldigt sedan 1990-talet på grund av minskningen av rovdjur som torsk och gädda. I stora svärmar slukar de äggen från större fiskarter, vilket påskyndar den ekologiska obalansen i kustvatten.',
+            'Storspigg. Längd: 4–8 cm. Liten men mäktig. Denna lilla fisk har tre vassa taggar på ryggen som skydd. Hanen bygger ett bo av växtfibrer och gör en sicksackdans för att locka honor. När hon lagt äggen vaktar pappan dem intensivt. Roligt fakta: antalet storspiggar i Östersjön har exploderat femtiofaldigt sedan 1990-talet – det finns nu miljarder av dem.',
           aiPrompt:
             'Scen: Extrem närbild av en storspigg (Gasterosteus aculeatus). Denna lilla fisk (4-8 cm) har tre synliga ryggtaggar.',
         },
         'fish-species-cod': {
           name: 'Atlanttorsk',
           narrative:
-            'Atlanttorsk (Gadus morhua). Längd: 20–30 cm idag (historiskt upp till 100 cm). En gång Östersjöns kung kunde torsken bli lika lång som ett barns arm. Årtionden av överfiske och krympande syrezoner har lämnat bara förkrympta, tunna individer. Den spöklika konturen bredvid denna torsk visar dess forna storlek. Allt torskfiske i Östersjön har förbjudits, men återhämtningen är osäker.',
+            'Atlanttorsk. Längd: 20–30 cm idag (de brukade bli upp till 100 cm!). Torsken var en gång Östersjöns kung – enorma, kraftfulla fiskar som härskade i djupvattnet. Men årtionden av överfiske och krympande syrezoner har bara lämnat små, tunna fiskar kvar. Allt torskfiske i Östersjön har förbjudits sedan 2019, men de återhämtar sig fortfarande inte. Roligt fakta: torsken behöver en speciell blandning av salt, syrerikt vatten för att lägga sina ägg, och det finns bara en plats kvar i Östersjön där det fungerar.',
           aiPrompt:
             'Scen: En liten atlanttorsk (Gadus morhua) i mellandomsvatten. Torsken ser tunn och förkrympt ut jämfört med sin historiska storlek.',
         },
