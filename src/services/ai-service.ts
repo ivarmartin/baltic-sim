@@ -291,6 +291,36 @@ export function createAIService(deps: AIServiceDeps): AIService {
   }
 
   // -------------------------------------------------------------------------
+  // Follow-up after tool-only responses
+  // -------------------------------------------------------------------------
+
+  async function followUpAfterNavigation(stageId: string) {
+    const stageName = findStageName(stageId);
+    addToHistory({
+      role: 'user',
+      content: `[The scene just changed to "${stageName}". Describe what I'm seeing and continue the story.]`,
+    });
+
+    chatUI.showTyping();
+
+    const messages: ChatMessage[] = [
+      { role: 'system', content: buildSystemPrompt() },
+      ...getHistory(),
+    ];
+
+    try {
+      const { text } = await callAPI(messages);
+      if (text) {
+        addToHistory({ role: 'assistant', content: text });
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('[AI Service] Follow-up failed', err);
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // Public API
   // -------------------------------------------------------------------------
 
@@ -339,6 +369,12 @@ export function createAIService(deps: AIServiceDeps): AIService {
       }
       if (toolCall) {
         executeNavigation(toolCall.stageId);
+
+        // If the model returned a tool call but no text, auto-follow-up
+        // so the AI describes the new scene instead of leaving a dead end
+        if (!text) {
+          await followUpAfterNavigation(toolCall.stageId);
+        }
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
