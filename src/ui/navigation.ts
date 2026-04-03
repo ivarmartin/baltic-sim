@@ -219,6 +219,13 @@ export function createNavigation(
       white-space: nowrap;
     }
 
+    @media (min-width: 768px) {
+      #nav-ui {
+        left: 24px;
+        transform: none;
+      }
+    }
+
     @media (max-width: 480px) {
       #nav-ui { bottom: 20px; }
       .nav-btn { width: 40px; height: 40px; }

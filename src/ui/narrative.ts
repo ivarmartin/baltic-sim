@@ -120,6 +120,13 @@ export function createNarrative(): NarrativeUI {
       opacity: 0;
     }
 
+    @media (min-width: 768px) {
+      #narrative-ui {
+        left: 24px;
+        transform: none;
+      }
+    }
+
     @media (max-width: 600px) {
       #narrative-ui { bottom: 80px; }
       .narrative-card { width: 90vw; max-width: 90vw; }

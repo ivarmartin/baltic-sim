@@ -214,6 +214,13 @@ export function createChatUI(): ChatUI {
       cursor: default;
     }
 
+    @media (min-width: 768px) {
+      #chat-ui {
+        left: 24px;
+        transform: none;
+      }
+    }
+
     @media (max-width: 480px) {
       #chat-ui { bottom: 20px; }
       .chat-card { width: 92vw; }
