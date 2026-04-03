@@ -1,8 +1,15 @@
-/** AI configuration for OpenRouter API. */
+/** AI configuration for OpenRouter API (proxied via Cloudflare Worker). */
 export const aiConfig = {
-  /** OpenRouter chat completions endpoint */
-  endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-  /** API key — set at runtime via aiConfig.apiKey = '...' */
+  /**
+   * API endpoint — points to the Cloudflare Worker proxy in production,
+   * or directly to OpenRouter for local dev with a personal key.
+   */
+  endpoint: import.meta.env.VITE_AI_ENDPOINT as string
+    || 'https://baltic-sim-api.ivarmartin.workers.dev',
+  /**
+   * API key — only needed for local development (the Worker injects its own
+   * key in production). Set via VITE_OPENROUTER_API_KEY in .env.
+   */
   apiKey: import.meta.env.VITE_OPENROUTER_API_KEY as string || '',
   /** Model identifier */
   model: 'openai/gpt-4o-mini',
