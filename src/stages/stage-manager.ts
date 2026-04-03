@@ -40,6 +40,7 @@ export interface StageManagerDeps {
 export interface StageManager {
   update: (elapsed: number, dt: number) => void;
   onViewChange: (index: number) => void;
+  onTransitionComplete: (index: number) => void;
   loadChapter: (chapter: Chapter) => void;
   goToStage: (stageId: string) => number;
   getCurrentStageId: () => string | null;
@@ -115,15 +116,6 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     }
   }
 
-  function hideGroupsForStage(chapter: Chapter, index: number) {
-    const stageId = chapter.stages[index].id;
-    const keys = chapter.stageVisibility[stageId] || [];
-    for (const key of keys) {
-      const obj = groups[key];
-      if (obj) obj.visible = false;
-    }
-  }
-
   function applyCallbacks(chapter: Chapter, index: number) {
     const stageId = chapter.stages[index].id;
     const callbackId = chapter.stageCallbacks?.[stageId];
@@ -178,10 +170,13 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     applyCallbacks(chapter, 0);
   }
 
+  let pendingHideStage = -1;
+
   function onViewChange(index: number) {
     if (!currentChapter) return;
 
-    hideGroupsForStage(currentChapter, currentStage);
+    // Remember which stage's groups to hide once the camera arrives
+    pendingHideStage = currentStage;
     currentStage = index;
     showGroupsForStage(currentChapter, index);
 
@@ -193,7 +188,22 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     targetEnvironment = currentChapter.stages[index].environment;
     envTransitionT = 0;
 
+    // Release holds immediately so creatures resume swimming during transition
     applyCallbacks(currentChapter, index);
+  }
+
+  function onTransitionComplete(_index: number) {
+    if (!currentChapter || pendingHideStage < 0) return;
+    // Only hide groups from the old stage that the new stage doesn't also use
+    const oldKeys = currentChapter.stageVisibility[currentChapter.stages[pendingHideStage].id] || [];
+    const newKeys = new Set(currentChapter.stageVisibility[currentChapter.stages[currentStage].id] || []);
+    for (const key of oldKeys) {
+      if (!newKeys.has(key)) {
+        const obj = groups[key];
+        if (obj) obj.visible = false;
+      }
+    }
+    pendingHideStage = -1;
   }
 
   function update(_elapsed: number, dt: number) {
@@ -220,5 +230,5 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     unsubLocale();
   }
 
-  return { update, onViewChange, loadChapter, goToStage, getCurrentStageId, dispose };
+  return { update, onViewChange, onTransitionComplete, loadChapter, goToStage, getCurrentStageId, dispose };
 }

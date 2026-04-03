@@ -31,6 +31,7 @@ import { createChatUI } from './ui/chat-ui';
 import { createMenu } from './ui/menu';
 import { getMode } from './mode';
 import { createAIService } from './services/ai-service';
+import { createDevHud } from './ui/dev-hud';
 import { createSeal } from './creatures/seal';
 import { createAmbientSeal } from './creatures/ambient-seal';
 import { createCormorant } from './creatures/cormorant';
@@ -101,6 +102,7 @@ async function init() {
   updates.push(perchResult.update);
 
   const ambientSealResult = await createAmbientSeal(scene);
+  ambientSealResult.group.visible = false;
   updates.push(ambientSealResult.update);
 
   // --- Shared scene objects ---
@@ -120,17 +122,18 @@ async function init() {
   updates.push(pikeResult.update);
 
   // Shore pike — patrols the reed bed near the shore
-  const shorePikeResult = await createPike(scene, new THREE.Vector3(-20, 2.3, 10), {
+  const shorePikeResult = await createPike(scene, new THREE.Vector3(-19.5, 2.0, 6.5), {
     path: new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-23, 1.5, 7),
-      new THREE.Vector3(-21, 2.0, 9),
-      new THREE.Vector3(-20, 2.3, 10.5),   // mark — in the reeds, side-on to camera
-      new THREE.Vector3(-18.5, 2.8, 11.5),
-      new THREE.Vector3(-17, 2.5, 9.5),
-      new THREE.Vector3(-18.5, 1.8, 7.5),
-      new THREE.Vector3(-22, 1.3, 6),
+      new THREE.Vector3(-19.5, 2.0, 6.5),      // mark — close profile in front of camera
+      new THREE.Vector3(-18, 1.8, 4.5),         // exits right of frame
+      new THREE.Vector3(-20.5, 1.6, 2.5),       // right of camera
+      new THREE.Vector3(-24, 1.4, 2),            // behind-right
+      new THREE.Vector3(-26, 1.2, 4),            // behind camera
+      new THREE.Vector3(-26, 1.4, 7),            // behind-left
+      new THREE.Vector3(-24, 1.8, 9),            // swings wide left
+      new THREE.Vector3(-21, 2.0, 8.5),          // enters from left of frame
     ], true),
-    mark: new THREE.Vector3(-20, 2.3, 10.5),
+    mark: new THREE.Vector3(-19.5, 2.0, 6.5),
   });
   updates.push(shorePikeResult.update);
 
@@ -265,8 +268,8 @@ async function init() {
         aiServiceRef.notifyNavigation(stageId);
       }
     },
-    (_index) => {
-      // Transition complete callback
+    (index) => {
+      stageManager.onTransitionComplete(index);
     },
     () => {
       // Home button pressed
@@ -361,9 +364,11 @@ async function init() {
     window.removeEventListener('touchend', onTouchEndReset);
   }
 
+  const devHud = createDevHud(camera, cameraRig);
+
   navigation.onDevModeChange((active) => {
-    if (active) enableDevMode();
-    else disableDevMode();
+    if (active) { enableDevMode(); devHud.show(); }
+    else { disableDevMode(); devHud.hide(); }
   });
 
   // --- Chat UI (AI-guided mode) ---
@@ -505,6 +510,7 @@ async function init() {
         move.normalize().multiplyScalar(moveSpeed * dt);
         cameraRig.position.add(move);
       }
+      devHud.update();
     } else {
       navigation.update(dt);
     }

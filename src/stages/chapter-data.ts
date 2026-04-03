@@ -108,8 +108,8 @@ const pikeStages: StageDefinition[] = [
   {
     id: 'pike-meet',
     cameraView: {
-      position: new THREE.Vector3(-18, 2.5, 9),
-      lookAt: new THREE.Vector3(-20, 2.3, 10.5),
+      position: new THREE.Vector3(-21.873, 2.526, 5.981),
+      lookAt: new THREE.Vector3(-17.273, 1.518, 7.661),
     },
     transitionDuration: 2.5,
     environment: 'shallow',
@@ -120,7 +120,7 @@ const pikeStages: StageDefinition[] = [
       position: new THREE.Vector3(-7, 1.8, -3),
       lookAt: new THREE.Vector3(-10, 0.8, -7),
     },
-    transitionDuration: 2.5,
+    transitionDuration: 5,
     environment: 'shallow',
   },
   {
@@ -211,8 +211,8 @@ const fishSpeciesStages: StageDefinition[] = [
   {
     id: 'fish-species-stickleback',
     cameraView: {
-      position: new THREE.Vector3(0.35, 0.46, -0.05),
-      lookAt: new THREE.Vector3(0.1, 0.45, -0.3),
+      position: new THREE.Vector3(2.535, 0.457, -4.357),
+      lookAt: new THREE.Vector3(-2.293, 0.076, -5.597),
     },
     transitionDuration: 2.0,
     environment: 'shallow',

@@ -21,18 +21,18 @@ function generatePath(): THREE.CatmullRomCurve3 {
 }
 
 /** The mark position for the narrative stickleback. */
-export const STICKLEBACK_MARK = new THREE.Vector3(0.1, 0.45, -0.3);
+export const STICKLEBACK_MARK = new THREE.Vector3(2.37, 0.45, -4.39);
 
 /** Fixed patrol path for the narrative stickleback - loops near the Stickleback camera view. */
 function createPresetSticklebackPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0.5, 0.5, -1.5),
-    new THREE.Vector3(0.3, 0.47, -0.8),
-    new THREE.Vector3(0.1, 0.45, -0.3),    // mark area - side-on to camera, close
-    new THREE.Vector3(-0.1, 0.47, 0.2),
-    new THREE.Vector3(-0.3, 0.5, 0.7),
-    new THREE.Vector3(0.0, 0.48, 0.0),
-    new THREE.Vector3(0.3, 0.48, -0.8),
+    new THREE.Vector3(2.77, 0.5, -5.59),
+    new THREE.Vector3(2.57, 0.47, -4.89),
+    new THREE.Vector3(2.37, 0.45, -4.39),    // mark area - side-on to camera, close
+    new THREE.Vector3(2.17, 0.47, -3.89),
+    new THREE.Vector3(1.97, 0.5, -3.39),
+    new THREE.Vector3(2.27, 0.48, -4.09),
+    new THREE.Vector3(2.57, 0.48, -4.89),
   ], true);
 }
 
@@ -125,10 +125,10 @@ export async function createSticklebacks(scene: THREE.Scene): Promise<Sticklebac
   sourceGeometry.scale(scaleFactor, scaleFactor, scaleFactor);
 
   // Compute body extent for undulation normalization
-  // Nose is at +Z (high z), tail at low z
+  // Nose is at -Z (low z, faces lookAt direction), tail at +Z (high z)
   sourceGeometry.computeBoundingBox();
-  const zMax = sourceGeometry.boundingBox!.max.z;
-  const bodyLength = zMax - sourceGeometry.boundingBox!.min.z;
+  const zMin = sourceGeometry.boundingBox!.min.z;
+  const bodyLength = sourceGeometry.boundingBox!.max.z - zMin;
 
   // Use the GLB's baked material
   const material = firstMaterial!.clone();
@@ -216,7 +216,7 @@ export async function createSticklebacks(scene: THREE.Scene): Promise<Sticklebac
       for (let v = 0; v < posAttr.count; v++) {
         const i3 = v * 3;
         const bz = base[i3 + 2];
-        const zNorm = (zMax - bz) / bodyLength;
+        const zNorm = (bz - zMin) / bodyLength;
         const amplitude = zNorm * zNorm * 0.0025;
         const wave = Math.sin(elapsed * 8 + fish.swimPhase - zNorm * Math.PI * 2);
         arr[i3] = base[i3] + wave * amplitude;

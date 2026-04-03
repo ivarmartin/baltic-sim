@@ -103,7 +103,13 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3, op
   let isHolding = false;
   const markT = findClosestT(path, pikeMark);
 
+  // Burst speed on hold release — pike darts away
+  let burstTimer = 0;
+  const burstDuration = 3.0;
+  const burstMultiplier = 4.0;
+
   function setHold(value: boolean) {
+    if (!value && isHolding) burstTimer = burstDuration;
     holdRequested = value;
     if (!value) isHolding = false;
   }
@@ -124,7 +130,12 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3, op
     } else if (isHolding) {
       t = markT;
     } else {
-      t = (t + speed * dt) % 1;
+      let s = speed;
+      if (burstTimer > 0) {
+        s *= 1 + (burstMultiplier - 1) * (burstTimer / burstDuration);
+        burstTimer = Math.max(burstTimer - dt, 0);
+      }
+      t = (t + s * dt) % 1;
     }
 
     const pos = path.getPointAt(t);
@@ -136,14 +147,15 @@ export async function createPike(scene: THREE.Scene, position: THREE.Vector3, op
 
     // Subtle body undulation (always active - pike breathes)
     const holding = holdRequested || isHolding;
+    const bursting = burstTimer > 0;
     const posAttr = geometry.attributes.position;
     const arr = posAttr.array as Float32Array;
     for (let v = 0; v < posAttr.count; v++) {
       const i3 = v * 3;
       const bz = basePositions[i3 + 2];
       const zNorm = (bz - zMin) / bodyLength; // 0 at nose, 1 at tail
-      const amplitude = zNorm * zNorm * (holding ? 0.004 : 0.012);
-      const wave = Math.sin(elapsed * (holding ? 6 : 12) + swimPhase - zNorm * Math.PI * 2);
+      const amplitude = zNorm * zNorm * (holding ? 0.004 : bursting ? 0.02 : 0.012);
+      const wave = Math.sin(elapsed * (holding ? 6 : bursting ? 18 : 12) + swimPhase - zNorm * Math.PI * 2);
       arr[i3] = basePositions[i3] + wave * amplitude;
     }
     posAttr.needsUpdate = true;
