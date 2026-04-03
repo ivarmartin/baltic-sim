@@ -15,7 +15,7 @@ export const en: TranslationStrings = {
   },
   ai: {
     coreSystemPrompt:
-      'You are a friendly marine biologist named Dr. Anna Igefj\u00e4rd, a Baltic Sea expert guiding visitors through an interactive 3D underwater experience near Ask\u00f6, Sweden. Your audience is around 10 years old \u2014 curious, smart, but not scientists. Speak in a warm, engaging way. Use comparisons to things kids know (school rulers, backpacks, swimming pools). Keep answers concise (2\u20133 sentences) unless the visitor asks for more detail. Always respond in the same language as these instructions. Always end your response with an engaging question that invites the visitor to think, guess, or respond \u2014 for example \u201cCan you guess how long a pike can get?\u201d or \u201cWhat do you think happens when all the big fish disappear?\u201d. You have a navigate_to_stage function call (tool call) to move the camera to different scenes. Use it as a tool call only — NEVER write "navigate_to_stage" or "*Navigating to...*" in your text. The visitor must never see tool names. Use it when relevant to illustrate your points, and only then. Only navigate to one scene per response. CRITICAL RULE: You must ALWAYS include dialogue text in your response, even when making a function call. Never return only a tool call with no text. When you navigate to a new scene, describe what the visitor is now seeing in vivid detail and continue the story with a follow-up question. When a visitor navigates to a new scene themselves, comment on what they are looking at and ask an engaging question. If a visitor asks something you don\u2019t know, be honest and say so \u2014 real scientists do that too. You also have access to the narrative text for each scene \u2014 do not repeat it, but use it as context. Your job is to add depth, answer questions, and guide exploration beyond what the narrative already says.',
+      'You are a friendly marine biologist named Dr. Anna Igefjärd, a Baltic Sea expert guiding visitors through an interactive 3D underwater experience near Askö, Sweden. Your audience is around 10 years old — curious, smart, but not scientists. Speak in a warm, engaging way. Use comparisons to things kids know (school rulers, backpacks, swimming pools). Keep answers concise (2–3 sentences) unless the visitor asks for more detail. Always respond in the same language as these instructions.\n\nNARRATIVE PROGRESSION RULES:\n- Your primary job is to shepherd the visitor through the narrative arc of this chapter. Each scene has NARRATIVE BEATS — cover them in order, roughly one per exchange.\n- Cover ONE beat per response — do not combine multiple beats into one message. Let the visitor absorb and react.\n- Aim to cover each scene in 2–4 exchanges. After 4+ messages on the same scene without active visitor questions, suggest moving to the next scene.\n- End each response with a question that leads toward the NEXT narrative beat or the next scene — not an open-ended tangent. For example, instead of "What do you think about algae?", ask "Want to see what happens when these forests disappear?" or "Ready to meet the fish that\'s taking over?"\n- If the visitor asks something off-topic, give a brief honest answer (1 sentence), then steer back: "Great question! But first, let me show you something important…" and return to the next uncovered beat.\n- When all beats for a scene are covered, use the NEXT SCENE hook to transition. Navigate to the next scene using the tool call.\n- Do NOT repeat what the narrative text already says — paraphrase, add depth, and make it vivid.\n\nTOOL USE RULES:\n- You have a navigate_to_stage function call (tool call) to move the camera to different scenes. Use it as a tool call only — NEVER write "navigate_to_stage" or "*Navigating to...*" in your text. The visitor must never see tool names.\n- Use it when relevant to illustrate your points or to transition to the next scene, and only then. Only navigate to one scene per response.\n- CRITICAL: You must ALWAYS include dialogue text in your response, even when making a function call. Never return only a tool call with no text.\n- When you navigate to a new scene, describe what the visitor is now seeing in vivid detail and continue the story.\n- When a visitor navigates to a new scene themselves, comment on what they are looking at and start covering that scene\'s narrative beats.\n\nIf a visitor asks something you don\'t know, be honest and say so — real scientists do that too.',
   },
   chapters: {
     intro: {
@@ -30,6 +30,13 @@ export const en: TranslationStrings = {
             'When was the last time you swam in the Baltic Sea? That water felt different, right \u2014 not quite salty, not quite fresh. You were swimming in the youngest sea on Earth, and one of the most threatened. This is Ask\u00f6, south of Stockholm, where scientists have been watching this sea change for over 60 years. Let\u2019s dive in.',
           aiPrompt:
             'Scene: Shallow underwater near Ask\u00f6. Sunlight through green-tinged water. Bladderwrack and rocks on seabed. Extra context: Ask\u00f6 Lab run by Stockholm University Baltic Sea Centre. Salinity ~6 PSU (ocean 35). Water takes 25\u201330 years to fully exchange with the North Sea, so pollutants accumulate.',
+          narrativeBeats: [
+            'Welcome the visitor — they\'re diving into the youngest sea on Earth',
+            'Explain what makes the Baltic special: brackish water, not quite salty, not quite fresh',
+            'Introduce Askö as a research station that\'s watched this sea for 60+ years',
+            '→ Transition: let\'s explore what lives beneath the surface (next: The Underwater Forest)',
+          ],
+          nextSceneHook: 'Next scene: "The Underwater Forest" — discover the Baltic\'s hidden habitat and what\'s threatening it',
         },
         'intro-underwater-forest': {
           name: 'The Underwater Forest',
@@ -37,6 +44,13 @@ export const en: TranslationStrings = {
             'This is bladderwrack \u2014 the Baltic\u2019s version of a forest. Tiny crabs, snails and fish hide in its branches, just like animals in a real forest. But look closer: slimy green threads are choking it. Too many nutrients from farms and cities feed these fast-growing algae, and they\u2019re stealing the light the bladderwrack needs to survive. In some places, these forests have already disappeared.',
           aiPrompt:
             'Scene: Bladderwrack (Fucus vesiculosus) forest on rocks, filamentous algae smothering parts. Barren rock face adjacent. Extra context: Takes 4\u20135 years to mature, so recovery is very slow. 97% of the Baltic affected by eutrophication. Historically grew to 15m depth; now only 2\u20134m in some areas. Hosts isopods (Idotea), snails (Littorina), tube worms, black gobies.',
+          narrativeBeats: [
+            'Introduce bladderwrack as the Baltic\'s underwater forest — a habitat full of life (crabs, snails, fish)',
+            'Point out the slimy green algae threads choking it — caused by nutrient runoff from farms and cities',
+            'Explain the consequence: these forests are disappearing, and they take 4–5 years to regrow',
+            '→ Transition: what happens when the ecosystem loses its big predators? (next: Stickleback Swarm)',
+          ],
+          nextSceneHook: 'Next scene: "The Stickleback Swarm" — the algae problem connects to an explosion of tiny fish',
         },
         'intro-stickleback-swarm': {
           name: 'The Stickleback Swarm',
@@ -44,6 +58,13 @@ export const en: TranslationStrings = {
             'Meet the three-spined stickleback \u2014 barely the length of your finger, but there are billions of them. Their numbers have exploded fifty times over since your parents were kids. Why? Because the big fish that used to eat them \u2014 like cod \u2014 are mostly gone. Now these tiny fish swarm into the bays every spring and devour the eggs of pike and perch, making the problem even worse.',
           aiPrompt:
             'Scene: Massive stickleback swarm like a silver wall. Pike lurks in reeds in background. Extra context: Now ~10% of all Baltic fish biomass. Technical term: \u201cmesopredator release.\u201d Males build nests from plant fibres glued with kidney secretions, do zigzag courtship dances. SLU Aqua researcher Ulf Bergstr\u00f6m described them as devastating to shallow bays.',
+          narrativeBeats: [
+            'Introduce the three-spined stickleback — tiny, finger-sized, but billions of them',
+            'Explain why they exploded: the big fish (cod) that ate them are mostly gone',
+            'The cruel twist: sticklebacks eat pike and perch eggs, making the predator decline even worse',
+            '→ Transition: but what happened to the cod? (next: The Shrinking Cod)',
+          ],
+          nextSceneHook: 'Next scene: "The Shrinking Cod" — the fish that once ruled the Baltic is barely hanging on',
         },
         'intro-shrinking-cod': {
           name: 'The Shrinking Cod',
@@ -51,6 +72,13 @@ export const en: TranslationStrings = {
             'This is the Atlantic cod \u2014 or what\u2019s left of it. Thirty years ago, a Baltic cod could grow as long as your arm and weigh more than your backpack. Today, most never get bigger than a school ruler. Scientists have banned all cod fishing in the Baltic, but the population still isn\u2019t recovering. The water they need to lay their eggs in \u2014 salty enough and with enough oxygen \u2014 has shrunk to just one deep spot near Bornholm.',
           aiPrompt:
             'Scene: Deep, dark water. Small thin cod with ghost outline of 1980s-sized cod (2x larger) superimposed. Lifeless mud seabed. Extra context: Peak catches ~400,000 tonnes mid-1980s. Total ban since 2019 incl. recreational. Now mature at ~20 cm instead of 35\u201340 cm. Many infested with nematode Contracaecum osculatum. Cod collapse triggered the stickleback explosion.',
+          narrativeBeats: [
+            'Introduce Baltic cod — once as long as your arm, now smaller than a ruler',
+            'Fishing ban since 2019, but still not recovering — explain why',
+            'The problem: cod need salty, oxygen-rich deep water to breed, and there\'s only one spot left (Bornholm)',
+            '→ Transition: let\'s go deeper and see why the oxygen disappeared (next: The Dead Zone)',
+          ],
+          nextSceneHook: 'Next scene: "The Dead Zone" — dive into the lifeless depths where oxygen has vanished',
         },
         'intro-dead-zone': {
           name: 'The Dead Zone',
@@ -58,6 +86,13 @@ export const en: TranslationStrings = {
             'Below us is a dead zone \u2014 an area bigger than Denmark where nothing can live. Fertilisers from farms wash into rivers, then into the sea, feeding huge algae blooms. When the algae die and sink, bacteria consume all the oxygen down here. Right now, one-third of the Baltic seafloor doesn\u2019t have enough oxygen for any animal to survive. And in 2024, scientists measured the worst oxygen levels ever recorded here.',
           aiPrompt:
             'Scene: Pitch-black below halocline shimmer. Barren grey-brown mud, no life, faint particle drift. Extra context: ~18\u201319% fully anoxic, ~15% hypoxic. SMHI April 2025 report: all-time record hydrogen sulphide at Gotland Deep (BY15) Nov 2024. Vicious cycle: anoxic sediments release phosphorus, fuelling more blooms. Dead zone has grown tenfold since the 1950s.',
+          narrativeBeats: [
+            'Explain what a dead zone is — an area bigger than Denmark where nothing can live',
+            'The cause: fertilizers → rivers → algae blooms → bacteria consume all oxygen',
+            'The scale: one-third of the Baltic seafloor is oxygen-starved, 2024 saw worst levels ever recorded',
+            '→ Transition: the Baltic holds secrets beyond ecology (next: The Shipwreck)',
+          ],
+          nextSceneHook: 'Next scene: "The Shipwreck" — the Baltic preserves 100,000 shipwrecks, but that\'s changing too',
         },
         'intro-shipwreck': {
           name: 'The Shipwreck',
@@ -65,6 +100,13 @@ export const en: TranslationStrings = {
             'The Baltic holds around 100,000 shipwrecks \u2014 Viking longships, warships, medieval traders \u2014 preserved for centuries because the cold, low-salt water kept wood-eating shipworms away. But as the sea warms, shipworms are spreading further north. They\u2019re not actually worms \u2014 they\u2019re clams that tunnel into wood and eat it from the inside. A whole underwater museum is slowly being eaten alive.',
           aiPrompt:
             'Scene: Wooden shipwreck on seabed, hull intact, draped in blue mussels. Close-up: shipworm boreholes. Extra context: Vasa survived 333 years in Stockholm harbour due to low salinity. Shipworms (Teredo navalis) need >5 PSU to survive, >8 to reproduce. Breeding season extended ~26 days vs 1970s. ~100 wrecks infested by 2010. EU WreckProtect project (Univ. Gothenburg) developed geotextile coverings. Vrak Museum opened 2021.',
+          narrativeBeats: [
+            'The Baltic holds ~100,000 shipwrecks — Vikings, warships, medieval traders — preserved for centuries',
+            'Why they survived: cold, low-salt water kept shipworms away',
+            'The new threat: warming water lets shipworms spread north, eating wrecks from the inside',
+            '→ Transition: it sounds bad, but there\'s real hope (next: What You Can Do)',
+          ],
+          nextSceneHook: 'Next scene: "What You Can Do" — ending on hope, with real actions that are making a difference',
         },
         'intro-what-you-can-do': {
           name: 'What You Can Do',
@@ -72,6 +114,12 @@ export const en: TranslationStrings = {
             'The Baltic Sea isn\u2019t a lost cause \u2014 when people act, it actually recovers. Scientists are replanting underwater meadows by hand. Sweden moved its trawling border to protect coastal fish. Over 600,000 Swedish kids pick up litter from beaches every year. You can help too: skip single-use plastic, ask where your fish comes from, and if you see trash near water \u2014 pick it up. This sea is yours. It\u2019s the one you swim in.',
           aiPrompt:
             'Scene: Bright shallow water, camera up toward sunlit surface. Optimistic closing. Extra context: Univ. Gothenburg ZORRO planted 3M+ eelgrass shoots, one site 26-fold increase. HELCOM Baltic Sea Action Plan ~200 actions targeting 2030. Pelagic trawl ban <12 nm Swedish coast from Feb 2025. Additional kid actions: phosphate-free detergents, sustainable fish (no eel, no Baltic cod), citizen science (Stockholm Uni algae project).',
+          narrativeBeats: [
+            'Good news: when people act, the Baltic recovers — scientists replanting meadows, trawling bans',
+            'Real numbers: 600,000 Swedish kids picking up beach litter every year',
+            'What you can do: skip single-use plastic, ask where your fish comes from, pick up litter near water',
+            'Wrap up: this sea is yours — it\'s the one you swim in',
+          ],
         },
       },
     },
@@ -87,6 +135,13 @@ export const en: TranslationStrings = {
             'This is the pike \u2014 the biggest hunter in the shallow bays of the Baltic Sea. It can grow as long as a metre and live for twenty years. See how it hides? That spotted pattern makes it almost invisible in the reeds. It waits perfectly still, then \u2014 snap! It\u2019s one of the fastest hunters in the water.',
           aiPrompt:
             'Scene: Large pike motionless among tall reeds and eelgrass in sunlit bay. Dark green with pale spots, camouflaged. Small perch nearby. Extra context: Max 130 cm. Can eat fish up to half its body length. Strike speed in milliseconds. Trophy pike (>12 kg) common until mid-1990s, now very rare.',
+          narrativeBeats: [
+            'Introduce the pike — biggest hunter in the shallow bays, up to a metre long',
+            'Highlight its camouflage — spotted pattern makes it invisible in the reeds',
+            'Its hunting style: perfectly still, then strikes in milliseconds',
+            '→ Transition: but the pike isn\'t just impressive — it\'s vital (next: Why the Pike Matters)',
+          ],
+          nextSceneHook: 'Next scene: "Why the Pike Matters" — this fish holds the whole ecosystem together',
         },
         'pike-why-it-matters': {
           name: 'Why the Pike Matters',
@@ -94,6 +149,13 @@ export const en: TranslationStrings = {
             'When pike are around, the whole bay stays healthy. They keep smaller fish in check, which protects the plants and algae on the seafloor. Think of the pike like a guard \u2014 without it, everything gets out of balance. Scientists call it a \u2018keystone species.\u2019 That means it holds the whole ecosystem together, like the top stone in an arch.',
           aiPrompt:
             'Scene: Wide healthy bay. Pike patrol among bladderwrack/reeds. Moderate perch, roach. Clear water, lush vegetation, sunlight to sandy bottom. Extra context: Mechanism is \u201ctrophic cascade\u201d \u2014 pike controls small fish \u2192 protects grazers \u2192 controls algae. Stockholm Resilience Centre (2024): bays with healthy pike far more resistant to stickleback takeover. Connected neighbouring bays help each other \u2014 pike move between them.',
+          narrativeBeats: [
+            'When pike are around, the whole bay stays healthy — they keep smaller fish in check',
+            'Think of the pike like a guard or keystone — remove it and everything collapses',
+            'Scientists call this a "trophic cascade" — pike controls the whole food chain',
+            '→ Transition: so what\'s threatening the pike\'s nurseries? (next: The Lost Nurseries)',
+          ],
+          nextSceneHook: 'Next scene: "The Lost Nurseries" — the places where pike are born are disappearing',
         },
         'pike-lost-nurseries': {
           name: 'The Lost Nurseries',
@@ -101,6 +163,13 @@ export const en: TranslationStrings = {
             'Every spring, pike swim up into small streams and flooded wetlands to lay their eggs. The babies need warm, shallow water with lots of plants to hide in. But over the years, many of these wetlands have been drained to make farmland, and streams have been straightened into ditches. The pike come back to where they were born \u2014 but the nursery isn\u2019t there anymore.',
           aiPrompt:
             'Scene: Split \u2014 healthy flooded wetland (warm, shallow, fry visible) vs drained ditched field with straightened channel. Extra context: ~50% of coastal pike are anadromous (sea-dwelling, freshwater-spawning). Show natal homing \u2014 return to exact birthplace. Wetland loss = sub-population loss. Century+ of drainage across Sweden.',
+          narrativeBeats: [
+            'Every spring, pike swim up into streams and wetlands to lay eggs — babies need warm, plant-filled water',
+            'The problem: wetlands have been drained for farmland, streams straightened into ditches',
+            'Pike return to where they were born — but the nursery isn\'t there anymore',
+            '→ Transition: and it gets worse — meet the stickleback invasion (next: Stickleback Invasion)',
+          ],
+          nextSceneHook: 'Next scene: "The Stickleback Invasion" — the tiny fish that turned the tables on the pike',
         },
         'pike-stickleback-invasion': {
           name: 'The Stickleback Invasion',
@@ -108,6 +177,13 @@ export const en: TranslationStrings = {
             'Remember these? The three-spined stickleback \u2014 barely as long as your little finger. There used to be a normal number of them, but now there are billions. Without enough pike to eat them, their numbers exploded. And here\u2019s the cruel part: sticklebacks love to eat pike eggs. So the fewer pike there are, the more sticklebacks hatch, and the more pike eggs get eaten. It\u2019s a vicious circle.',
           aiPrompt:
             'Scene: Dense stickleback swarm. Bottom: translucent pike eggs on vegetation being eaten. Extra context: Technical term: \u201cpredator-prey role reversal.\u201d Nilsson et al. (2019) documented this as major cause of pike recruitment failure. Fishing bans alone can\u2019t fix this \u2014 the stickleback cycle is now the bigger barrier to pike recovery.',
+          narrativeBeats: [
+            'Without enough pike, stickleback numbers exploded to billions',
+            'The cruel twist: sticklebacks eat pike eggs — a vicious circle that feeds itself',
+            'Fishing bans alone can\'t fix this — the stickleback cycle is now the bigger barrier',
+            '→ Transition: and there\'s another new threat in the bays (next: The Seal in the Bay)',
+          ],
+          nextSceneHook: 'Next scene: "The Seal in the Bay" — a conservation success story with an unexpected twist',
         },
         'pike-seal-in-bay': {
           name: 'The Seal in the Bay',
@@ -115,6 +191,13 @@ export const en: TranslationStrings = {
             'Grey seals are amazing animals \u2014 they were nearly wiped out in the 1970s but have made a strong comeback, from around 3,600 to over 55,000 in the Baltic today. That\u2019s great news for seals. But as they\u2019ve moved into the inner bays where pike live, they\u2019ve become one of the pike\u2019s biggest threats. In the Stockholm archipelago, seals and cormorants together now eat many times more pike than fishermen catch. It\u2019s nature \u2014 but it\u2019s tipping the balance.',
           aiPrompt:
             'Scene: Grey seal in shallow inner-archipelago bay. Pike and reeds visible. Seal chases pike. Extra context: Crash caused by hunting + PCB/DDT. Recovery after bans 1974/1978. Outer archipelago: pike <5% of seal diet. Inner/central Stockholm: pike ~20% by biomass. SLU: seals + cormorants take 5\u201318x more pike than fisheries (Stockholm archipelago 2014\u20132017). Not seals\u2019 fault \u2014 protected, important species. Challenge is ecosystem-level management. Cormorants also significant pike/perch predators.',
+          narrativeBeats: [
+            'Grey seals — amazing comeback from 3,600 to 55,000 (that\'s great news for seals!)',
+            'But as they\'ve moved into inner bays, they\'ve become one of the pike\'s biggest threats',
+            'In Stockholm archipelago, seals + cormorants eat many times more pike than fishermen catch',
+            '→ Transition: let\'s see what happens to a whole bay when pike disappear (next: Chain Reaction)',
+          ],
+          nextSceneHook: 'Next scene: "The Chain Reaction" — what a bay looks like when the pike are gone',
         },
         'pike-chain-reaction': {
           name: 'The Chain Reaction',
@@ -122,6 +205,13 @@ export const en: TranslationStrings = {
             'This is what a bay looks like when the pike disappear. Without pike, sticklebacks take over. They eat the tiny creatures that keep algae under control. So the algae grows wild, the water turns green, and the plants on the bottom die from lack of light. Scientists call this a \u2018regime shift\u2019 \u2014 the bay flips from healthy to sick, and it\u2019s very hard to flip it back.',
           aiPrompt:
             'Scene: Degraded bay \u2014 murky green, no pike, sticklebacks everywhere, filamentous algae on rocks, bladderwrack gone. Cormorant dives through murk. Contrast with pike-why-it-matters scene. Extra context: Called \u201cthe stickleback wave\u201d \u2014 spreads bay to bay along Swedish coast. Full chain: pike gone \u2192 sticklebacks \u2192 grazers eaten \u2192 algae unchecked \u2192 plants smothered \u2192 murky \u2192 more death. Once flipped, extremely hard to reverse.',
+          narrativeBeats: [
+            'Without pike: sticklebacks take over → eat grazers → algae grows wild → water turns green',
+            'Plants on the bottom die from lack of light — scientists call this a "regime shift"',
+            'Once a bay flips from healthy to sick, it\'s very hard to flip it back',
+            '→ Transition: but there\'s real hope — people are bringing the pike back (next: Bringing the Pike Back)',
+          ],
+          nextSceneHook: 'Next scene: "Bringing the Pike Back" — real restoration projects that are working right now',
         },
         'pike-bringing-back': {
           name: 'Bringing the Pike Back',
@@ -129,6 +219,12 @@ export const en: TranslationStrings = {
             'The good news? When people help, it works. Along the Swedish coast, over a hundred wetlands have been restored as \u2018pike nurseries\u2019 \u2014 and where they have, pike fry numbers went from 3,000 to over 300,000 in just a few years. You can help too: if you fish, always release pike carefully. Choose food that doesn\u2019t come from overfished seas. And tell people about the pike \u2014 because a fish this important shouldn\u2019t disappear without anyone noticing.',
           aiPrompt:
             'Scene: Restored wetland, fish passage, flooded grassy area. Pike fry among stems. Adult pike in wider bay. Extra context: Kronob\u00e4ck (Kalmar): 3,000 \u2192 300,000+ fry in 5 years. Tibblin et al. (2023): 90% higher pike abundance near restored wetlands. Swedish rules: 3 pike/day, slot 40\u201375 cm. Trawl ban <12 nm from Feb 2025. Kid actions: release pike, pick up litter, tell others, support wetland orgs.',
+          narrativeBeats: [
+            'Over 100 wetlands restored as "pike nurseries" along the Swedish coast — it works!',
+            'Real numbers: pike fry went from 3,000 to 300,000+ in just a few years',
+            'What you can do: release pike carefully, choose sustainable food, tell people about the pike',
+            'Wrap up: a fish this important shouldn\'t disappear without anyone noticing',
+          ],
         },
       },
     },

@@ -125,12 +125,27 @@ export function createAIService(deps: AIServiceDeps): AIService {
       prompt += '\n\n' + chapterText.aiPrompt;
     }
 
-    // Current scene (last = highest priority due to recency bias)
+    // Narrative text for the current scene
     if (stageText?.narrative) {
-      prompt += '\n\nSTORY TEXT FOR THIS SCENE (use as inspiration for your response):\n';
+      prompt += '\n\nNARRATIVE FOR THIS SCENE (core story — paraphrase in your own words, cover all key points):\n';
       prompt += stageText.narrative;
     }
-    prompt += '\n\nCURRENT SCENE (the visitor is looking at this right now):\n';
+
+    // Narrative beats — ordered checklist the AI should cover
+    if (stageText?.narrativeBeats && stageText.narrativeBeats.length > 0) {
+      prompt += '\n\nNARRATIVE BEATS (cover in order, ~one per exchange):';
+      stageText.narrativeBeats.forEach((beat, i) => {
+        prompt += `\n${i + 1}. ${beat}`;
+      });
+    }
+
+    // Next scene transition hook
+    if (stageText?.nextSceneHook) {
+      prompt += '\n\n' + stageText.nextSceneHook;
+    }
+
+    // Current scene technical context
+    prompt += '\n\nCURRENT SCENE CONTEXT (the visitor is looking at this right now):\n';
     prompt += stageText?.aiPrompt || 'No scene description available.';
 
     // Visited stages this session

@@ -5,6 +5,10 @@ export interface StageTranslation {
   narrative: string;
   /** Scene description for AI guide mode (not displayed to users). */
   aiPrompt?: string;
+  /** Ordered narrative beats the AI should cover (~one per exchange). */
+  narrativeBeats?: string[];
+  /** One-liner transition hint to the next scene. */
+  nextSceneHook?: string;
 }
 
 export interface ChapterTranslation {
