@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getSeabedHeight } from './seabed';
 
 export interface JettyResult {
   group: THREE.Group;
@@ -15,33 +16,55 @@ export function createJetty(scene: THREE.Scene): JettyResult {
   });
 
   const deckY = 4.6; // just above water surface (Y=4.5)
+  const poleTop = deckY + 0.02;
+  const poleXPositions = [-1.2, 0, 1.2];
 
-  // Pole positions: 2 rows of 3 poles
-  const polePositions: [number, number][] = [
-    [-1.2, -2], [0, -2], [1.2, -2],
-    [-1.2, -3.2], [0, -3.2], [1.2, -3.2],
-  ];
-
-  const poleBottom = -0.5;
-  const poleTop = deckY + 0.02; // poles reach up to the deck
-  const poleHeight = poleTop - poleBottom;
-  const poleGeo = new THREE.CylinderGeometry(0.08, 0.11, poleHeight, 8);
-
-  for (const [px, pz] of polePositions) {
-    const pole = new THREE.Mesh(poleGeo, woodMaterial);
-    pole.position.set(px, poleBottom + poleHeight / 2, pz);
-    pole.castShadow = true;
-    pole.receiveShadow = true;
-    group.add(pole);
+  // --- Determine shore-end of jetty ---
+  // Walk northward (+Z) until ground meets deck height
+  let shoreEndZ = -2;
+  for (let z = -2; z <= 30; z += 0.5) {
+    const groundY = getSeabedHeight(0, z);
+    if (groundY >= deckY - 0.05) {
+      shoreEndZ = z;
+      break;
+    }
+    shoreEndZ = z;
   }
 
-  // Horizontal cross-beams between poles in each row
-  const beamGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6);
-  beamGeo.rotateZ(Math.PI / 2);
+  // --- Build all pole row Z positions ---
+  const seaRowZs = [-3.2, -2]; // original sea-end rows
+  const extensionRowZs: number[] = [];
+  for (let z = 0; z <= shoreEndZ; z += 2) {
+    const groundY = getSeabedHeight(0, z);
+    if (groundY >= deckY - 0.05) break;
+    extensionRowZs.push(z);
+  }
+  const allRowZs = [...seaRowZs, ...extensionRowZs];
 
-  for (const beamY of [1.5, 3.0]) {
-    for (const rowZ of [-2, -3.2]) {
-      // Beams connecting adjacent poles in X direction
+  // --- Poles ---
+  for (const rowZ of allRowZs) {
+    for (const px of poleXPositions) {
+      const groundY = getSeabedHeight(px, rowZ);
+      const poleBase = groundY - 0.3; // sink slightly into ground
+      const height = poleTop - poleBase;
+      if (height < 0.15) continue;
+
+      const poleGeo = new THREE.CylinderGeometry(0.08, 0.11, height, 8);
+      const pole = new THREE.Mesh(poleGeo, woodMaterial);
+      pole.position.set(px, poleBase + height / 2, rowZ);
+      pole.castShadow = true;
+      pole.receiveShadow = true;
+      group.add(pole);
+    }
+  }
+
+  // --- Horizontal beams within each row (X-direction) ---
+  for (const rowZ of allRowZs) {
+    const groundY = getSeabedHeight(0, rowZ);
+    for (const beamY of [1.5, 3.0]) {
+      if (groundY > beamY - 0.2) continue; // beam would be underground
+      const beamGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6);
+      beamGeo.rotateZ(Math.PI / 2);
       for (const bx of [-0.6, 0.6]) {
         const beam = new THREE.Mesh(beamGeo, woodMaterial);
         beam.position.set(bx, beamY, rowZ);
@@ -51,25 +74,32 @@ export function createJetty(scene: THREE.Scene): JettyResult {
     }
   }
 
-  // Cross-beams connecting front and back rows
-  const crossGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6);
-  crossGeo.rotateX(Math.PI / 2);
+  // --- Cross-beams between adjacent rows (Z-direction) ---
+  for (let i = 0; i < allRowZs.length - 1; i++) {
+    const z0 = allRowZs[i];
+    const z1 = allRowZs[i + 1];
+    const midZ = (z0 + z1) / 2;
+    const dist = z1 - z0;
+    const groundY = getSeabedHeight(0, midZ);
 
-  for (const crossY of [1.5, 3.0]) {
-    for (const cx of [-1.2, 0, 1.2]) {
-      const cross = new THREE.Mesh(crossGeo, woodMaterial);
-      cross.position.set(cx, crossY, -2.6);
-      cross.castShadow = true;
-      group.add(cross);
+    for (const crossY of [1.5, 3.0]) {
+      if (groundY > crossY - 0.2) continue;
+      const crossGeo = new THREE.CylinderGeometry(0.04, 0.04, dist, 6);
+      crossGeo.rotateX(Math.PI / 2);
+      for (const cx of poleXPositions) {
+        const cross = new THREE.Mesh(crossGeo, woodMaterial);
+        cross.position.set(cx, crossY, midZ);
+        cross.castShadow = true;
+        group.add(cross);
+      }
     }
   }
 
-  // --- Ladder ---
+  // --- Ladder (sea-end, front-center pole) ---
   const ladderGroup = new THREE.Group();
   const railGeo = new THREE.BoxGeometry(0.04, 4, 0.04);
   const rungGeo = new THREE.BoxGeometry(0.04, 0.03, 0.38);
 
-  // Two vertical rails
   const leftRail = new THREE.Mesh(railGeo, woodMaterial);
   leftRail.position.set(-0.19, 2, 0);
   ladderGroup.add(leftRail);
@@ -78,7 +108,6 @@ export function createJetty(scene: THREE.Scene): JettyResult {
   rightRail.position.set(0.19, 2, 0);
   ladderGroup.add(rightRail);
 
-  // Rungs
   for (let i = 0; i < 9; i++) {
     const rung = new THREE.Mesh(rungGeo, woodMaterial);
     rung.position.set(0, 0.3 + i * 0.45, 0);
@@ -86,22 +115,20 @@ export function createJetty(scene: THREE.Scene): JettyResult {
     ladderGroup.add(rung);
   }
 
-  // Attach ladder to front-center pole
   ladderGroup.position.set(0, 0, -1.85);
   group.add(ladderGroup);
 
-  // --- Planked deck on top of poles ---
-  const deckZ0 = -1.7; // front edge (slightly beyond front pole row)
-  const deckZ1 = -3.5; // back edge (slightly beyond back pole row)
-  const deckX0 = -1.5; // left edge
-  const deckX1 = 1.5;  // right edge
+  // --- Planked deck ---
+  const deckSeaEnd = -3.5;
+  const deckShoreEnd = extensionRowZs.length > 0
+    ? extensionRowZs[extensionRowZs.length - 1] + 0.3
+    : -1.7;
+  const deckX0 = -1.5;
+  const deckX1 = 1.5;
   const plankCount = 10;
   const plankWidth = (deckX1 - deckX0) / plankCount;
-  const plankDepth = Math.abs(deckZ1 - deckZ0);
-  const plankGeo = new THREE.BoxGeometry(plankWidth - 0.02, 0.04, plankDepth);
+  const plankDepth = deckShoreEnd - deckSeaEnd;
 
-  // Separate dark material for deck planks - fog disabled so they read as
-  // dark silhouettes when viewed from below through the water surface.
   const deckMaterial = new THREE.MeshStandardMaterial({
     color: 0x3a2a18,
     roughness: 0.9,
@@ -109,23 +136,23 @@ export function createJetty(scene: THREE.Scene): JettyResult {
     fog: false,
   });
 
+  const plankGeo = new THREE.BoxGeometry(plankWidth - 0.02, 0.04, plankDepth);
   for (let i = 0; i < plankCount; i++) {
     const plank = new THREE.Mesh(plankGeo, deckMaterial);
     plank.position.set(
       deckX0 + plankWidth * (i + 0.5),
       deckY,
-      (deckZ0 + deckZ1) / 2,
+      (deckSeaEnd + deckShoreEnd) / 2,
     );
     plank.castShadow = true;
     plank.receiveShadow = true;
     group.add(plank);
   }
 
-  // --- Human figure (simple 3D box mannequin on deck) ---
+  // --- Human figure (simple 3D box mannequin on deck, sea-end) ---
   const figureMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, fog: false });
   const figureGroup = new THREE.Group();
 
-  // Legs
   const legGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.38, 5);
   const legL = new THREE.Mesh(legGeo, figureMat);
   legL.position.set(-0.04, 0.19, 0);
@@ -134,13 +161,11 @@ export function createJetty(scene: THREE.Scene): JettyResult {
   legR.position.set(0.04, 0.19, 0);
   figureGroup.add(legR);
 
-  // Torso
   const torsoGeo = new THREE.BoxGeometry(0.14, 0.25, 0.08);
   const torso = new THREE.Mesh(torsoGeo, figureMat);
   torso.position.set(0, 0.50, 0);
   figureGroup.add(torso);
 
-  // Arms
   const armGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.28, 5);
   const armL = new THREE.Mesh(armGeo, figureMat);
   armL.position.set(-0.10, 0.46, 0);
@@ -151,7 +176,6 @@ export function createJetty(scene: THREE.Scene): JettyResult {
   armR.rotation.z = -0.15;
   figureGroup.add(armR);
 
-  // Head
   const headGeo = new THREE.SphereGeometry(0.05, 6, 6);
   const head = new THREE.Mesh(headGeo, figureMat);
   head.position.set(0, 0.68, 0);

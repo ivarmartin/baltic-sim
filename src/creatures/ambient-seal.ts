@@ -13,19 +13,20 @@ export interface AmbientSealResult {
 
 /**
  * Large perimeter oval that stays well outside all camera positions.
- * Y=3.5 = ~1 m below the water surface (Y=4.5).
+ * Y≈3.5 = ~1 m below the water surface (Y=4.5).
+ * Stays below Z=4 to avoid the rising shore, and routes east of the jetty.
  */
 function createPerimeterPath(): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3([
-    new THREE.Vector3(  5,   3.5,  12),
-    new THREE.Vector3(-15,   2.8,   8),
+    new THREE.Vector3(  8,   3.5,   3),
+    new THREE.Vector3(-15,   2.8,   2),
     new THREE.Vector3(-20,   3.8,  -3),   // mark area
     new THREE.Vector3(-18,   2.5, -15),
     new THREE.Vector3( -5,   3.5, -25),
     new THREE.Vector3( 10,   2.9, -25),
     new THREE.Vector3( 25,   4.2, -15),
     new THREE.Vector3( 28,   2.7,  -2),
-    new THREE.Vector3( 22,   3.5,   8),
+    new THREE.Vector3( 22,   3.5,   3),
   ], true);
 }
 

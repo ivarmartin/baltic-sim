@@ -28,7 +28,7 @@ const introStages: StageDefinition[] = [
   {
     id: 'intro-welcome',
     cameraView: {
-      position: new THREE.Vector3(4.5, 2.5, 4.0),
+      position: new THREE.Vector3(5, 2.5, 1.0),
       lookAt: new THREE.Vector3(0, 0.5, -2.5),
     },
     transitionDuration: 2.5,
@@ -126,8 +126,8 @@ const pikeStages: StageDefinition[] = [
   {
     id: 'pike-lost-nurseries',
     cameraView: {
-      position: new THREE.Vector3(14, 1.5, 4),
-      lookAt: new THREE.Vector3(16, 0.4, 2),
+      position: new THREE.Vector3(20, 1.2, 5),
+      lookAt: new THREE.Vector3(24, 2.5, 10),
     },
     transitionDuration: 2.5,
     environment: 'shallow',
@@ -173,7 +173,7 @@ const pikeStages: StageDefinition[] = [
 const pikeVisibility: Record<string, string[]> = {
   'pike-meet': ['pike', 'reeds', 'smallFish'],
   'pike-why-it-matters': ['pike', 'reeds', 'smallFish'],
-  'pike-lost-nurseries': ['wetland'],
+  'pike-lost-nurseries': [],
   'pike-stickleback-invasion': ['sticklebackSwarm', 'reeds', 'pikeEggs'],
   'pike-seal-in-bay': ['pike', 'reeds', 'seal'],
   'pike-chain-reaction': ['sticklebackSwarm', 'filamentousAlgae', 'cormorant'],

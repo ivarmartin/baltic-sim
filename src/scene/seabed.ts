@@ -1,5 +1,46 @@
 import * as THREE from 'three';
 
+/**
+ * Compute the seabed height at any world (x, z) position.
+ * Used by both the seabed mesh and the jetty to keep poles grounded.
+ */
+export function getSeabedHeight(x: number, z: number): number {
+  // Base undulation — gentle rolling terrain
+  let y = Math.sin(x * 0.5) * Math.cos(z * 0.3) * 0.15
+         + Math.sin(x * 1.2 + z * 0.8) * 0.05;
+
+  // Deep zone slope: for Z < -8, seabed descends
+  if (z < -8) {
+    y -= (-z - 8) * 0.4;
+  }
+
+  // Shore slope: north end (+Z) rises out of the water
+  if (z > 5) {
+    const shoreZ = z - 5;
+
+    // Varying slope along X — mix of steep cliffs and gentle beaches
+    const slopeRate = 0.5
+      + 0.2 * Math.sin(x * 0.15 + 0.7)
+      + 0.1 * Math.sin(x * 0.6 + 2.0)
+      + 0.08 * Math.sin(x * 1.1 + 3.5);
+
+    let shoreRise = shoreZ * slopeRate;
+
+    // Creek channel at X ≈ 24 — carves through the rising shore
+    const creekX = 24;
+    const creekHalfWidth = 2.0;
+    const dx = x - creekX;
+    const creekT = Math.exp(-(dx * dx) / (2 * creekHalfWidth * creekHalfWidth));
+    // Creek floor barely rises, keeping a navigable channel below waterline
+    shoreRise *= (1 - creekT * 0.93);
+
+    y += shoreRise;
+  }
+
+  // Clip at waterline — shore geometry must not rise above the surface
+  return Math.min(y, 4.5);
+}
+
 export interface SeabedResult {
   seabedMaterial: THREE.MeshStandardMaterial;
   rockMaterial: THREE.MeshStandardMaterial;
@@ -7,37 +48,51 @@ export interface SeabedResult {
 }
 
 export function createSeabed(scene: THREE.Scene): SeabedResult {
-  // --- Ground plane with gentle undulation + deep zone slope ---
+  // --- Ground plane with gentle undulation + deep zone slope + shore ---
   const groundGeo = new THREE.PlaneGeometry(120, 120, 128, 128);
   groundGeo.rotateX(-Math.PI / 2);
 
-  // Displace vertices for rolling terrain + deep slope for stages 4-5
+  // Displace vertices for rolling terrain + deep slope + shore rise
   const pos = groundGeo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
 
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
-    let y = Math.sin(x * 0.5) * Math.cos(z * 0.3) * 0.15
-           + Math.sin(x * 1.2 + z * 0.8) * 0.05;
-
-    // Deep zone slope: for Z < -8, seabed descends
-    if (z < -8) {
-      y -= (-z - 8) * 0.4;
-    }
+    const y = getSeabedHeight(x, z);
 
     pos.setY(i, y);
 
-    // Vertex colors: sandy brown normally, darker mud in dead zone (Z < -16)
+    // --- Vertex colors ---
     if (z < -16) {
+      // Dead-zone mud
       const mudT = Math.min((-z - 16) / 6, 1);
-      colors[i * 3]     = 0.54 * (1 - mudT) + 0.1 * mudT;  // R
-      colors[i * 3 + 1] = 0.48 * (1 - mudT) + 0.08 * mudT; // G
-      colors[i * 3 + 2] = 0.35 * (1 - mudT) + 0.06 * mudT; // B
+      colors[i * 3]     = 0.54 * (1 - mudT) + 0.1 * mudT;
+      colors[i * 3 + 1] = 0.48 * (1 - mudT) + 0.08 * mudT;
+      colors[i * 3 + 2] = 0.35 * (1 - mudT) + 0.06 * mudT;
+    } else if (z > 5) {
+      // Shore zone — blend from sand to earthy tones as it rises
+      const shoreT = Math.min((z - 5) / 8, 1);
+
+      // Creek channel gets muddier coloring
+      const creekX = 24;
+      const dx = x - creekX;
+      const creekT = Math.exp(-(dx * dx) / (2 * 3.0 * 3.0));
+
+      // Base shore color: earthy brown-green
+      const baseR = 0.54 * (1 - shoreT) + 0.38 * shoreT;
+      const baseG = 0.48 * (1 - shoreT) + 0.36 * shoreT;
+      const baseB = 0.35 * (1 - shoreT) + 0.22 * shoreT;
+
+      // Creek tint: dark muddy
+      colors[i * 3]     = baseR * (1 - creekT * 0.4) + 0.18 * creekT * 0.4;
+      colors[i * 3 + 1] = baseG * (1 - creekT * 0.4) + 0.15 * creekT * 0.4;
+      colors[i * 3 + 2] = baseB * (1 - creekT * 0.4) + 0.10 * creekT * 0.4;
     } else {
-      colors[i * 3]     = 0.54;  // R (matches 0x8a7a5a approx)
-      colors[i * 3 + 1] = 0.48;  // G
-      colors[i * 3 + 2] = 0.35;  // B
+      // Normal sandy seabed
+      colors[i * 3]     = 0.54;
+      colors[i * 3 + 1] = 0.48;
+      colors[i * 3 + 2] = 0.35;
     }
   }
 
@@ -55,7 +110,7 @@ export function createSeabed(scene: THREE.Scene): SeabedResult {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // --- Rocks ---
+  // --- Rocks (only in the underwater zone) ---
   const rockPositions: THREE.Vector3[] = [];
   const rockMaterial = new THREE.MeshStandardMaterial({
     color: 0x4a4a3a,

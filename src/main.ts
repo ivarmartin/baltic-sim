@@ -36,7 +36,6 @@ import { createAmbientSeal } from './creatures/ambient-seal';
 import { createCormorant } from './creatures/cormorant';
 import { createPikeFry } from './creatures/pike-fry';
 import { createSmallFish } from './creatures/small-fish';
-import { createWetland } from './scene/wetland';
 import { createRestoredWetland } from './scene/restored-wetland';
 import { createPikeEggs } from './scene/pike-eggs';
 
@@ -63,9 +62,11 @@ async function init() {
 
   // Camera rig for future WebXR support
   const cameraRig = new THREE.Group();
-  cameraRig.position.set(0, 1.5, 5);
+  // Start in deeper water, looking at the jetty at ~45 degrees
+  cameraRig.position.set(5, 1.5, -5);
   cameraRig.add(camera);
   scene.add(cameraRig);
+  camera.lookAt(new THREE.Vector3(0, 2, -2));
 
   // Camera sees both environment (layer 0) and creatures (layer 1)
   camera.layers.enable(1);
@@ -122,7 +123,7 @@ async function init() {
   updates.push(swarmResult.update);
 
   // --- Pike chapter assets ---
-  const sealResult = await createSeal(scene, new THREE.Vector3(-10, 0.5, -7));
+  const sealResult = await createSeal(scene, new THREE.Vector3(-10, 0.5, -9));
   updates.push(sealResult.update);
 
   const cormorantResult = createCormorant(scene, new THREE.Vector3(-10, 1.0, -7));
@@ -134,7 +135,6 @@ async function init() {
   const smallFishResult = createSmallFish(scene, new THREE.Vector3(-10, 0.6, -7));
   updates.push(smallFishResult.update);
 
-  const wetlandResult = createWetland(scene, new THREE.Vector3(16, 0, 2));
   const restoredWetlandResult = createRestoredWetland(scene, new THREE.Vector3(20, 0, -6));
   updates.push(restoredWetlandResult.update);
 
@@ -203,7 +203,6 @@ async function init() {
     cormorant: cormorantResult.group,
     pikeFry: pikeFryResult.group,
     smallFish: smallFishResult.group,
-    wetland: wetlandResult.group,
     restoredWetland: restoredWetlandResult.group,
     pikeEggs: pikeEggsResult.group,
   };

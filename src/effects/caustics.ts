@@ -85,6 +85,11 @@ export function setupCaustics(seabedMaterial: THREE.MeshStandardMaterial): void 
       caustic += causticNoise(cUv * 3.7 + uTime * 0.15) * 0.35;
 
       caustic = pow(abs(caustic) / 3.0, 2.5) * uCausticStrength;
+
+      // Fade caustics near the surface — they need water depth to form
+      float causticDepth = uSurfaceY - vWorldPos.y;
+      caustic *= smoothstep(0.0, 4.0, causticDepth);
+
       gl_FragColor.rgb += vec3(caustic * 0.7, caustic * 0.85, caustic * 0.5);
 
       #include <dithering_fragment>
