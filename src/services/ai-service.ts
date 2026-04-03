@@ -241,7 +241,7 @@ export function createAIService(deps: AIServiceDeps): AIService {
           }
 
           // Debug: log every SSE chunk
-          console.log('[AI Stream]', JSON.stringify(chunk));
+          // console.log('[AI Stream]', JSON.stringify(chunk));
 
           const delta = chunk.choices?.[0]?.delta;
           if (!delta) continue;
@@ -265,11 +265,11 @@ export function createAIService(deps: AIServiceDeps): AIService {
     }
 
     // Debug: log final parse result
-    console.log('[AI Result]', { fullText: fullText.slice(0, 100), toolCallName, toolCallArgs });
+    // console.log('[AI Result]', { fullText: fullText.slice(0, 100), toolCallName, toolCallArgs });
 
     // If the model returned no visible text but made a tool call, remove the empty bubble
     if (!fullText && bubbleEl.parentElement) {
-      console.log('[AI Result] Empty text — removing bubble');
+      // console.log('[AI Result] Empty text — removing bubble');
       bubbleEl.remove();
     }
 
