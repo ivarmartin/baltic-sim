@@ -367,6 +367,7 @@ async function init() {
     startScreen.hide();
 
     if (getMode() === 'ai-guided') {
+      narrative.hide();
       chatUI.setChapterContext(chapter);
       chatUI.show();
       navigation.showHome();
