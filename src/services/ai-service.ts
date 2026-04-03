@@ -2,7 +2,7 @@ import type { Chapter } from '../stages/chapter-data';
 import type { ChatUI } from '../ui/chat-ui';
 import type { StageManager } from '../stages/stage-manager';
 import { aiConfig } from '../config/ai';
-import { t } from '../i18n';
+import { t, getLocale, onLocaleChange } from '../i18n';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,6 +33,7 @@ export interface AIService {
   generateWelcome: () => Promise<void>;
   isAINavigating: () => boolean;
   abort: () => void;
+  dispose: () => void;
 }
 
 export interface AIServiceDeps {
@@ -431,6 +432,36 @@ export function createAIService(deps: AIServiceDeps): AIService {
     abortController?.abort();
   }
 
+  // -------------------------------------------------------------------------
+  // Language switch handling
+  // -------------------------------------------------------------------------
+
+  const localeNames: Record<string, string> = { en: 'English', sv: 'Svenska' };
+
+  const unsubLocale = onLocaleChange((locale) => {
+    if (!currentChapter) return;
+
+    const langName = localeNames[locale] || locale;
+    const contextMsg = `[The visitor switched language to ${langName}. Continue the conversation in ${langName}.]`;
+
+    addToHistory({ role: 'user', content: contextMsg });
+
+    chatUI.addMessage('assistant', locale === 'sv'
+      ? `Språket ändrades till svenska. Jag fortsätter på svenska!`
+      : `Language changed to English. I'll continue in English!`);
+    addToHistory({
+      role: 'assistant',
+      content: locale === 'sv'
+        ? 'Språket ändrades till svenska. Jag fortsätter på svenska!'
+        : "Language changed to English. I'll continue in English!",
+    });
+  });
+
+  function dispose() {
+    unsubLocale();
+    abort();
+  }
+
   return {
     setChapter,
     sendMessage,
@@ -438,5 +469,6 @@ export function createAIService(deps: AIServiceDeps): AIService {
     generateWelcome,
     isAINavigating: () => aiNavigating,
     abort,
+    dispose,
   };
 }
