@@ -27,7 +27,9 @@ import { createPike } from './creatures/pike';
 import { createSticklebackSwarm } from './creatures/stickleback-swarm';
 import { createFilamentousAlgae } from './vegetation/filamentous-algae';
 import { createStartScreen } from './ui/start-screen';
+import { createChatUI } from './ui/chat-ui';
 import { createMenu } from './ui/menu';
+import { getMode } from './mode';
 import { createSeal } from './creatures/seal';
 import { createAmbientSeal } from './creatures/ambient-seal';
 import { createCormorant } from './creatures/cormorant';
@@ -226,12 +228,6 @@ async function init() {
   // --- Camera navigation ---
   let navRef: { setTransitionDuration: (s: number) => void } | null = null;
 
-  function showStartScreen() {
-    navigation.hide();
-    narrative.hide();
-    startScreen.show();
-  }
-
   const navigation = createNavigation(
     camera,
     cameraRig,
@@ -344,8 +340,24 @@ async function init() {
     else disableDevMode();
   });
 
+  // --- Chat UI (AI-guided mode) ---
+  const chatUI = createChatUI();
+
+  // Placeholder: log messages to console until AI is wired in
+  chatUI.onSendMessage((message) => {
+    console.log('[AI Chat] User message:', message);
+    chatUI.addMessage('assistant', 'AI guide is not connected yet. This is a placeholder response.');
+  });
+
   // --- Chapter selection ---
   let currentChapter: typeof chapters[0] | null = null;
+
+  function showStartScreen() {
+    navigation.hide();
+    narrative.hide();
+    chatUI.hide();
+    startScreen.show();
+  }
 
   const startScreen = createStartScreen(chapters, (chapter) => {
     currentChapter = chapter;
@@ -353,8 +365,15 @@ async function init() {
     navigation.loadViews(views);
     stageManager.loadChapter(chapter);
     startScreen.hide();
-    navigation.show();
-    narrative.show();
+
+    if (getMode() === 'ai-guided') {
+      chatUI.setChapterContext(chapter);
+      chatUI.show();
+      navigation.showHome();
+    } else {
+      navigation.show();
+      narrative.show();
+    }
   });
 
   // --- Menu (hamburger + language selector) ---
