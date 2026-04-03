@@ -136,12 +136,12 @@ export function createJetty(scene: THREE.Scene): JettyResult {
     fog: false,
   });
 
-  const plankGeo = new THREE.BoxGeometry(plankWidth - 0.02, 0.04, plankDepth);
+  const plankGeo = new THREE.BoxGeometry(plankWidth - 0.02, 0.25, plankDepth);
   for (let i = 0; i < plankCount; i++) {
     const plank = new THREE.Mesh(plankGeo, deckMaterial);
     plank.position.set(
       deckX0 + plankWidth * (i + 0.5),
-      deckY,
+      deckY - 0.15,
       (deckSeaEnd + deckShoreEnd) / 2,
     );
     plank.castShadow = true;
