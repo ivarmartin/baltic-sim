@@ -24,7 +24,11 @@
       "Bash(node --experimental-vm-modules -e ':*)",
       "Bash(grep -E \"\\\\.ts$\")",
       "Bash(git fetch:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(xargs grep:*)",
+      "Bash(wc -l /d/git/baltic-sim/src/ui/*.ts)",
+      "Bash(du -sh /d/git/baltic-sim/*)",
+      "Bash(git stash:*)"
     ]
   }
 }
