@@ -39,6 +39,7 @@ import { createPikeFry } from './creatures/pike-fry';
 import { createSmallFish } from './creatures/small-fish';
 import { createRestoredWetland } from './scene/restored-wetland';
 import { createPikeEggs } from './scene/pike-eggs';
+import { createCulvert } from './scene/culvert';
 
 async function init() {
   // --- Renderer ---
@@ -158,6 +159,9 @@ async function init() {
 
   const pikeEggsResult = createPikeEggs(scene, new THREE.Vector3(-10, 0, -7.5));
 
+  const culvertResult = createCulvert(scene);
+  culvertResult.group.visible = false;
+
   // --- Assign creatures to layer 1 (excluded from god ray occlusion render) ---
   const creatureRoots = [
     sticklebackResult.group,
@@ -194,6 +198,8 @@ async function init() {
   injectDepthLighting(ambientSealResult.material);
   injectDepthLighting(cormorantResult.material);
   injectDepthLighting(smallFishResult.material);
+  injectDepthLighting(culvertResult.concreteMaterial);
+  injectDepthLighting(culvertResult.metalMaterial);
 
   // --- Post-processing (god rays + base color grading only) ---
   let underwater: UnderwaterEffects | null = null;
@@ -226,6 +232,7 @@ async function init() {
     smallFish: smallFishResult.group,
     restoredWetland: restoredWetlandResult.group,
     pikeEggs: pikeEggsResult.group,
+    culvert: culvertResult.group,
   };
 
   // --- Stage Manager ---
