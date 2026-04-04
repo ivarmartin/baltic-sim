@@ -181,7 +181,7 @@ export function createJetty(scene: THREE.Scene): JettyResult {
   head.position.set(0, 0.68, 0);
   figureGroup.add(head);
 
-  figureGroup.position.set(0, deckY + 0.04, -1.75);
+  figureGroup.position.set(0, deckY + 0.04, -3.1);
   group.add(figureGroup);
 
   scene.add(group);

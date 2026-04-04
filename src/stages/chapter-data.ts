@@ -37,8 +37,8 @@ const introStages: StageDefinition[] = [
   {
     id: 'intro-underwater-forest',
     cameraView: {
-      position: new THREE.Vector3(1.5, 0.5, 1.0),
-      lookAt: new THREE.Vector3(0.5, 0.3, -1.0),
+      position: new THREE.Vector3(3.239, 1.381, 0.372),
+      lookAt: new THREE.Vector3(-1.244, 0.284, -1.551),
     },
     transitionDuration: 2.5,
     environment: 'shallow',
@@ -55,8 +55,8 @@ const introStages: StageDefinition[] = [
   {
     id: 'intro-shrinking-cod',
     cameraView: {
-      position: new THREE.Vector3(3.6, -1.4, -12.2),
-      lookAt: new THREE.Vector3(2, -3, -17),
+      position: new THREE.Vector3(7.058, -0.450, -13.146),
+      lookAt: new THREE.Vector3(2.964, -1.843, -15.656),
     },
     transitionDuration: 2.5,
     environment: 'deep',
@@ -64,8 +64,8 @@ const introStages: StageDefinition[] = [
   {
     id: 'intro-dead-zone',
     cameraView: {
-      position: new THREE.Vector3(3, -6, -20),
-      lookAt: new THREE.Vector3(2, -8, -24),
+      position: new THREE.Vector3(3.068, -1.403, -20.197),
+      lookAt: new THREE.Vector3(-1.029, -3.462, -22.190),
     },
     transitionDuration: 3.0,
     environment: 'dead-zone',
@@ -82,8 +82,8 @@ const introStages: StageDefinition[] = [
   {
     id: 'intro-what-you-can-do',
     cameraView: {
-      position: new THREE.Vector3(1.5, 2.0, 0.5),
-      lookAt: new THREE.Vector3(0, 4.5, -2.6),
+      position: new THREE.Vector3(0.122, 2.479, -6.713),
+      lookAt: new THREE.Vector3(0.009, 4.146, -2.001),
     },
     transitionDuration: 3.0,
     environment: 'shallow',
@@ -117,8 +117,8 @@ const pikeStages: StageDefinition[] = [
   {
     id: 'pike-why-it-matters',
     cameraView: {
-      position: new THREE.Vector3(-7, 1.8, -3),
-      lookAt: new THREE.Vector3(-10, 0.8, -7),
+      position: new THREE.Vector3(-11.778, 1.725, -2.277),
+      lookAt: new THREE.Vector3(-9.768, 0.379, -6.653),
     },
     transitionDuration: 5,
     environment: 'shallow',
