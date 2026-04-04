@@ -41,6 +41,7 @@ import { createRestoredWetland } from './scene/restored-wetland';
 import { createPikeEggs } from './scene/pike-eggs';
 import { createCulvert } from './scene/culvert';
 import { createCulvertFlow } from './effects/culvert-flow';
+import { createBubbles } from './effects/bubbles';
 
 async function init() {
   // --- Renderer ---
@@ -93,6 +94,9 @@ async function init() {
 
   const particles = createParticles(scene);
   updates.push(particles.update);
+
+  const bubbles = createBubbles(scene);
+  updates.push(bubbles.update);
 
   const bladderwrackResult = createBladderwrack(scene, seabedResult.rockPositions);
   updates.push(bladderwrackResult.update);
