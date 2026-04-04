@@ -160,16 +160,16 @@ export const sv: TranslationStrings = {
         'pike-lost-nurseries': {
           name: 'De förlorade barnkamrarna',
           narrative:
-            'Varje vår simmar gäddan upp i små bäckar och översvämmade våtmarker för att lägga sina ägg. Ungarna behöver varmt, grunt vatten med massor av växter att gömma sig i. Men under åren har många av dessa våtmarker dikats ut för att bli jordbruksmark, och bäckar har rätats ut till diken. Gäddan kommer tillbaka till platsen där den föddes – men barnkammaren finns inte längre.',
+            'Du ser ett bäckutlopp \u2014 sötvatten som sipprar ut i viken. Varje vår följer gäddan den doften tillbaka till bäckarna där den föddes, driven av instinkten att leka i samma varma, växtrika våtmarker där den en gång kläcktes. Men den här bäcken är blockerad. En betongtrumma med metallgaller sitter där vattnet rinner ut, och gäddan kan inte ta sig förbi. Även om den kunde det \u00e4r barnkammaren uppströms borta \u2014 utdikad för decennier sedan för att bli jordbruksmark. Gäddan kommer fortfarande hit, säsong efter säsong, dragen till ett hem som inte längre finns.',
           aiPrompt:
-            'Scen: Delad — frisk översvämningsvåtmark (varm, grund, yngel synliga) kontra utdikad åker med uträtad kanal. Extra kontext: ~50% av kustgäddan är anadrom (havslevande, sötvattenlekande). Visa lekplatströgenhet — återvänder till exakt födelseplatsen. Våtmarksförlust = delpopulationsförlust. Över hundra år av utdikning i Sverige.',
+            'Scen: Undervattensvy av ett bäckutlopp som rinner ut i en Östersjövik. En rund betongtrumma med metallgaller blockerar passagen. En gädda svävar nära utflödet, dragen av sötvattensströmmen men oförmögen att ta sig in. Grumligt, siltigt vatten flödar genom trumman. Extra kontext: ~50% av kustgäddan är anadrom (havslevande, sötvattenlekande). Lekplatströgenhet \u2014 gäddan återvänder till exakt födelseplatsen. Uppströms våtmarksbarnkammare utdikad för jordbruk. Trumma + galler = fysisk barriär som hindrar lekvandring. Över hundra år av utdikning och kanalisering i Sverige. Förlust av en bäck = förlust av en hel lokal delpopulation.',
           narrativeBeats: [
-            'Varje vår simmar gäddan upp i bäckar och våtmarker för att lägga ägg — ungarna behöver varmt, växtfyllt vatten',
-            'Problemet: våtmarker har dikats ut till jordbruksmark, bäckar rätats ut till diken',
-            'Gäddan återvänder till sin födelseplats — men barnkammaren finns inte längre',
-            '→ Övergång: och det blir värre — möt storspigginvasionen (nästa: Storspigginvasionen)',
+            'Du ser ett bäckutlopp \u2014 varje vår följer gäddan sötvattendoften tillbaka till bäckarna där den föddes',
+            'Men passagen är blockerad: en betongtrumma med metallgaller hindrar gäddan från att ta sig in',
+            'Även om den kunde passera är barnkammaren uppströms borta \u2014 utdikad för jordbruk för decennier sedan',
+            '\u2192 Övergång: och det blir värre \u2014 möt storspigginvasionen (nästa: Storspigginvasionen)',
           ],
-          nextSceneHook: 'Nästa scen: "Storspigginvasionen" — den lilla fisken som vände på rollerna mot gäddan',
+          nextSceneHook: 'Nästa scen: "Storspigginvasionen" \u2014 den lilla fisken som vände på rollerna mot gäddan',
         },
         'pike-stickleback-invasion': {
           name: 'Storspigginvasionen',

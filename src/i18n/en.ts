@@ -160,16 +160,16 @@ export const en: TranslationStrings = {
         'pike-lost-nurseries': {
           name: 'The Lost Nurseries',
           narrative:
-            'Every spring, pike swim up into small streams and flooded wetlands to lay their eggs. The babies need warm, shallow water with lots of plants to hide in. But over the years, many of these wetlands have been drained to make farmland, and streams have been straightened into ditches. The pike come back to where they were born \u2014 but the nursery isn\u2019t there anymore.',
+            'You\u2019re looking at a creek outlet \u2014 freshwater trickling into the bay. Every spring, pike follow that scent back to the streams where they were born, driven by instinct to spawn in the same warm, plant-filled wetlands where they once hatched. But this creek is blocked. A concrete culvert with metal bars sits where the water flows out, and the pike can\u2019t pass. Even if they could, the nursery upstream is gone \u2014 drained decades ago to make farmland. The pike still come here, season after season, drawn to a home that no longer exists.',
           aiPrompt:
-            'Scene: Split \u2014 healthy flooded wetland (warm, shallow, fry visible) vs drained ditched field with straightened channel. Extra context: ~50% of coastal pike are anadromous (sea-dwelling, freshwater-spawning). Show natal homing \u2014 return to exact birthplace. Wetland loss = sub-population loss. Century+ of drainage across Sweden.',
+            'Scene: Underwater view of a creek outlet flowing into a Baltic bay. A round concrete culvert with metal bars blocks the passage. A pike hovers near the outflow, drawn by the freshwater current but unable to enter. Murky, silty water flows through the culvert. Extra context: ~50% of coastal pike are anadromous (sea-dwelling, freshwater-spawning). Natal homing \u2014 pike return to exact birthplace. Upstream wetland nursery was drained for agriculture. Culvert + bars = physical barrier preventing spawning migration. Century+ of drainage and channelization across Sweden. Loss of one creek = loss of an entire local sub-population.',
           narrativeBeats: [
-            'Every spring, pike swim up into streams and wetlands to lay eggs — babies need warm, plant-filled water',
-            'The problem: wetlands have been drained for farmland, streams straightened into ditches',
-            'Pike return to where they were born — but the nursery isn\'t there anymore',
-            '→ Transition: and it gets worse — meet the stickleback invasion (next: Stickleback Invasion)',
+            'You\u2019re looking at a creek outlet \u2014 every spring, pike follow the freshwater scent back to streams where they were born',
+            'But this passage is blocked: a concrete culvert with metal bars stops the pike from entering',
+            'Even if they could pass, the nursery upstream is gone \u2014 drained for farmland decades ago',
+            '\u2192 Transition: and it gets worse \u2014 meet the stickleback invasion (next: Stickleback Invasion)',
           ],
-          nextSceneHook: 'Next scene: "The Stickleback Invasion" — the tiny fish that turned the tables on the pike',
+          nextSceneHook: 'Next scene: "The Stickleback Invasion" \u2014 the tiny fish that turned the tables on the pike',
         },
         'pike-stickleback-invasion': {
           name: 'The Stickleback Invasion',
