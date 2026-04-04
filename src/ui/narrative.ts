@@ -1,5 +1,12 @@
+export interface RefInfo {
+  count: number;
+  chapterKey: string;
+  stageKey: string;
+}
+
 export interface NarrativeUI {
-  setText: (name: string, text: string, isSpecies?: boolean) => void;
+  setText: (name: string, text: string, isSpecies?: boolean, refInfo?: RefInfo) => void;
+  onRefClick: ((chapterKey: string, stageKey: string) => void) | null;
   show: () => void;
   hide: () => void;
   dispose: () => void;
@@ -13,6 +20,13 @@ export function createNarrative(): NarrativeUI {
       <div class="narrative-wrapper">
         <div class="narrative-title"></div>
         <div class="narrative-body"></div>
+        <button class="narrative-ref-btn hidden" aria-label="View references">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <path d="M2 2h5l1 1v10l-1-1H2V2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M14 2H9L8 3v10l1-1h5V2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          </svg>
+          <span class="narrative-ref-count"></span>
+        </button>
       </div>
       <button class="narrative-toggle" aria-label="Toggle narrative text">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -120,6 +134,47 @@ export function createNarrative(): NarrativeUI {
       opacity: 0;
     }
 
+    .narrative-ref-btn {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px 3px 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.5);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .narrative-ref-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .narrative-ref-btn.hidden {
+      display: none;
+    }
+
+    .narrative-ref-btn svg {
+      flex-shrink: 0;
+    }
+
+    .narrative-ref-count {
+      font-variant-numeric: tabular-nums;
+    }
+
+    #narrative-ui.collapsed .narrative-ref-btn {
+      display: none;
+    }
+
     @media (min-width: 768px) {
       #narrative-ui {
         left: 24px;
@@ -142,17 +197,29 @@ export function createNarrative(): NarrativeUI {
   const titleEl = container.querySelector('.narrative-title') as HTMLDivElement;
   const bodyEl = container.querySelector('.narrative-body') as HTMLDivElement;
   const toggleBtn = container.querySelector('.narrative-toggle') as HTMLButtonElement;
+  const refBtn = container.querySelector('.narrative-ref-btn') as HTMLButtonElement;
+  const refCountEl = container.querySelector('.narrative-ref-count') as HTMLSpanElement;
+
+  let currentRefChapter = '';
+  let currentRefStage = '';
 
   toggleBtn.addEventListener('click', () => {
     container.classList.toggle('collapsed');
+  });
+
+  refBtn.addEventListener('click', () => {
+    if (ui.onRefClick && currentRefChapter && currentRefStage) {
+      ui.onRefClick(currentRefChapter, currentRefStage);
+    }
   });
 
   function escapeHtml(s: string): string {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  return {
-    setText(name: string, text: string, isSpecies?: boolean) {
+  const ui: NarrativeUI = {
+    onRefClick: null,
+    setText(name: string, text: string, isSpecies?: boolean, refInfo?: RefInfo) {
       let titleHtml: string;
       let bodyText = text;
 
@@ -174,6 +241,18 @@ export function createNarrative(): NarrativeUI {
       titleEl.innerHTML = titleHtml;
       bodyEl.textContent = bodyText;
       container.classList.remove('collapsed');
+
+      // Update ref button
+      if (refInfo && refInfo.count > 0) {
+        currentRefChapter = refInfo.chapterKey;
+        currentRefStage = refInfo.stageKey;
+        refCountEl.textContent = String(refInfo.count);
+        refBtn.classList.remove('hidden');
+      } else {
+        currentRefChapter = '';
+        currentRefStage = '';
+        refBtn.classList.add('hidden');
+      }
     },
     show() {
       container.classList.add('visible');
@@ -186,4 +265,6 @@ export function createNarrative(): NarrativeUI {
       style.remove();
     },
   };
+
+  return ui;
 }

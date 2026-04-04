@@ -2,6 +2,7 @@ import { t, getLocale, setLocale, onLocaleChange, locales } from '../i18n';
 import type { Locale } from '../i18n';
 
 export interface MenuUI {
+  openToRef: (chapterKey: string, stageKey: string) => void;
   dispose: () => void;
 }
 
@@ -49,13 +50,13 @@ export function createMenu(): MenuUI {
 
     // Build references HTML from chapters that have a references catalog
     let refsHtml = '';
-    for (const [, chapter] of Object.entries(tr.chapters)) {
+    for (const [chapterKey, chapter] of Object.entries(tr.chapters)) {
       if (!chapter.references) continue;
       const catalog = chapter.references;
       let sectionsHtml = '';
 
       // Stage-level refs
-      for (const [, stage] of Object.entries(chapter.stages)) {
+      for (const [stageKey, stage] of Object.entries(chapter.stages)) {
         if (!stage.refs?.length) continue;
         let entriesHtml = '';
         for (const ref of stage.refs) {
@@ -69,7 +70,7 @@ export function createMenu(): MenuUI {
             </div>`;
         }
         sectionsHtml += `
-          <div class="ref-section">
+          <div class="ref-section" data-stage="${stageKey}">
             <h4 class="ref-section-title">${stage.name}</h4>
             ${entriesHtml}
           </div>`;
@@ -98,7 +99,7 @@ export function createMenu(): MenuUI {
       if (!sectionsHtml) continue;
 
       refsHtml += `
-        <div class="ref-chapter">
+        <div class="ref-chapter" data-chapter="${chapterKey}">
           <button class="ref-chapter-header" aria-expanded="false">
             <span>${chapter.title}</span>
             <svg class="ref-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -112,12 +113,12 @@ export function createMenu(): MenuUI {
     }
 
     overlay.innerHTML = `
+      <button class="menu-btn menu-close" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
       <div class="menu-overlay-inner">
-        <button class="menu-btn menu-close" aria-label="Close">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </button>
         <h2 class="menu-overlay-title">${tr.ui.aboutTitle}</h2>
         <p class="menu-overlay-text">${tr.ui.aboutText}</p>
         <div class="menu-refs">
@@ -130,6 +131,13 @@ export function createMenu(): MenuUI {
 
     overlay.querySelector('.menu-close')!.addEventListener('click', () => {
       overlay.classList.add('hidden');
+    });
+
+    // Close on backdrop click (outside inner content)
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.add('hidden');
+      }
     });
 
     // Accordion toggle handlers
@@ -304,9 +312,10 @@ export function createMenu(): MenuUI {
     }
 
     .menu-close {
-      position: absolute;
-      top: -8px;
-      right: -8px;
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 301;
     }
 
     .menu-overlay-title {
@@ -463,6 +472,7 @@ export function createMenu(): MenuUI {
     @media (max-width: 480px) {
       #menu-container { top: 16px; right: 16px; }
       .menu-btn { width: 34px; height: 34px; }
+      .menu-close { top: 16px; right: 16px; }
       #menu-overlay { padding: 32px 10px; }
       .menu-overlay-inner { padding: 24px 16px; }
       .menu-overlay-title { font-size: 20px; }
@@ -506,6 +516,30 @@ export function createMenu(): MenuUI {
   });
 
   return {
+    openToRef(chapterKey: string, stageKey: string) {
+      // Collapse all accordions first
+      overlay.querySelectorAll('.ref-chapter-header.expanded').forEach((btn) => {
+        btn.classList.remove('expanded');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+
+      // Expand the target chapter accordion
+      const chapterEl = overlay.querySelector(`.ref-chapter[data-chapter="${chapterKey}"]`);
+      const headerBtn = chapterEl?.querySelector('.ref-chapter-header');
+      if (headerBtn) {
+        headerBtn.classList.add('expanded');
+        headerBtn.setAttribute('aria-expanded', 'true');
+      }
+
+      // Show overlay
+      overlay.classList.remove('hidden');
+
+      // Scroll to the target stage section after a frame (let accordion expand)
+      requestAnimationFrame(() => {
+        const stageEl = chapterEl?.querySelector(`.ref-section[data-stage="${stageKey}"]`);
+        stageEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    },
     dispose() {
       unsub();
       document.removeEventListener('click', onDocClick);

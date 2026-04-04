@@ -60,16 +60,18 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
   function getStageText(chapter: Chapter, index: number) {
     const stage = chapter.stages[index];
     const translated = t().chapters[chapter.id]?.stages[stage.id];
+    const refCount = translated?.refs?.length ?? 0;
     return {
       name: translated?.name || stage.id,
       narrative: translated?.narrative || '',
+      refInfo: refCount > 0 ? { count: refCount, chapterKey: chapter.id, stageKey: stage.id } : undefined,
     };
   }
 
   function refreshText() {
     if (!currentChapter) return;
-    const { name, narrative } = getStageText(currentChapter, currentStage);
-    deps.narrative.setText(name, narrative, currentChapter.type === 'appendix');
+    const { name, narrative, refInfo } = getStageText(currentChapter, currentStage);
+    deps.narrative.setText(name, narrative, currentChapter.type === 'appendix', refInfo);
     deps.setNavName?.(name);
   }
 
@@ -162,7 +164,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     envTransitionT = 1.0;
 
     const text = getStageText(chapter, 0);
-    narrative.setText(text.name, text.narrative, chapter.type === 'appendix');
+    narrative.setText(text.name, text.narrative, chapter.type === 'appendix', text.refInfo);
     deps.setNavName?.(text.name);
     narrative.show();
 
@@ -181,7 +183,7 @@ export function createStageManager(deps: StageManagerDeps): StageManager {
     showGroupsForStage(currentChapter, index);
 
     const text = getStageText(currentChapter, index);
-    narrative.setText(text.name, text.narrative, currentChapter.type === 'appendix');
+    narrative.setText(text.name, text.narrative, currentChapter.type === 'appendix', text.refInfo);
     deps.setNavName?.(text.name);
 
     prevEnvironment = targetEnvironment;

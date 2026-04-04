@@ -428,7 +428,8 @@ async function init() {
   });
 
   // --- Menu (hamburger + language selector) ---
-  createMenu();
+  const menu = createMenu();
+  narrative.onRefClick = (chapterKey, stageKey) => menu.openToRef(chapterKey, stageKey);
 
   // --- UI Controls ---
   const lightPos = environment.sunLight.position.clone();
