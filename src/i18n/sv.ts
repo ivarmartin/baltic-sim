@@ -8,13 +8,13 @@ export const sv: TranslationStrings = {
     aboutTitle: 'Om',
     aboutText:
       'En interaktiv undervattensupplevelse som utforskar Östersjön – ett av jordens mest hotade hav. Dyk under ytan för att upptäcka vilka som lever här, vad som går fel och vad du kan göra för att hjälpa till.',
+    referencesTitle: 'Referenser',
+    referencesSubtitle:
+      'Studier och rapporter som citeras i den interaktiva Östersjöupplevelsen.',
     modeLinear: 'Linjär berättelse',
     modeAiGuided: 'AI-guide',
     chatPlaceholder: 'Ställ en fråga till din guide...',
     chatSend: 'Skicka',
-    referencesTitle: 'Referenser',
-    referencesSubtitle:
-      'Studier och rapporter som citeras i den interaktiva Östersjöupplevelsen.',
   },
   ai: {
     coreSystemPrompt:
