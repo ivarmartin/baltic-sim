@@ -12,7 +12,7 @@ export const sv: TranslationStrings = {
     referencesSubtitle:
       'Studier och rapporter som citeras i den interaktiva Östersjöupplevelsen.',
     modeLinear: 'Linjär berättelse',
-    modeAiGuided: 'AI-guide',
+    modeAiGuided: 'AI-guidad berättelse',
     chatPlaceholder: 'Ställ en fråga till din guide...',
     chatSend: 'Skicka',
   },

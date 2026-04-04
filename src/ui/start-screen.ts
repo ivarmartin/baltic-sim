@@ -50,8 +50,8 @@ export function createStartScreen(
       <h1 class="start-heading">${tr.ui.siteTitle}</h1>
       <p class="start-subheading">${tr.ui.chooseChapter}</p>
       <div class="mode-toggle">
-        <button class="mode-option${currentMode === 'linear' ? ' active' : ''}" data-mode="linear">${tr.ui.modeLinear}</button>
-        <button class="mode-option${currentMode === 'ai-guided' ? ' active' : ''}" data-mode="ai-guided"><svg class="ai-star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16 6l-2.91.74L12 10l-1.09-3.26L8 6l2.91-.74z"/><path d="M18 12l.6 1.82L20.4 14.4l-1.8.58L18 16.8l-.6-1.82L15.6 14.4l1.8-.58z"/><path d="M7 14l.4 1.2 1.2.38-1.2.42L7 17.2l-.4-1.2-1.2-.42 1.2-.38z"/></svg>${tr.ui.modeAiGuided}</button>
+        <button class="mode-option${currentMode === 'linear' ? ' active' : ''}" data-mode="linear"><svg class="mode-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>${tr.ui.modeLinear}</button>
+        <button class="mode-option${currentMode === 'ai-guided' ? ' active' : ''}" data-mode="ai-guided"><svg class="mode-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${tr.ui.modeAiGuided}</button>
       </div>
       <div class="chapter-list">
         ${buildCards(chapterEntries)}
@@ -199,7 +199,7 @@ export function createStartScreen(
       border-color: rgba(255, 255, 255, 0.2);
     }
 
-    .ai-star-icon {
+    .mode-icon {
       vertical-align: -2px;
       margin-right: 4px;
       opacity: 0.85;
@@ -215,7 +215,7 @@ export function createStartScreen(
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       padding: 4px;
-      max-width: 320px;
+      max-width: 380px;
     }
 
     .mode-option {
@@ -231,6 +231,7 @@ export function createStartScreen(
       cursor: pointer;
       transition: all 0.25s ease;
       outline: none;
+      white-space: nowrap;
     }
 
     .mode-option:hover {
@@ -251,7 +252,7 @@ export function createStartScreen(
       .chapter-subtitle { font-size: 12px; }
       .chapter-card[data-type="appendix"] { padding: 12px 14px; }
       .chapter-card[data-type="appendix"] .chapter-title { font-size: 13px; }
-      .mode-toggle { max-width: 280px; }
+      .mode-toggle { max-width: 340px; }
       .mode-option { font-size: 13px; padding: 8px 14px; }
     }
   `;
@@ -302,8 +303,8 @@ export function createStartScreen(
     // Update mode toggle labels
     modeButtons.forEach((btn) => {
       const mode = (btn as HTMLElement).dataset.mode;
-      if (mode === 'linear') btn.textContent = tr.ui.modeLinear;
-      else if (mode === 'ai-guided') btn.innerHTML = `<svg class="ai-star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16 6l-2.91.74L12 10l-1.09-3.26L8 6l2.91-.74z"/><path d="M18 12l.6 1.82L20.4 14.4l-1.8.58L18 16.8l-.6-1.82L15.6 14.4l1.8-.58z"/><path d="M7 14l.4 1.2 1.2.38-1.2.42L7 17.2l-.4-1.2-1.2-.42 1.2-.38z"/></svg>${tr.ui.modeAiGuided}`;
+      if (mode === 'linear') btn.innerHTML = `<svg class="mode-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>${tr.ui.modeLinear}`;
+      else if (mode === 'ai-guided') btn.innerHTML = `<svg class="mode-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${tr.ui.modeAiGuided}`;
     });
 
     cards.forEach((card) => {

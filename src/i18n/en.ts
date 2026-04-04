@@ -11,8 +11,8 @@ export const en: TranslationStrings = {
     referencesTitle: 'References',
     referencesSubtitle:
       'Studies and reports cited in the Baltic Sea interactive experience.',
-    modeLinear: 'Linear Narrative',
-    modeAiGuided: 'AI Guide',
+    modeLinear: 'Linear Story',
+    modeAiGuided: 'AI-guided Story',
     chatPlaceholder: 'Ask your guide a question...',
     chatSend: 'Send',
   },

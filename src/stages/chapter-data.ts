@@ -73,8 +73,8 @@ const introStages: StageDefinition[] = [
   {
     id: 'intro-shipwreck',
     cameraView: {
-      position: new THREE.Vector3(6.5, 0.8, -5),
-      lookAt: new THREE.Vector3(5, 0.2, -6),
+      position: new THREE.Vector3(6.995, 1.055, -4.263),
+      lookAt: new THREE.Vector3(3.392, -0.666, -7.273),
     },
     transitionDuration: 2.0,
     environment: 'shipwreck',
