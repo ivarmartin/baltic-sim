@@ -62,6 +62,7 @@ export function createNarrative(): NarrativeUI {
     }
 
     .narrative-wrapper {
+      position: relative;
       padding: 10px 16px;
       background: rgba(10, 30, 20, 0.55);
       backdrop-filter: blur(12px);
@@ -136,7 +137,7 @@ export function createNarrative(): NarrativeUI {
 
     .narrative-ref-btn {
       position: absolute;
-      bottom: 8px;
+      top: 8px;
       right: 10px;
       display: flex;
       align-items: center;
