@@ -46,6 +46,71 @@ export function createMenu(): MenuUI {
 
   function renderOverlay() {
     const tr = t();
+
+    // Build references HTML from chapters that have a references catalog
+    let refsHtml = '';
+    for (const [, chapter] of Object.entries(tr.chapters)) {
+      if (!chapter.references) continue;
+      const catalog = chapter.references;
+      let sectionsHtml = '';
+
+      // Stage-level refs
+      for (const [, stage] of Object.entries(chapter.stages)) {
+        if (!stage.refs?.length) continue;
+        let entriesHtml = '';
+        for (const ref of stage.refs) {
+          const entry = catalog[ref.refId];
+          if (!entry) continue;
+          entriesHtml += `
+            <div class="ref-entry">
+              <p class="ref-desc">${ref.description}</p>
+              <p class="ref-cite">${entry.citation}</p>
+              <a class="ref-link" href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.linkText}</a>
+            </div>`;
+        }
+        sectionsHtml += `
+          <div class="ref-section">
+            <h4 class="ref-section-title">${stage.name}</h4>
+            ${entriesHtml}
+          </div>`;
+      }
+
+      // Chapter-level refs (e.g., Pan-Baltic)
+      if (chapter.chapterRefs?.refs.length) {
+        let entriesHtml = '';
+        for (const ref of chapter.chapterRefs.refs) {
+          const entry = catalog[ref.refId];
+          if (!entry) continue;
+          entriesHtml += `
+            <div class="ref-entry">
+              <p class="ref-desc">${ref.description}</p>
+              <p class="ref-cite">${entry.citation}</p>
+              <a class="ref-link" href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.linkText}</a>
+            </div>`;
+        }
+        sectionsHtml += `
+          <div class="ref-section">
+            <h4 class="ref-section-title">${chapter.chapterRefs.title}</h4>
+            ${entriesHtml}
+          </div>`;
+      }
+
+      if (!sectionsHtml) continue;
+
+      refsHtml += `
+        <div class="ref-chapter">
+          <button class="ref-chapter-header" aria-expanded="false">
+            <span>${chapter.title}</span>
+            <svg class="ref-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="ref-chapter-body">
+            ${sectionsHtml}
+          </div>
+        </div>`;
+    }
+
     overlay.innerHTML = `
       <div class="menu-overlay-inner">
         <button class="menu-btn menu-close" aria-label="Close">
@@ -55,10 +120,24 @@ export function createMenu(): MenuUI {
         </button>
         <h2 class="menu-overlay-title">${tr.ui.aboutTitle}</h2>
         <p class="menu-overlay-text">${tr.ui.aboutText}</p>
+        <div class="menu-refs">
+          <h3 class="menu-refs-title">${tr.ui.referencesTitle}</h3>
+          <p class="menu-refs-subtitle">${tr.ui.referencesSubtitle}</p>
+          ${refsHtml}
+        </div>
       </div>
     `;
+
     overlay.querySelector('.menu-close')!.addEventListener('click', () => {
       overlay.classList.add('hidden');
+    });
+
+    // Accordion toggle handlers
+    overlay.querySelectorAll('.ref-chapter-header').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const expanded = btn.classList.toggle('expanded');
+        btn.setAttribute('aria-expanded', String(expanded));
+      });
     });
   }
   renderOverlay();
@@ -201,12 +280,14 @@ export function createMenu(): MenuUI {
       inset: 0;
       z-index: 300;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       background: rgba(5, 15, 10, 0.8);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       transition: opacity 0.4s ease;
+      overflow-y: auto;
+      padding: 48px 16px;
     }
 
     #menu-overlay.hidden {
@@ -216,9 +297,10 @@ export function createMenu(): MenuUI {
 
     .menu-overlay-inner {
       position: relative;
-      max-width: 440px;
+      max-width: 560px;
+      width: 100%;
       padding: 32px;
-      text-align: center;
+      text-align: left;
     }
 
     .menu-close {
@@ -243,12 +325,152 @@ export function createMenu(): MenuUI {
       margin: 0;
     }
 
+    /* References section */
+    .menu-refs {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-refs-title {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.88);
+      margin: 0 0 6px 0;
+    }
+
+    .menu-refs-subtitle {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.45);
+      margin: 0 0 20px 0;
+    }
+
+    /* Accordion chapter headers */
+    .ref-chapter {
+      margin-bottom: 8px;
+    }
+
+    .ref-chapter-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.85);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      text-align: left;
+      outline: none;
+    }
+
+    .ref-chapter-header:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .ref-chapter-header.expanded {
+      border-radius: 8px 8px 0 0;
+      border-bottom-color: transparent;
+    }
+
+    .ref-chevron {
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .ref-chapter-header.expanded .ref-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Accordion body */
+    .ref-chapter-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      border: 1px solid transparent;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .ref-chapter-header.expanded + .ref-chapter-body {
+      max-height: 3000px;
+      border-color: rgba(255, 255, 255, 0.08);
+      border-top: none;
+    }
+
+    /* Section within accordion */
+    .ref-section {
+      padding: 14px 14px 6px;
+    }
+
+    .ref-section + .ref-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ref-section-title {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0 0 10px 0;
+    }
+
+    /* Individual reference entry */
+    .ref-entry {
+      margin-bottom: 14px;
+      padding-left: 12px;
+      border-left: 2px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .ref-desc {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0 0 4px 0;
+    }
+
+    .ref-cite {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.45);
+      margin: 0 0 4px 0;
+      font-style: italic;
+    }
+
+    .ref-link {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 12px;
+      color: rgba(120, 180, 220, 0.8);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .ref-link:hover {
+      color: rgba(150, 210, 250, 1);
+      text-decoration: underline;
+    }
+
     @media (max-width: 480px) {
       #menu-container { top: 16px; right: 16px; }
       .menu-btn { width: 34px; height: 34px; }
-      .menu-overlay-inner { padding: 24px 20px; }
+      #menu-overlay { padding: 32px 10px; }
+      .menu-overlay-inner { padding: 24px 16px; }
       .menu-overlay-title { font-size: 20px; }
       .menu-overlay-text { font-size: 13px; }
+      .menu-refs-title { font-size: 16px; }
+      .ref-chapter-header { font-size: 13px; padding: 9px 12px; }
+      .ref-section { padding: 12px 10px 4px; }
+      .ref-desc, .ref-cite, .ref-link { font-size: 11px; }
     }
   `;
 

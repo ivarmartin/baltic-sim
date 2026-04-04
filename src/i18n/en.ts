@@ -8,6 +8,9 @@ export const en: TranslationStrings = {
     aboutTitle: 'About',
     aboutText:
       'An interactive underwater experience exploring the Baltic Sea — one of the most threatened seas on Earth. Dive beneath the surface to discover who lives here, what\u2019s going wrong, and what you can do to help.',
+    referencesTitle: 'References',
+    referencesSubtitle:
+      'Studies and reports cited in the Baltic Sea interactive experience.',
     modeLinear: 'Linear Narrative',
     modeAiGuided: 'AI Guide',
     chatPlaceholder: 'Ask your guide a question...',
@@ -23,6 +26,67 @@ export const en: TranslationStrings = {
       subtitle: 'Dive into one of the most threatened seas on Earth.',
       aiPrompt:
         'Chapter overview: Introduction to the Baltic Sea anchored at Ask\u00f6 Laboratory. Arc: welcome \u2192 underwater habitats \u2192 species collapse \u2192 dead zones \u2192 cultural heritage \u2192 hope. The Baltic is brackish (~6 PSU vs 35 for oceans), formed ~10,000 years ago, surrounded by 9 countries and 85 million people. Guide the visitor through the scenes using concrete comparisons a 10-year-old would understand.',
+      references: {
+        'helcom-2023': {
+          citation:
+            'HELCOM (2023). State of the Baltic Sea 2023 — Third HELCOM holistic assessment 2016–2021.',
+          url: 'https://stateofthebalticsea.helcom.fi/overview/executive-summary/',
+          linkText: 'HELCOM — State of the Baltic Sea 2023',
+        },
+        'eklof-2020': {
+          citation:
+            'Eklöf, J.S. et al. (2020). A spatial regime shift from predator to prey dominance in a large coastal ecosystem. Communications Biology, 3, 459.',
+          url: 'https://www.nature.com/articles/s42003-020-01180-0',
+          linkText: 'Eklöf et al. (2020), Communications Biology',
+        },
+        'casini-2016': {
+          citation:
+            'Casini, M. et al. (2016). Hypoxic areas, density-dependence and food limitation drive the body condition of a heavily exploited marine fish predator. Royal Society Open Science, 3(10), 160416.',
+          url: 'https://royalsocietypublishing.org/doi/10.1098/rsos.160416',
+          linkText: 'Casini et al. (2016), Royal Society Open Science',
+        },
+        'eero-2015': {
+          citation:
+            'Eero, M. et al. (2015). Eastern Baltic cod in distress: biological changes and challenges for stock assessment. ICES Journal of Marine Science, 72(8), 2180–2186.',
+          url: 'https://publications.slu.se/?file=publ/show&id=71929',
+          linkText: 'Eero et al. (2015), ICES Journal of Marine Science',
+        },
+        'hansson-2025': {
+          citation:
+            'Hansson, M. & Viktorsson, L. (2025). Oxygen Survey in the Baltic Sea 2024. SMHI Report Oceanography No. 80.',
+          url: 'https://www.smhi.se/en/publications-from-smhi/publications/2025-04-14-the-oxygen-situation-in-the-baltic-sea-2024',
+          linkText: 'Hansson & Viktorsson (2025), SMHI Report',
+        },
+        'appelqvist-2015': {
+          citation:
+            'Appelqvist, C., Havenhand, J.N. & Toth, G.B. (2015). Climate Envelope Modeling and Dispersal Simulations Show Little Risk of Range Extension of the Shipworm, Teredo navalis (L.), in the Baltic Sea. PLOS ONE, 10(3), e0119217.',
+          url: 'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0119217',
+          linkText: 'Appelqvist et al. (2015), PLOS ONE',
+        },
+        'bjordal-2012': {
+          citation:
+            'Björdal, C.G. & Gregory, D. (2012). Wreckprotect — Decay and Protection of Archaeological Wooden Shipwrecks. Archaeopress.',
+          url: 'https://cordis.europa.eu/article/id/31666-wreckprotect-investigates-underwater-cultural-heritage-threat',
+          linkText: 'Björdal & Gregory (2012), Archaeopress',
+        },
+        'gu-eelgrass': {
+          citation:
+            'University of Gothenburg. Handbook leads the way for large-scale restoration of eelgrass.',
+          url: 'https://www.gu.se/en/news/handbook-leads-the-way-for-large-scale-restoration-of-eelgrass',
+          linkText: 'University of Gothenburg — Eelgrass Restoration',
+        },
+        'helcom-2021': {
+          citation:
+            'HELCOM (2021). Baltic Sea Action Plan — 2021 update.',
+          url: 'https://helcom.fi/baltic-sea-action-plan/',
+          linkText: 'HELCOM — Baltic Sea Action Plan',
+        },
+        'hsr-cleanup': {
+          citation: 'Håll Sverige Rent. Nordic Coastal Cleanup.',
+          url: 'https://hsr.se/nordic-coastal-cleanup',
+          linkText: 'Håll Sverige Rent — Nordic Coastal Cleanup',
+        },
+      },
       stages: {
         'intro-welcome': {
           name: 'Welcome to the Baltic',
@@ -51,6 +115,9 @@ export const en: TranslationStrings = {
             '→ Transition: what happens when the ecosystem loses its big predators? (next: Stickleback Swarm)',
           ],
           nextSceneHook: 'Next scene: "The Stickleback Swarm" — the algae problem connects to an explosion of tiny fish',
+          refs: [
+            { refId: 'helcom-2023', description: 'Bladderwrack depth retreat, eutrophication affecting 97% of the Baltic' },
+          ],
         },
         'intro-stickleback-swarm': {
           name: 'The Stickleback Swarm',
@@ -65,6 +132,9 @@ export const en: TranslationStrings = {
             '→ Transition: but what happened to the cod? (next: The Shrinking Cod)',
           ],
           nextSceneHook: 'Next scene: "The Shrinking Cod" — the fish that once ruled the Baltic is barely hanging on',
+          refs: [
+            { refId: 'eklof-2020', description: 'Stickleback population explosion (~50-fold), regime shift from predator to prey dominance' },
+          ],
         },
         'intro-shrinking-cod': {
           name: 'The Shrinking Cod',
@@ -79,6 +149,10 @@ export const en: TranslationStrings = {
             '→ Transition: let\'s go deeper and see why the oxygen disappeared (next: The Dead Zone)',
           ],
           nextSceneHook: 'Next scene: "The Dead Zone" — dive into the lifeless depths where oxygen has vanished',
+          refs: [
+            { refId: 'casini-2016', description: 'Cod stock collapse, fishing ban, parasitic infestation, spawning volume contraction' },
+            { refId: 'eero-2015', description: 'Eastern Baltic cod in distress — biological changes' },
+          ],
         },
         'intro-dead-zone': {
           name: 'The Dead Zone',
@@ -93,6 +167,10 @@ export const en: TranslationStrings = {
             '→ Transition: the Baltic holds secrets beyond ecology (next: The Shipwreck)',
           ],
           nextSceneHook: 'Next scene: "The Shipwreck" — the Baltic preserves 100,000 shipwrecks, but that\'s changing too',
+          refs: [
+            { refId: 'hansson-2025', description: 'Record hydrogen sulphide at Gotland Deep (BY15) November 2024, oxygen time series 1960–2024' },
+            { refId: 'helcom-2023', description: 'Dead zone area ~1.5× Denmark, one-third of seafloor hypoxic/anoxic' },
+          ],
         },
         'intro-shipwreck': {
           name: 'The Shipwreck',
@@ -107,6 +185,10 @@ export const en: TranslationStrings = {
             '→ Transition: it sounds bad, but there\'s real hope (next: What You Can Do)',
           ],
           nextSceneHook: 'Next scene: "What You Can Do" — ending on hope, with real actions that are making a difference',
+          refs: [
+            { refId: 'appelqvist-2015', description: 'Shipworm breeding season extended ~26 days, climate envelope modeling' },
+            { refId: 'bjordal-2012', description: 'WreckProtect project — strategies for protecting wooden underwater cultural heritage' },
+          ],
         },
         'intro-what-you-can-do': {
           name: 'What You Can Do',
@@ -120,6 +202,11 @@ export const en: TranslationStrings = {
             'What you can do: skip single-use plastic, ask where your fish comes from, pick up litter near water',
             'Wrap up: this sea is yours — it\'s the one you swim in',
           ],
+          refs: [
+            { refId: 'gu-eelgrass', description: 'ZORRO eelgrass restoration programme — 3M+ shoots planted, 26-fold increase' },
+            { refId: 'helcom-2021', description: 'HELCOM Baltic Sea Action Plan (~200 actions targeting 2030)' },
+            { refId: 'hsr-cleanup', description: 'Håll Sverige Rent — 600,000–800,000 children annually' },
+          ],
         },
       },
     },
@@ -128,6 +215,80 @@ export const en: TranslationStrings = {
       subtitle: 'Follow the fate of the Baltic\u2019s biggest shallow-water hunter.',
       aiPrompt:
         'Chapter overview: Northern pike (Esox lucius) as keystone predator of Baltic shallow bays. Arc: meet \u2192 importance \u2192 threats (habitat loss, sticklebacks, seals) \u2192 ecosystem collapse \u2192 restoration hope. Same underwater environment as intro chapter, different story. Guide the visitor so a 10-year-old can follow the cause-and-effect chain.',
+      references: {
+        'larsson-2015': {
+          citation:
+            'Larsson, P. et al. (2015). Ecology, evolution, and management strategies of northern pike populations in the Baltic Sea. Ambio, 44(Suppl 3), 451–461.',
+          url: 'https://link.springer.com/article/10.1007/s13280-015-0664-6',
+          linkText: 'Larsson et al. (2015), Ambio',
+        },
+        'olin-2024': {
+          citation:
+            'Olin, A.B. et al. (2024). Predation and spatial connectivity interact to shape ecosystem resilience to an ongoing regime shift. Nature Communications, 15, 1304.',
+          url: 'https://www.nature.com/articles/s41467-024-45713-1',
+          linkText: 'Olin et al. (2024), Nature Communications',
+        },
+        'nilsson-2014': {
+          citation:
+            'Nilsson, J., Engstedt, O. & Larsson, P. (2014). Wetlands for northern pike (Esox lucius L.) recruitment in the Baltic Sea. Hydrobiologia, 721, 145–154.',
+          url: 'https://link.springer.com/article/10.1007/s10750-013-1656-9',
+          linkText: 'Nilsson et al. (2014), Hydrobiologia',
+        },
+        'nilsson-2019': {
+          citation:
+            'Nilsson, J., Flink, H. & Tibblin, P. (2019). Predator–prey role reversal may impair the recovery of declining pike populations. Journal of Animal Ecology, 88, 927–939.',
+          url: 'https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2656.12981',
+          linkText: 'Nilsson et al. (2019), Journal of Animal Ecology',
+        },
+        'bergstrom-2022': {
+          citation:
+            'Bergström, U. et al. (2022). Long-term decline in northern pike (Esox lucius L.) populations in the Baltic Sea revealed by recreational angling data. Fisheries Research, 251, 106307.',
+          url: 'https://www.sciencedirect.com/science/article/pii/S0165783622000844',
+          linkText: 'Bergström et al. (2022), Fisheries Research',
+        },
+        'svensson-2021': {
+          citation:
+            'Svensson, R. (2021). Development of northern pike (Esox lucius) populations in the Baltic Sea, and potential effects of grey seal (Halichoerus grypus) predation. MSc thesis, Swedish University of Agricultural Sciences.',
+          url: 'https://stud.epsilon.slu.se/16455/',
+          linkText: 'Svensson (2021), SLU MSc Thesis',
+        },
+        'su-seal-2025': {
+          citation:
+            'Stockholm University Baltic Sea Centre (2025). Reducing grey seal numbers will not help Baltic fish stocks. Policy brief.',
+          url: 'https://www.su.se/english/divisions/stockholm-university-baltic-sea-centre/policy-analysis/policy-briefs-and-fact-sheets/reducing-grey-seal-numbers-will-not-help-baltic-fish-stocks',
+          linkText: 'SU Baltic Sea Centre (2025), Policy Brief',
+        },
+        'eklof-2020': {
+          citation:
+            'Eklöf, J.S. et al. (2020). A spatial regime shift from predator to prey dominance in a large coastal ecosystem. Communications Biology, 3, 459.',
+          url: 'https://www.nature.com/articles/s42003-020-01180-0',
+          linkText: 'Eklöf et al. (2020), Communications Biology',
+        },
+        'tibblin-2023': {
+          citation:
+            'Tibblin, P. et al. (2023). Higher abundance of adult pike in Baltic Sea coastal areas adjacent to restored wetlands compared to reference bays. Hydrobiologia, 850, 2235–2247.',
+          url: 'https://link.springer.com/article/10.1007/s10750-023-05216-4',
+          linkText: 'Tibblin et al. (2023), Hydrobiologia',
+        },
+        'bcf-pike': {
+          citation:
+            'Baltic Conservation Foundation. Pike Factories – Restoring Wetlands for Natural Pike Reproduction.',
+          url: 'https://baltcf.org/project/pike-factories-restoring-wetlands-for-natural-pike-reproduction/',
+          linkText: 'Baltic Conservation Foundation — Pike Factories',
+        },
+        'olsson-2023': {
+          citation:
+            'Olsson, J. et al. (2023). A pan-Baltic assessment of temporal trends in coastal pike populations. Fisheries Research, 260, 106594.',
+          url: 'https://www.sciencedirect.com/science/article/pii/S016578362200371X',
+          linkText: 'Olsson et al. (2023), Fisheries Research',
+        },
+      },
+      chapterRefs: {
+        title: 'Pan-Baltic Pike Assessment',
+        refs: [
+          { refId: 'olsson-2023', description: 'Regional decline of pike across 8 Baltic countries, 59 time series' },
+        ],
+      },
       stages: {
         'pike-meet': {
           name: 'Meet the Pike',
@@ -142,6 +303,10 @@ export const en: TranslationStrings = {
             '→ Transition: but the pike isn\'t just impressive — it\'s vital (next: Why the Pike Matters)',
           ],
           nextSceneHook: 'Next scene: "Why the Pike Matters" — this fish holds the whole ecosystem together',
+          refs: [
+            { refId: 'larsson-2015', description: 'Pike ecology, evolution and management — natal homing, ~50% anadromous' },
+            { refId: 'olin-2024', description: 'Bays with healthy pike are more resilient to stickleback takeover' },
+          ],
         },
         'pike-why-it-matters': {
           name: 'Why the Pike Matters',
@@ -156,6 +321,10 @@ export const en: TranslationStrings = {
             '→ Transition: so what\'s threatening the pike\'s nurseries? (next: The Lost Nurseries)',
           ],
           nextSceneHook: 'Next scene: "The Lost Nurseries" — the places where pike are born are disappearing',
+          refs: [
+            { refId: 'larsson-2015', description: 'Keystone role, trophic cascades in Baltic coastal ecosystems' },
+            { refId: 'olin-2024', description: 'Predation and spatial connectivity shape ecosystem resilience to regime shift' },
+          ],
         },
         'pike-lost-nurseries': {
           name: 'The Lost Nurseries',
@@ -170,6 +339,9 @@ export const en: TranslationStrings = {
             '\u2192 Transition: and it gets worse \u2014 meet the stickleback invasion (next: Stickleback Invasion)',
           ],
           nextSceneHook: 'Next scene: "The Stickleback Invasion" \u2014 the tiny fish that turned the tables on the pike',
+          refs: [
+            { refId: 'nilsson-2014', description: 'Wetland fry emigration: 3,000 → 100,000+ after restoration, 300,000 after five years' },
+          ],
         },
         'pike-stickleback-invasion': {
           name: 'The Stickleback Invasion',
@@ -184,11 +356,14 @@ export const en: TranslationStrings = {
             '→ Transition: and there\'s another new threat in the bays (next: The Seal in the Bay)',
           ],
           nextSceneHook: 'Next scene: "The Seal in the Bay" — a conservation success story with an unexpected twist',
+          refs: [
+            { refId: 'nilsson-2019', description: 'Predator-prey role reversal: stickleback predation on pike larvae as major cause of recruitment failure' },
+          ],
         },
         'pike-seal-in-bay': {
           name: 'The Seal in the Bay',
           narrative:
-            'Grey seals are amazing animals \u2014 they were nearly wiped out in the 1970s but have made a strong comeback, from around 3,600 to over 55,000 in the Baltic today. That\u2019s great news for seals. But as they\u2019ve moved into the inner bays where pike live, they\u2019ve become one of the pike\u2019s biggest threats. In the Stockholm archipelago, seals now eat many times more pike than fishermen catch. It\u2019s nature \u2014 but it\u2019s tipping the balance.',
+            'Grey seals are amazing animals \u2014 they were nearly wiped out in the 1970s but have made a strong comeback, from around 3,600 to over 55,000 in the Baltic today. That\u2019s great news for seals. But as they\u2019ve moved into the inner bays where pike live, they\u2019ve become one of the pike\u2019s biggest threats. In the Stockholm archipelago, seals and cormorants now eat many times more pike than fishermen catch. It\u2019s nature \u2014 but it\u2019s tipping the balance.',
           aiPrompt:
             'Scene: Grey seal in shallow inner-archipelago bay. Pike and reeds visible. Seal chases pike. Extra context: Crash caused by hunting + PCB/DDT. Recovery after bans 1974/1978. Outer archipelago: pike <5% of seal diet. Inner/central Stockholm: pike ~20% by biomass. SLU: seals take 5\u201318x more pike than fisheries (Stockholm archipelago 2014\u20132017). Not seals\u2019 fault \u2014 protected, important species. Challenge is ecosystem-level management.',
           narrativeBeats: [
@@ -198,6 +373,11 @@ export const en: TranslationStrings = {
             '→ Transition: let\'s see what happens to a whole bay when pike disappear (next: Chain Reaction)',
           ],
           nextSceneHook: 'Next scene: "The Chain Reaction" — what a bay looks like when the pike are gone',
+          refs: [
+            { refId: 'bergstrom-2022', description: 'Pike population decline since 1990s, seals + cormorants consume 5–18× more pike than fisheries in Stockholm archipelago' },
+            { refId: 'svensson-2021', description: 'Grey seal diet in inner Stockholm archipelago: pike ~20% by biomass' },
+            { refId: 'su-seal-2025', description: 'Grey seal population recovery from ~3,600 (1970s) to 55,000–73,000 (2025)' },
+          ],
         },
         'pike-chain-reaction': {
           name: 'The Chain Reaction',
@@ -212,6 +392,9 @@ export const en: TranslationStrings = {
             '→ Transition: but there\'s real hope — people are bringing the pike back (next: Bringing the Pike Back)',
           ],
           nextSceneHook: 'Next scene: "Bringing the Pike Back" — real restoration projects that are working right now',
+          refs: [
+            { refId: 'eklof-2020', description: '"Stickleback wave" — spatial regime shift spreading bay to bay along Swedish coast' },
+          ],
         },
         'pike-bringing-back': {
           name: 'Bringing the Pike Back',
@@ -224,6 +407,10 @@ export const en: TranslationStrings = {
             'Real numbers: pike fry went from 3,000 to 300,000+ in just a few years',
             'What you can do: release pike carefully, choose sustainable food, tell people about the pike',
             'Wrap up: a fish this important shouldn\'t disappear without anyone noticing',
+          ],
+          refs: [
+            { refId: 'tibblin-2023', description: 'Pike abundance 90% higher in bays adjacent to restored wetlands' },
+            { refId: 'bcf-pike', description: 'Pike Factories — wetland restoration project in Blekinge' },
           ],
         },
       },

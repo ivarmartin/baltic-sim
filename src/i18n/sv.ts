@@ -12,6 +12,9 @@ export const sv: TranslationStrings = {
     modeAiGuided: 'AI-guide',
     chatPlaceholder: 'Ställ en fråga till din guide...',
     chatSend: 'Skicka',
+    referencesTitle: 'Referenser',
+    referencesSubtitle:
+      'Studier och rapporter som citeras i den interaktiva Östersjöupplevelsen.',
   },
   ai: {
     coreSystemPrompt:
@@ -23,6 +26,67 @@ export const sv: TranslationStrings = {
       subtitle: 'Dyk ner i ett av jordens mest hotade hav.',
       aiPrompt:
         'Kapitelöversikt: Introduktion till Östersjön förankrad vid Askö laboratorium. Båge: välkommen → undervattenshabitat → artkollapser → döda zoner → kulturarv → hopp. Östersjön är bräckt (~6 PSU jämfört med 35 för haven), bildades för ~10 000 år sedan, omgiven av 9 länder och 85 miljoner människor. Guida besökaren genom scenerna med konkreta jämförelser som en 10-åring förstår.',
+      references: {
+        'helcom-2023': {
+          citation:
+            'HELCOM (2023). State of the Baltic Sea 2023 — Third HELCOM holistic assessment 2016–2021.',
+          url: 'https://stateofthebalticsea.helcom.fi/overview/executive-summary/',
+          linkText: 'HELCOM — State of the Baltic Sea 2023',
+        },
+        'eklof-2020': {
+          citation:
+            'Eklöf, J.S. et al. (2020). A spatial regime shift from predator to prey dominance in a large coastal ecosystem. Communications Biology, 3, 459.',
+          url: 'https://www.nature.com/articles/s42003-020-01180-0',
+          linkText: 'Eklöf et al. (2020), Communications Biology',
+        },
+        'casini-2016': {
+          citation:
+            'Casini, M. et al. (2016). Hypoxic areas, density-dependence and food limitation drive the body condition of a heavily exploited marine fish predator. Royal Society Open Science, 3(10), 160416.',
+          url: 'https://royalsocietypublishing.org/doi/10.1098/rsos.160416',
+          linkText: 'Casini et al. (2016), Royal Society Open Science',
+        },
+        'eero-2015': {
+          citation:
+            'Eero, M. et al. (2015). Eastern Baltic cod in distress: biological changes and challenges for stock assessment. ICES Journal of Marine Science, 72(8), 2180–2186.',
+          url: 'https://publications.slu.se/?file=publ/show&id=71929',
+          linkText: 'Eero et al. (2015), ICES Journal of Marine Science',
+        },
+        'hansson-2025': {
+          citation:
+            'Hansson, M. & Viktorsson, L. (2025). Oxygen Survey in the Baltic Sea 2024. SMHI Report Oceanography No. 80.',
+          url: 'https://www.smhi.se/en/publications-from-smhi/publications/2025-04-14-the-oxygen-situation-in-the-baltic-sea-2024',
+          linkText: 'Hansson & Viktorsson (2025), SMHI Report',
+        },
+        'appelqvist-2015': {
+          citation:
+            'Appelqvist, C., Havenhand, J.N. & Toth, G.B. (2015). Climate Envelope Modeling and Dispersal Simulations Show Little Risk of Range Extension of the Shipworm, Teredo navalis (L.), in the Baltic Sea. PLOS ONE, 10(3), e0119217.',
+          url: 'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0119217',
+          linkText: 'Appelqvist et al. (2015), PLOS ONE',
+        },
+        'bjordal-2012': {
+          citation:
+            'Björdal, C.G. & Gregory, D. (2012). Wreckprotect — Decay and Protection of Archaeological Wooden Shipwrecks. Archaeopress.',
+          url: 'https://cordis.europa.eu/article/id/31666-wreckprotect-investigates-underwater-cultural-heritage-threat',
+          linkText: 'Björdal & Gregory (2012), Archaeopress',
+        },
+        'gu-eelgrass': {
+          citation:
+            'University of Gothenburg. Handbook leads the way for large-scale restoration of eelgrass.',
+          url: 'https://www.gu.se/en/news/handbook-leads-the-way-for-large-scale-restoration-of-eelgrass',
+          linkText: 'Göteborgs universitet — Ålgräsrestaurering',
+        },
+        'helcom-2021': {
+          citation:
+            'HELCOM (2021). Baltic Sea Action Plan — 2021 update.',
+          url: 'https://helcom.fi/baltic-sea-action-plan/',
+          linkText: 'HELCOM — Baltic Sea Action Plan',
+        },
+        'hsr-cleanup': {
+          citation: 'Håll Sverige Rent. Nordic Coastal Cleanup.',
+          url: 'https://hsr.se/nordic-coastal-cleanup',
+          linkText: 'Håll Sverige Rent — Nordic Coastal Cleanup',
+        },
+      },
       stages: {
         'intro-welcome': {
           name: 'Välkommen till Östersjön',
@@ -51,6 +115,9 @@ export const sv: TranslationStrings = {
             '→ Övergång: vad händer när ekosystemet förlorar sina stora rovdjur? (nästa: Storspiggssvärmen)',
           ],
           nextSceneHook: 'Nästa scen: "Storspiggssvärmen" — algproblemet hänger ihop med en explosion av småfisk',
+          refs: [
+            { refId: 'helcom-2023', description: 'Blåstångens reträtt till grundare vatten, övergödning som påverkar 97 % av Östersjön' },
+          ],
         },
         'intro-stickleback-swarm': {
           name: 'Storspiggssvärmen',
@@ -65,6 +132,9 @@ export const sv: TranslationStrings = {
             '→ Övergång: men vad hände med torsken? (nästa: Den krympande torsken)',
           ],
           nextSceneHook: 'Nästa scen: "Den krympande torsken" — fisken som en gång härskade i Östersjön hänger knappt kvar',
+          refs: [
+            { refId: 'eklof-2020', description: 'Storspiggspopulationsexplosion (~50 gånger), regimskifte från rovdjurs- till bytesdominans' },
+          ],
         },
         'intro-shrinking-cod': {
           name: 'Den krympande torsken',
@@ -79,6 +149,10 @@ export const sv: TranslationStrings = {
             '→ Övergång: låt oss dyka djupare och se varför syret försvann (nästa: Döda zonen)',
           ],
           nextSceneHook: 'Nästa scen: "Döda zonen" — dyk ner i de livlösa djupen där syret har försvunnit',
+          refs: [
+            { refId: 'casini-2016', description: 'Torskbeståndets kollaps, fiskeförbud, parasitangrepp, minskad lekvolym' },
+            { refId: 'eero-2015', description: 'Östlig Östersjötorsk i kris — biologiska förändringar' },
+          ],
         },
         'intro-dead-zone': {
           name: 'Döda zonen',
@@ -93,6 +167,10 @@ export const sv: TranslationStrings = {
             '→ Övergång: Östersjön gömmer hemligheter bortom ekologin (nästa: Skeppsvraket)',
           ],
           nextSceneHook: 'Nästa scen: "Skeppsvraket" — Östersjön bevarar 100 000 skeppsvrak, men det håller på att förändras',
+          refs: [
+            { refId: 'hansson-2025', description: 'Rekordnivåer av svavelväte vid Gotlandsdjupet (BY15) november 2024, syretidsserie 1960–2024' },
+            { refId: 'helcom-2023', description: 'Döda zonens yta ~1,5 gånger Danmarks, en tredjedel av havsbotten syrefattig/syrefri' },
+          ],
         },
         'intro-shipwreck': {
           name: 'Skeppsvraket',
@@ -107,6 +185,10 @@ export const sv: TranslationStrings = {
             '→ Övergång: det låter illa, men det finns verkligt hopp (nästa: Vad du kan göra)',
           ],
           nextSceneHook: 'Nästa scen: "Vad du kan göra" — avsluta med hopp och verkliga insatser som gör skillnad',
+          refs: [
+            { refId: 'appelqvist-2015', description: 'Skeppsmaskens häckningssäsong förlängd ~26 dagar, klimatmodellering' },
+            { refId: 'bjordal-2012', description: 'WreckProtect-projektet — strategier för att skydda undervattenskulturarv i trä' },
+          ],
         },
         'intro-what-you-can-do': {
           name: 'Vad du kan göra',
@@ -120,6 +202,11 @@ export const sv: TranslationStrings = {
             'Vad du kan göra: skippa engångsplast, fråga var fisken kommer ifrån, plocka upp skräp nära vatten',
             'Avslutning: det här havet är ditt — det är det du badar i',
           ],
+          refs: [
+            { refId: 'gu-eelgrass', description: 'ZORRO-programmet för ålgräsrestaurering — 3M+ skott planterade, 26-faldig ökning' },
+            { refId: 'helcom-2021', description: 'HELCOM:s aktionsplan för Östersjön (~200 åtgärder mot 2030)' },
+            { refId: 'hsr-cleanup', description: 'Håll Sverige Rent — 600 000–800 000 barn årligen' },
+          ],
         },
       },
     },
@@ -128,6 +215,80 @@ export const sv: TranslationStrings = {
       subtitle: 'Följ ödet för Östersjöns största jägare i de grunda vikarna.',
       aiPrompt:
         'Kapitelöversikt: Gädda (Esox lucius) som nyckelrovdjur i Östersjöns grunda vikar. Båge: möte → betydelse → hot (habitatförlust, storspiggar, sälar) → ekosystemkollaps → hopp om restaurering. Samma undervattensmiljö som introkapitlet, annan historia. Guida besökaren så att en 10-åring kan följa orsak-och-verkan-kedjan.',
+      references: {
+        'larsson-2015': {
+          citation:
+            'Larsson, P. et al. (2015). Ecology, evolution, and management strategies of northern pike populations in the Baltic Sea. Ambio, 44(Suppl 3), 451–461.',
+          url: 'https://link.springer.com/article/10.1007/s13280-015-0664-6',
+          linkText: 'Larsson et al. (2015), Ambio',
+        },
+        'olin-2024': {
+          citation:
+            'Olin, A.B. et al. (2024). Predation and spatial connectivity interact to shape ecosystem resilience to an ongoing regime shift. Nature Communications, 15, 1304.',
+          url: 'https://www.nature.com/articles/s41467-024-45713-1',
+          linkText: 'Olin et al. (2024), Nature Communications',
+        },
+        'nilsson-2014': {
+          citation:
+            'Nilsson, J., Engstedt, O. & Larsson, P. (2014). Wetlands for northern pike (Esox lucius L.) recruitment in the Baltic Sea. Hydrobiologia, 721, 145–154.',
+          url: 'https://link.springer.com/article/10.1007/s10750-013-1656-9',
+          linkText: 'Nilsson et al. (2014), Hydrobiologia',
+        },
+        'nilsson-2019': {
+          citation:
+            'Nilsson, J., Flink, H. & Tibblin, P. (2019). Predator–prey role reversal may impair the recovery of declining pike populations. Journal of Animal Ecology, 88, 927–939.',
+          url: 'https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2656.12981',
+          linkText: 'Nilsson et al. (2019), Journal of Animal Ecology',
+        },
+        'bergstrom-2022': {
+          citation:
+            'Bergström, U. et al. (2022). Long-term decline in northern pike (Esox lucius L.) populations in the Baltic Sea revealed by recreational angling data. Fisheries Research, 251, 106307.',
+          url: 'https://www.sciencedirect.com/science/article/pii/S0165783622000844',
+          linkText: 'Bergström et al. (2022), Fisheries Research',
+        },
+        'svensson-2021': {
+          citation:
+            'Svensson, R. (2021). Development of northern pike (Esox lucius) populations in the Baltic Sea, and potential effects of grey seal (Halichoerus grypus) predation. MSc thesis, Swedish University of Agricultural Sciences.',
+          url: 'https://stud.epsilon.slu.se/16455/',
+          linkText: 'Svensson (2021), SLU MSc Thesis',
+        },
+        'su-seal-2025': {
+          citation:
+            'Stockholm University Baltic Sea Centre (2025). Reducing grey seal numbers will not help Baltic fish stocks. Policy brief.',
+          url: 'https://www.su.se/english/divisions/stockholm-university-baltic-sea-centre/policy-analysis/policy-briefs-and-fact-sheets/reducing-grey-seal-numbers-will-not-help-baltic-fish-stocks',
+          linkText: 'SU Östersjöcentrum (2025), Policy Brief',
+        },
+        'eklof-2020': {
+          citation:
+            'Eklöf, J.S. et al. (2020). A spatial regime shift from predator to prey dominance in a large coastal ecosystem. Communications Biology, 3, 459.',
+          url: 'https://www.nature.com/articles/s42003-020-01180-0',
+          linkText: 'Eklöf et al. (2020), Communications Biology',
+        },
+        'tibblin-2023': {
+          citation:
+            'Tibblin, P. et al. (2023). Higher abundance of adult pike in Baltic Sea coastal areas adjacent to restored wetlands compared to reference bays. Hydrobiologia, 850, 2235–2247.',
+          url: 'https://link.springer.com/article/10.1007/s10750-023-05216-4',
+          linkText: 'Tibblin et al. (2023), Hydrobiologia',
+        },
+        'bcf-pike': {
+          citation:
+            'Baltic Conservation Foundation. Pike Factories – Restoring Wetlands for Natural Pike Reproduction.',
+          url: 'https://baltcf.org/project/pike-factories-restoring-wetlands-for-natural-pike-reproduction/',
+          linkText: 'Baltic Conservation Foundation — Gäddfabriker',
+        },
+        'olsson-2023': {
+          citation:
+            'Olsson, J. et al. (2023). A pan-Baltic assessment of temporal trends in coastal pike populations. Fisheries Research, 260, 106594.',
+          url: 'https://www.sciencedirect.com/science/article/pii/S016578362200371X',
+          linkText: 'Olsson et al. (2023), Fisheries Research',
+        },
+      },
+      chapterRefs: {
+        title: 'Allbaltisk gäddbedömning',
+        refs: [
+          { refId: 'olsson-2023', description: 'Regional nedgång av gädda i 8 Östersjöländer, 59 tidsserier' },
+        ],
+      },
       stages: {
         'pike-meet': {
           name: 'Möt gäddan',
@@ -142,6 +303,10 @@ export const sv: TranslationStrings = {
             '→ Övergång: men gäddan är inte bara imponerande — den är livsviktig (nästa: Varför gäddan är viktig)',
           ],
           nextSceneHook: 'Nästa scen: "Varför gäddan är viktig" — den här fisken håller hela ekosystemet samman',
+          refs: [
+            { refId: 'larsson-2015', description: 'Gäddans ekologi, evolution och förvaltning — hemvändande, ~50 % anadroma' },
+            { refId: 'olin-2024', description: 'Vikar med friska gäddor är mer motståndskraftiga mot storspiggövertagande' },
+          ],
         },
         'pike-why-it-matters': {
           name: 'Varför gäddan är viktig',
@@ -156,6 +321,10 @@ export const sv: TranslationStrings = {
             '→ Övergång: så vad hotar gäddans barnkammare? (nästa: De förlorade barnkamrarna)',
           ],
           nextSceneHook: 'Nästa scen: "De förlorade barnkamrarna" — platserna där gäddan föds håller på att försvinna',
+          refs: [
+            { refId: 'larsson-2015', description: 'Nyckelart, trofiska kaskader i Östersjöns kustekosystem' },
+            { refId: 'olin-2024', description: 'Predation och rumslig konnektivitet formar ekosystemets motståndskraft mot regimskifte' },
+          ],
         },
         'pike-lost-nurseries': {
           name: 'De förlorade barnkamrarna',
@@ -170,6 +339,9 @@ export const sv: TranslationStrings = {
             '\u2192 Övergång: och det blir värre \u2014 möt storspigginvasionen (nästa: Storspigginvasionen)',
           ],
           nextSceneHook: 'Nästa scen: "Storspigginvasionen" \u2014 den lilla fisken som vände på rollerna mot gäddan',
+          refs: [
+            { refId: 'nilsson-2014', description: 'Yngelutvandring från våtmark: 3 000 → 100 000+ efter restaurering, 300 000 efter fem år' },
+          ],
         },
         'pike-stickleback-invasion': {
           name: 'Storspigginvasionen',
@@ -184,6 +356,9 @@ export const sv: TranslationStrings = {
             '→ Övergång: och det finns ytterligare ett nytt hot i vikarna (nästa: Sälen i viken)',
           ],
           nextSceneHook: 'Nästa scen: "Sälen i viken" — en naturvårdsframgång med en oväntad vändning',
+          refs: [
+            { refId: 'nilsson-2019', description: 'Omvänd rovdjur-bytesrelation: storspiggspredation på gäddlarver som huvudorsak till rekryteringssvikt' },
+          ],
         },
         'pike-seal-in-bay': {
           name: 'Sälen i viken',
@@ -198,6 +373,11 @@ export const sv: TranslationStrings = {
             '→ Övergång: låt oss se vad som händer med en hel vik när gäddan försvinner (nästa: Kedjereaktion)',
           ],
           nextSceneHook: 'Nästa scen: "Kedjereaktion" — så ser en vik ut när gäddan är borta',
+          refs: [
+            { refId: 'bergstrom-2022', description: 'Gäddpopulationens nedgång sedan 1990-talet, sälar + skarvar konsumerar 5–18× mer gädda än fisket i Stockholms skärgård' },
+            { refId: 'svensson-2021', description: 'Gråsälens diet i inre Stockholms skärgård: gädda ~20 % av biomassan' },
+            { refId: 'su-seal-2025', description: 'Gråsälspopulationens återhämtning från ~3 600 (1970-talet) till 55 000–73 000 (2025)' },
+          ],
         },
         'pike-chain-reaction': {
           name: 'Kedjereaktion',
@@ -212,6 +392,9 @@ export const sv: TranslationStrings = {
             '→ Övergång: men det finns verkligt hopp — människor får tillbaka gäddan (nästa: Att få tillbaka gäddan)',
           ],
           nextSceneHook: 'Nästa scen: "Att få tillbaka gäddan" — riktiga restaureringsprojekt som fungerar just nu',
+          refs: [
+            { refId: 'eklof-2020', description: '«Storspiggsvågen» — rumsligt regimskifte som sprider sig vik för vik längs svenska kusten' },
+          ],
         },
         'pike-bringing-back': {
           name: 'Att få tillbaka gäddan',
@@ -224,6 +407,10 @@ export const sv: TranslationStrings = {
             'Riktiga siffror: gäddyngel gick från 3 000 till 300 000+ på bara några år',
             'Vad du kan göra: släpp tillbaka gädda försiktigt, välj hållbar mat, berätta för andra om gäddan',
             'Avslutning: en fisk som är så viktig borde inte försvinna utan att någon märker det',
+          ],
+          refs: [
+            { refId: 'tibblin-2023', description: '90 % fler gäddor i vikar intill restaurerade våtmarker' },
+            { refId: 'bcf-pike', description: 'Gäddfabriker — våtmarksrestaureringsprojekt i Blekinge' },
           ],
         },
       },
