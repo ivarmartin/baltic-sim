@@ -34,7 +34,6 @@ import { createAIService } from './services/ai-service';
 import { createDevHud } from './ui/dev-hud';
 import { createSeal } from './creatures/seal';
 import { createAmbientSeal } from './creatures/ambient-seal';
-import { createCormorant } from './creatures/cormorant';
 import { createPikeFry } from './creatures/pike-fry';
 import { createSmallFish } from './creatures/small-fish';
 import { createRestoredWetland } from './scene/restored-wetland';
@@ -150,9 +149,6 @@ async function init() {
   const sealResult = await createSeal(scene, new THREE.Vector3(-10, 0.5, -9));
   updates.push(sealResult.update);
 
-  const cormorantResult = createCormorant(scene, new THREE.Vector3(-10, 1.0, -7));
-  updates.push(cormorantResult.update);
-
   const pikeFryResult = createPikeFry(scene, new THREE.Vector3(20, 0.2, -6));
   updates.push(pikeFryResult.update);
 
@@ -162,7 +158,7 @@ async function init() {
   const restoredWetlandResult = createRestoredWetland(scene, new THREE.Vector3(20, 0, -6));
   updates.push(restoredWetlandResult.update);
 
-  const pikeEggsResult = createPikeEggs(scene, new THREE.Vector3(-10, 0, -7.5));
+  const pikeEggsResult = createPikeEggs(scene, new THREE.Vector3(-8.9, 0, -7.2));
 
   const culvertResult = createCulvert(scene);
   culvertResult.group.visible = false;
@@ -181,7 +177,6 @@ async function init() {
     codResult.group,
     swarmResult.mesh,
     sealResult.group,
-    cormorantResult.group,
     pikeFryResult.group,
     smallFishResult.group,
   ];
@@ -205,7 +200,6 @@ async function init() {
   injectDepthLighting(shorePikeResult.material);
   injectDepthLighting(sealResult.material);
   injectDepthLighting(ambientSealResult.material);
-  injectDepthLighting(cormorantResult.material);
   injectDepthLighting(smallFishResult.material);
   injectDepthLighting(culvertResult.concreteMaterial);
   injectDepthLighting(culvertResult.metalMaterial);
@@ -236,7 +230,6 @@ async function init() {
     shipworm,
     // Pike chapter groups
     seal: sealResult.group,
-    cormorant: cormorantResult.group,
     pikeFry: pikeFryResult.group,
     smallFish: smallFishResult.group,
     restoredWetland: restoredWetlandResult.group,

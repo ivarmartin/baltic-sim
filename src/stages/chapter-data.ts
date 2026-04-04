@@ -135,8 +135,8 @@ const pikeStages: StageDefinition[] = [
   {
     id: 'pike-stickleback-invasion',
     cameraView: {
-      position: new THREE.Vector3(-8, 1.2, -5),
-      lookAt: new THREE.Vector3(-10, 0.6, -7.5),
+      position: new THREE.Vector3(-9.445, 0.206, -7.678),
+      lookAt: new THREE.Vector3(-5.843, 0.853, -4.271),
     },
     transitionDuration: 2.0,
     environment: 'shallow',
@@ -176,7 +176,7 @@ const pikeVisibility: Record<string, string[]> = {
   'pike-lost-nurseries': ['culvert', 'culvertFlow'],
   'pike-stickleback-invasion': ['sticklebackSwarm', 'reeds', 'pikeEggs'],
   'pike-seal-in-bay': ['pike', 'reeds', 'seal'],
-  'pike-chain-reaction': ['sticklebackSwarm', 'filamentousAlgae', 'cormorant'],
+  'pike-chain-reaction': ['sticklebackSwarm', 'filamentousAlgae'],
   'pike-bringing-back': ['restoredWetland', 'pikeFry', 'pike'],
 };
 

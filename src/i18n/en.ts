@@ -188,13 +188,13 @@ export const en: TranslationStrings = {
         'pike-seal-in-bay': {
           name: 'The Seal in the Bay',
           narrative:
-            'Grey seals are amazing animals \u2014 they were nearly wiped out in the 1970s but have made a strong comeback, from around 3,600 to over 55,000 in the Baltic today. That\u2019s great news for seals. But as they\u2019ve moved into the inner bays where pike live, they\u2019ve become one of the pike\u2019s biggest threats. In the Stockholm archipelago, seals and cormorants together now eat many times more pike than fishermen catch. It\u2019s nature \u2014 but it\u2019s tipping the balance.',
+            'Grey seals are amazing animals \u2014 they were nearly wiped out in the 1970s but have made a strong comeback, from around 3,600 to over 55,000 in the Baltic today. That\u2019s great news for seals. But as they\u2019ve moved into the inner bays where pike live, they\u2019ve become one of the pike\u2019s biggest threats. In the Stockholm archipelago, seals now eat many times more pike than fishermen catch. It\u2019s nature \u2014 but it\u2019s tipping the balance.',
           aiPrompt:
-            'Scene: Grey seal in shallow inner-archipelago bay. Pike and reeds visible. Seal chases pike. Extra context: Crash caused by hunting + PCB/DDT. Recovery after bans 1974/1978. Outer archipelago: pike <5% of seal diet. Inner/central Stockholm: pike ~20% by biomass. SLU: seals + cormorants take 5\u201318x more pike than fisheries (Stockholm archipelago 2014\u20132017). Not seals\u2019 fault \u2014 protected, important species. Challenge is ecosystem-level management. Cormorants also significant pike/perch predators.',
+            'Scene: Grey seal in shallow inner-archipelago bay. Pike and reeds visible. Seal chases pike. Extra context: Crash caused by hunting + PCB/DDT. Recovery after bans 1974/1978. Outer archipelago: pike <5% of seal diet. Inner/central Stockholm: pike ~20% by biomass. SLU: seals take 5\u201318x more pike than fisheries (Stockholm archipelago 2014\u20132017). Not seals\u2019 fault \u2014 protected, important species. Challenge is ecosystem-level management.',
           narrativeBeats: [
             'Grey seals — amazing comeback from 3,600 to 55,000 (that\'s great news for seals!)',
             'But as they\'ve moved into inner bays, they\'ve become one of the pike\'s biggest threats',
-            'In Stockholm archipelago, seals + cormorants eat many times more pike than fishermen catch',
+            'In Stockholm archipelago, seals eat many times more pike than fishermen catch',
             '→ Transition: let\'s see what happens to a whole bay when pike disappear (next: Chain Reaction)',
           ],
           nextSceneHook: 'Next scene: "The Chain Reaction" — what a bay looks like when the pike are gone',
@@ -204,7 +204,7 @@ export const en: TranslationStrings = {
           narrative:
             'This is what a bay looks like when the pike disappear. Without pike, sticklebacks take over. They eat the tiny creatures that keep algae under control. So the algae grows wild, the water turns green, and the plants on the bottom die from lack of light. Scientists call this a \u2018regime shift\u2019 \u2014 the bay flips from healthy to sick, and it\u2019s very hard to flip it back.',
           aiPrompt:
-            'Scene: Degraded bay \u2014 murky green, no pike, sticklebacks everywhere, filamentous algae on rocks, bladderwrack gone. Cormorant dives through murk. Contrast with pike-why-it-matters scene. Extra context: Called \u201cthe stickleback wave\u201d \u2014 spreads bay to bay along Swedish coast. Full chain: pike gone \u2192 sticklebacks \u2192 grazers eaten \u2192 algae unchecked \u2192 plants smothered \u2192 murky \u2192 more death. Once flipped, extremely hard to reverse.',
+            'Scene: Degraded bay \u2014 murky green, no pike, sticklebacks everywhere, filamentous algae on rocks, bladderwrack gone. Contrast with pike-why-it-matters scene. Extra context: Called \u201cthe stickleback wave\u201d \u2014 spreads bay to bay along Swedish coast. Full chain: pike gone \u2192 sticklebacks \u2192 grazers eaten \u2192 algae unchecked \u2192 plants smothered \u2192 murky \u2192 more death. Once flipped, extremely hard to reverse.',
           narrativeBeats: [
             'Without pike: sticklebacks take over → eat grazers → algae grows wild → water turns green',
             'Plants on the bottom die from lack of light — scientists call this a "regime shift"',
@@ -239,7 +239,7 @@ export const en: TranslationStrings = {
           narrative:
             'European perch. Size: 15\u201345 cm. The perch is a stripy hunter of the shallows \u2014 its dark bands and bright orange fins make it one of the prettiest fish in the Baltic. It uses its big eyes to find prey in murky water. Perch eat smaller fish, shrimps and insect larvae. Fun fact: perch eggs come out in long, jelly-like ribbons that drape over plants like underwater streamers.',
           aiPrompt:
-            'Scene: Close-up European perch (Perca fluviatilis), dark stripes, reddish-orange fins. Extra context: Can live 15+ years. Declining alongside pike since 1990s \u2014 same stickleback/seal pressures. Egg ribbons over 1m long. Also prey for seals and cormorants.',
+            'Scene: Close-up European perch (Perca fluviatilis), dark stripes, reddish-orange fins. Extra context: Can live 15+ years. Declining alongside pike since 1990s \u2014 same stickleback/seal pressures. Egg ribbons over 1m long. Also prey for seals.',
         },
         'fish-species-pike': {
           name: 'Pike',
