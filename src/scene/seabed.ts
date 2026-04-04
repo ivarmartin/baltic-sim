@@ -26,15 +26,26 @@ export function getSeabedHeight(x: number, z: number): number {
 
     let shoreRise = shoreZ * slopeRate;
 
-    // Creek channel at X ≈ 24 — carves through the rising shore
+    // Creek channel at X ≈ 24 — shallow depression fitted with culvert
     const creekX = 24;
-    const creekHalfWidth = 2.0;
+    const creekHalfWidth = 1.8;
     const dx = x - creekX;
     const creekT = Math.exp(-(dx * dx) / (2 * creekHalfWidth * creekHalfWidth));
-    // Creek floor barely rises, keeping a navigable channel below waterline
-    shoreRise *= (1 - creekT * 0.93);
+    // Shallow carve — terrain hugs the culvert pipe rather than dropping away
+    shoreRise *= (1 - creekT * 0.25);
 
     y += shoreRise;
+
+    // Culvert bed: raise terrain to hug the pipe (bottom at Y=2.8)
+    const culvertBedDx = x - creekX;
+    const culvertBedW = 1.5;
+    const bedXFactor = Math.exp(-(culvertBedDx * culvertBedDx) / (2 * culvertBedW * culvertBedW));
+    // Fade in from the bay end of the pipe (Z ≈ 11.5) over a few meters
+    const bedZFade = Math.max(0, Math.min((z - 9) / 4, 1));
+    const targetY = 2.6;
+    if (y < targetY) {
+      y += (targetY - y) * bedXFactor * bedZFade;
+    }
   }
 
   // Clip at waterline — shore geometry must not rise above the surface
@@ -77,7 +88,7 @@ export function createSeabed(scene: THREE.Scene): SeabedResult {
       // Creek channel gets muddier coloring
       const creekX = 24;
       const dx = x - creekX;
-      const creekT = Math.exp(-(dx * dx) / (2 * 3.0 * 3.0));
+      const creekT = Math.exp(-(dx * dx) / (2 * 2.5 * 2.5));
 
       // Base shore color: earthy brown-green
       const baseR = 0.54 * (1 - shoreT) + 0.38 * shoreT;

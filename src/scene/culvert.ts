@@ -18,13 +18,13 @@ export function createCulvert(scene: THREE.Scene): CulvertResult {
   const outerRadius = 1.2;
   const wallThickness = 0.15;
   const innerRadius = outerRadius - wallThickness;
-  const pipeLength = 5.5;
+  const pipeLength = 20;
 
-  // Position: creek center X=24, mostly submerged (water at Y=4.5)
-  // Center Y=3.6 → top at 4.8 (0.3 above water), bottom at 2.4
+  // Position: creek center X=24, pushed well inland so pipe extends from bay into land
+  // Center Y=4.0 → top at 5.2 (0.7 above water), bottom at 2.8
   const centerX = 24;
-  const centerY = 3.6;
-  const centerZ = 8.5;
+  const centerY = 4.0;
+  const centerZ = 21.5;
 
   // --- Concrete material ---
   const concreteMaterial = new THREE.MeshStandardMaterial({

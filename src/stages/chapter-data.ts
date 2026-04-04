@@ -126,8 +126,8 @@ const pikeStages: StageDefinition[] = [
   {
     id: 'pike-lost-nurseries',
     cameraView: {
-      position: new THREE.Vector3(20, 1.2, 5),
-      lookAt: new THREE.Vector3(24, 2.5, 10),
+      position: new THREE.Vector3(21.859, 3.316, 7.849),
+      lookAt: new THREE.Vector3(24.377, 3.267, 12.168),
     },
     transitionDuration: 2.5,
     environment: 'shallow',
