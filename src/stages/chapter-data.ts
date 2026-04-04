@@ -173,7 +173,7 @@ const pikeStages: StageDefinition[] = [
 const pikeVisibility: Record<string, string[]> = {
   'pike-meet': ['shorePike', 'reeds'],
   'pike-why-it-matters': ['pike', 'reeds', 'smallFish'],
-  'pike-lost-nurseries': ['culvert'],
+  'pike-lost-nurseries': ['culvert', 'culvertFlow'],
   'pike-stickleback-invasion': ['sticklebackSwarm', 'reeds', 'pikeEggs'],
   'pike-seal-in-bay': ['pike', 'reeds', 'seal'],
   'pike-chain-reaction': ['sticklebackSwarm', 'filamentousAlgae', 'cormorant'],

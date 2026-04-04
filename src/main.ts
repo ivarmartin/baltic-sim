@@ -40,6 +40,7 @@ import { createSmallFish } from './creatures/small-fish';
 import { createRestoredWetland } from './scene/restored-wetland';
 import { createPikeEggs } from './scene/pike-eggs';
 import { createCulvert } from './scene/culvert';
+import { createCulvertFlow } from './effects/culvert-flow';
 
 async function init() {
   // --- Renderer ---
@@ -162,6 +163,10 @@ async function init() {
   const culvertResult = createCulvert(scene);
   culvertResult.group.visible = false;
 
+  const culvertFlow = createCulvertFlow(scene, surface.mesh);
+  culvertFlow.group.visible = false;
+  updates.push(culvertFlow.update);
+
   // --- Assign creatures to layer 1 (excluded from god ray occlusion render) ---
   const creatureRoots = [
     sticklebackResult.group,
@@ -233,6 +238,7 @@ async function init() {
     restoredWetland: restoredWetlandResult.group,
     pikeEggs: pikeEggsResult.group,
     culvert: culvertResult.group,
+    culvertFlow: culvertFlow.group,
   };
 
   // --- Stage Manager ---
